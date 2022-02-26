@@ -18,7 +18,7 @@ If you find any bugs, please report them using the [GitHub issue tracker](https:
 
 Licenses
 --------
-This software is distributed under the terms of the Free Software Foundation [GNU Public License (GPL), version 3.0](https://www.gnu.org/licenses/gpl-3.0-standalone.html).
+This software is distributed under the terms of the Free Software Foundation [GNU Public License (GPL), version 3.0](https://www.gnu.org/licenses/gpl-3.0-standalone.html) (see [LICENSE](LICENSE)).. 
 
 Examples
 --------

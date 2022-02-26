@@ -1,5 +1,5 @@
 # FluentHelper.EntityFrameworkCore
-=====================
+--------------
 FluentHelper.EntityFrameworkCore is an extension for Code-first EntityFrameworkCore's projects
 
 They provide some simple interfaces and methods that allows you to make mappings using EF FluentApi and to generate a context with some default useful methods already defined.

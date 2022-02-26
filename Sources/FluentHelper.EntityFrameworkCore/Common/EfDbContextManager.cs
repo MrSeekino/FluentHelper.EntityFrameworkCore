@@ -1,6 +1,6 @@
-﻿using EntityFramework.FluentHelperCore.Interfaces;
+﻿using FluentHelper.EntityFrameworkCore.Interfaces;
 
-namespace EntityFramework.FluentHelperCore.Common
+namespace FluentHelper.EntityFrameworkCore.Common
 {
     public class EfDbContextManager
     {

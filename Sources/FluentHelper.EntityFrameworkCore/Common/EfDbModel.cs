@@ -1,4 +1,4 @@
-﻿using EntityFramework.FluentHelperCore.Interfaces;
+﻿using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace EntityFramework.FluentHelperCore.Common
+namespace FluentHelper.EntityFrameworkCore.Common
 {
     class EfDbModel : DbContext
     {

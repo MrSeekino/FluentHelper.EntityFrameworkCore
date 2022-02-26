@@ -1,4 +1,4 @@
-﻿namespace EntityFramework.FluentHelperCore.Interfaces
+﻿namespace FluentHelper.EntityFrameworkCore.Interfaces
 {
     interface IDbMap
     {

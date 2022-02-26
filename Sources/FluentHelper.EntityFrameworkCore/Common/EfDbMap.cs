@@ -1,8 +1,8 @@
-﻿using EntityFramework.FluentHelperCore.Interfaces;
+﻿using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EntityFramework.FluentHelperCore.Common
+namespace FluentHelper.EntityFrameworkCore.Common
 {
     public abstract class EfDbMap
     {

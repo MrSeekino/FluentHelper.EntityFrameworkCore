@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace EntityFramework.FluentHelperCore.Interfaces
+namespace FluentHelper.EntityFrameworkCore.Interfaces
 {
     public interface IDbContext : IDisposable
     {

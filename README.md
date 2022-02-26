@@ -7,7 +7,7 @@ They provide some simple interfaces and methods that allows you to make mappings
 Latest Version
 --------------
 The best and quickest way to get the latest release of EntityFramework.FluentHelper is to add it to your project using 
-NuGet (https://www.nuget.org/packages/FluentHelperCore.EntityFramework)
+NuGet (https://www.nuget.org/packages/FluentHelper.EntityFrameworkCore)
 
 
 Alternatively binaries can be builded by opening "EntityFramework.FluentHelper.sln"/"EntityFramework.FluentHelperCore.sln" available in current repository under [Sources](https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore/tree/master/Sources) folder

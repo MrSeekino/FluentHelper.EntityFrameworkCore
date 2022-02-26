@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sources\FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Dao\FluentHelper.EntityFrameworkCore.Examples.Dao.csproj" />
+    <ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Models\FluentHelper.EntityFrameworkCore.Examples.Models.csproj" />
+  </ItemGroup>
+
+</Project>

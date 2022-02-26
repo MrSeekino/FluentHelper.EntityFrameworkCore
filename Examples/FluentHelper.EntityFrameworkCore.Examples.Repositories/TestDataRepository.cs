@@ -1,9 +1,9 @@
-﻿using EntityFramework.FluentHelperCore.Examples.Models;
-using EntityFramework.FluentHelperCore.Interfaces;
+﻿using FluentHelper.EntityFrameworkCore.Examples.Models;
 using System;
 using System.Linq;
+using FluentHelper.EntityFrameworkCore.Interfaces;
 
-namespace EntityFramework.FluentHelperCore.Examples.Repositories
+namespace FluentHelper.EntityFrameworkCore.Examples.Repositories
 {
     public class TestDataRepository : BaseRepository
     {

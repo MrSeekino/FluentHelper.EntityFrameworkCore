@@ -1,8 +1,8 @@
-﻿using EntityFramework.FluentHelperCore.Common;
-using EntityFramework.FluentHelperCore.Examples.Models;
+﻿using FluentHelper.EntityFrameworkCore.Common;
+using FluentHelper.EntityFrameworkCore.Examples.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EntityFramework.FluentHelperCore.Examples.Mappings
+namespace FluentHelper.EntityFrameworkCore.Examples.Mappings
 {
     public class TestDataMap : EfDbMap<TestData>
     {

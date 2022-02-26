@@ -1,10 +1,10 @@
-﻿using EntityFramework.FluentHelperCore.Common;
-using EntityFramework.FluentHelperCore.Examples.Mappings;
-using EntityFramework.FluentHelperCore.Interfaces;
+﻿using FluentHelper.EntityFrameworkCore.Common;
+using FluentHelper.EntityFrameworkCore.Examples.Mappings;
+using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System;
 
-namespace EntityFramework.FluentHelperCore.Examples.Dao
+namespace FluentHelper.EntityFrameworkCore.Examples.Dao
 {
     public static class DaoInitializer
     {

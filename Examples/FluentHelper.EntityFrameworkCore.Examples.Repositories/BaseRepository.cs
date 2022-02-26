@@ -1,7 +1,7 @@
-﻿using EntityFramework.FluentHelperCore.Examples.Dao;
-using EntityFramework.FluentHelperCore.Interfaces;
+﻿using FluentHelper.EntityFrameworkCore.Examples.Dao;
+using FluentHelper.EntityFrameworkCore.Interfaces;
 
-namespace EntityFramework.FluentHelperCore.Examples.Repositories
+namespace FluentHelper.EntityFrameworkCore.Examples.Repositories
 {
     public class BaseRepository
     {

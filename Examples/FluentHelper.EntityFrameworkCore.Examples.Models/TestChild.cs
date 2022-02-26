@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EntityFramework.FluentHelperCore.Examples.Models
+namespace FluentHelper.EntityFrameworkCore.Examples.Models
 {
     public class TestChild
     {

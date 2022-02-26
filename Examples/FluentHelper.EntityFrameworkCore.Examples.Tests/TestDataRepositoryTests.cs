@@ -1,12 +1,12 @@
 ﻿using Bogus;
-using EntityFramework.FluentHelperCore.Examples.Models;
-using EntityFramework.FluentHelperCore.Examples.Repositories;
-using EntityFramework.FluentHelperCore.Moq;
+using FluentHelper.EntityFrameworkCore.Examples.Models;
+using FluentHelper.EntityFrameworkCore.Examples.Repositories;
+using FluentHelper.EntityFrameworkCore.Moq;
 using NUnit.Framework;
 using System;
 using System.Linq;
 
-namespace EntityFramework.FluentHelperCore.Examples.Tests
+namespace FluentHelper.EntityFrameworkCore.Examples.Tests
 {
     [TestFixture(Category = "Repository: TestData")]
     public class TestDataRepositoryTests

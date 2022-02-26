@@ -1,9 +1,9 @@
-﻿using EntityFramework.FluentHelperCore.Examples.Models;
-using EntityFramework.FluentHelperCore.Examples.Repositories;
+﻿using FluentHelper.EntityFrameworkCore.Examples.Models;
+using FluentHelper.EntityFrameworkCore.Examples.Repositories;
 using System;
 using System.Linq;
 
-namespace EntityFramework.FluentHelperCore.Examples.Runner
+namespace FluentHelper.EntityFrameworkCore.Examples.Runner
 {
     class Program
     {

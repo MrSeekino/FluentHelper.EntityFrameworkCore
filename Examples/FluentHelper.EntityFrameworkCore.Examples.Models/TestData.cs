@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EntityFramework.FluentHelperCore.Examples.Models
+namespace FluentHelper.EntityFrameworkCore.Examples.Models
 {
     public class TestData
     {

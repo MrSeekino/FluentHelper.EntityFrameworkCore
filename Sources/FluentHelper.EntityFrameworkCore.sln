@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore", "FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj", "{4DE53721-B870-4CB6-B5D0-B28926494036}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelper.EntityFrameworkCore.Tests", "FluentHelper.EntityFrameworkCore.Tests\FluentHelper.EntityFrameworkCore.Tests.csproj", "{37A1865F-B36A-4016-B54D-19D5AF38A836}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4DE53721-B870-4CB6-B5D0-B28926494036}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DE53721-B870-4CB6-B5D0-B28926494036}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DE53721-B870-4CB6-B5D0-B28926494036}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37A1865F-B36A-4016-B54D-19D5AF38A836}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37A1865F-B36A-4016-B54D-19D5AF38A836}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37A1865F-B36A-4016-B54D-19D5AF38A836}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37A1865F-B36A-4016-B54D-19D5AF38A836}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    public abstract class EfDbMap
+    public abstract class EfDbMap : IDbMap
     {
         ModelBuilder ModelBuilder { get; set; }
 
@@ -13,12 +13,12 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return ModelBuilder;
         }
 
-        public EfDbMap SetModelBuilder(ModelBuilder modelBuilder)
+        public void SetModelBuilder(ModelBuilder modelBuilder)
         {
             ModelBuilder = modelBuilder;
-
-            return this;
         }
+
+        public abstract void Map();
     }
 
     public abstract class EfDbMap<T> : EfDbMap, IDbMap where T : class
@@ -30,7 +30,5 @@ namespace FluentHelper.EntityFrameworkCore.Common
                 return GetModelBuilder().Entity<T>();
             }
         }
-
-        public abstract void Map();
     }
 }

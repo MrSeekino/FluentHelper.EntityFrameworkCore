@@ -7,22 +7,28 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.Common
 {
     class EfDbContext : IDbContext
     {
-        DbContext DbContext { get; set; }
+        internal DbContext DbContext { get; set; }
 
-        string ConnectionString { get; set; }
+        internal string ConnectionString { get; set; }
 
-        Action<string> LogAction { get; set; }
-        Func<EventId, LogLevel, bool> LogFilter { get; set; }
-        bool EnableSensitiveDataLogging { get; set; }
+        internal Action<string> LogAction { get; set; }
+        internal Func<EventId, LogLevel, bool> LogFilter { get; set; }
 
-        bool EnableLazyLoadingProxies { get; set; }
+        internal bool EnableSensitiveDataLogging { get; set; }
+        internal bool EnableLazyLoadingProxies { get; set; }
 
-        public EfDbContext()
+        internal Func<string, Action<string>, Func<EventId, LogLevel, bool>, bool, bool, EfDbModel> CreateDbContextBehaviour { get; set; }
+
+        public EfDbContext() : this((cs, la, lf, sdl, llp) => { return new EfDbModel(cs, la, lf, sdl, llp); }) { }
+
+        public EfDbContext(Func<string, Action<string>, Func<EventId, LogLevel, bool>, bool, bool, EfDbModel> createDbContextBehaviour)
         {
             DbContext = null;
 
@@ -33,12 +39,14 @@ namespace FluentHelper.EntityFrameworkCore.Common
             EnableSensitiveDataLogging = false;
 
             EnableLazyLoadingProxies = false;
+
+            CreateDbContextBehaviour = createDbContextBehaviour;
         }
 
-        void CreateDbContext()
+        internal void CreateDbContext()
         {
             DbContext?.Dispose();
-            DbContext = new EfDbModel(ConnectionString, LogAction, LogFilter, EnableSensitiveDataLogging, EnableLazyLoadingProxies);
+            DbContext = CreateDbContextBehaviour(ConnectionString, LogAction, LogFilter, EnableSensitiveDataLogging, EnableLazyLoadingProxies);
         }
 
         public IDbContext SetConnectionString(string connectionString)

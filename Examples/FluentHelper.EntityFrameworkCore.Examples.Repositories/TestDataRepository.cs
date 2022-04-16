@@ -1,7 +1,7 @@
 ﻿using FluentHelper.EntityFrameworkCore.Examples.Models;
+using FluentHelper.EntityFrameworkCore.Interfaces;
 using System;
 using System.Linq;
-using FluentHelper.EntityFrameworkCore.Interfaces;
 
 namespace FluentHelper.EntityFrameworkCore.Examples.Repositories
 {
@@ -48,9 +48,9 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Repositories
             var testDataInstance = DbContext.Query<TestData>().SingleOrDefault(e => e.Id == id);
             if (testDataInstance != null)
             {
-                if (testDataInstance.ChildList != null && testDataInstance.ChildList.Any())
-                    foreach (var childInstance in testDataInstance.ChildList)
-                        DbContext.Remove(childInstance);
+                //if (testDataInstance.ChildList != null && testDataInstance.ChildList.Any())
+                //    foreach (var childInstance in testDataInstance.ChildList)
+                //        DbContext.Remove(childInstance);
 
                 DbContext.Remove(testDataInstance);
                 DbContext.SaveChanges();
@@ -61,6 +61,32 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Repositories
         {
             DbContext.Add(testChild);
             DbContext.SaveChanges();
+        }
+
+        public void RemoveChild(Guid id)
+        {
+            var testChildInstance = DbContext.Query<TestChild>().SingleOrDefault(e => e.Id == id);
+            if (testChildInstance != null)
+            {
+                DbContext.Remove(testChildInstance);
+                DbContext.SaveChanges();
+            }
+        }
+
+        public void AddAttr(TestDataAttr testAttr)
+        {
+            DbContext.Add(testAttr);
+            DbContext.SaveChanges();
+        }
+
+        public void RemoveAttr(Guid id)
+        {
+            var testAttrInstance = DbContext.Query<TestDataAttr>().SingleOrDefault(e => e.Id == id);
+            if (testAttrInstance != null)
+            {
+                DbContext.Remove(testAttrInstance);
+                DbContext.SaveChanges();
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Mappings
             Entity.Property(e => e.CreationDate);
             Entity.Property(e => e.Active);
 
+            Entity.HasOne(e => e.Attr).WithOne(e => e.Data);
             Entity.HasMany(e => e.ChildList).WithOne(e => e.Parent).HasForeignKey(e => e.IdParent);
         }
     }

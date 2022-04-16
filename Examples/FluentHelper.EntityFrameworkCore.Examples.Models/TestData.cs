@@ -10,6 +10,7 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Models
         public DateTime CreationDate { get; set; }
         public bool Active { get; set; }
 
+        public virtual TestDataAttr Attr { get; set; }
         public virtual ICollection<TestChild> ChildList { get; set; }
     }
 }

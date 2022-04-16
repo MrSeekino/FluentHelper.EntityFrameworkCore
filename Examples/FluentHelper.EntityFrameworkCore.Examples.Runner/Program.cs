@@ -9,6 +9,7 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Runner
     {
         TestData ExampleData { get; set; }
         TestChild ExampleChild { get; set; }
+        TestDataAttr ExampleAttr { get; set; }
 
         TestDataRepository testDataRepository { get; set; }
 
@@ -35,6 +36,11 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Runner
                 CreationDate = DateTime.UtcNow,
                 Active = true
             };
+            ExampleAttr = new TestDataAttr
+            {
+                Id = ExampleData.Id,
+                IsBeautiful = true
+            };
 
             testDataRepository = new TestDataRepository();
         }
@@ -59,8 +65,27 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Runner
                 Console.WriteLine($"Adding 1 child..");
                 testDataRepository.AddChild(ExampleChild);
 
+                Console.WriteLine($"Adding 1 attr..");
+                testDataRepository.AddAttr(ExampleAttr);
+
                 var testDataInstance = testDataRepository.GetById(ExampleData.Id);
-                Console.WriteLine($"TestData is null:{testDataInstance == null} and contains {testDataInstance?.ChildList.Count} children");
+                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList.Count} children and IsBeautiful:{testDataInstance.Attr?.IsBeautiful}");
+
+                PressToContinue();
+
+                Console.WriteLine($"Removing 1 child..");
+                testDataRepository.RemoveChild(ExampleChild.Id);
+
+                testDataInstance = testDataRepository.GetById(ExampleData.Id);
+                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList.Count} children and IsBeautiful:{testDataInstance.Attr?.IsBeautiful}");
+
+                PressToContinue();
+
+                Console.WriteLine($"Removing 1 attr..");
+                testDataRepository.RemoveAttr(ExampleAttr.Id);
+
+                testDataInstance = testDataRepository.GetById(ExampleData.Id);
+                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList.Count} children and IsBeautiful:{testDataInstance.Attr?.IsBeautiful}");
 
                 PressToContinue();
 

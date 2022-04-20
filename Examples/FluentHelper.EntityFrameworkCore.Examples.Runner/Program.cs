@@ -52,44 +52,38 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Runner
                 var testDataList = testDataRepository.GetAll().ToList();
                 Console.WriteLine($"Table contains {testDataList.Count} rows");
 
+                Console.WriteLine($"Adding 1 row..");
                 PressToContinue();
 
-                Console.WriteLine($"Adding 1 row..");
                 testDataRepository.Add(ExampleData);
 
                 testDataList = testDataRepository.GetAll().ToList();
                 Console.WriteLine($"Table contains {testDataList.Count} rows");
-
+                Console.WriteLine($"Adding 1 child and 1 attr..");
                 PressToContinue();
 
-                Console.WriteLine($"Adding 1 child..");
                 testDataRepository.AddChild(ExampleChild);
-
-                Console.WriteLine($"Adding 1 attr..");
                 testDataRepository.AddAttr(ExampleAttr);
 
                 var testDataInstance = testDataRepository.GetById(ExampleData.Id);
                 Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList.Count} children and IsBeautiful:{testDataInstance.Attr?.IsBeautiful}");
-
+                Console.WriteLine($"Removing 1 child..");
                 PressToContinue();
 
-                Console.WriteLine($"Removing 1 child..");
                 testDataRepository.RemoveChild(ExampleChild.Id);
 
                 testDataInstance = testDataRepository.GetById(ExampleData.Id);
                 Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList.Count} children and IsBeautiful:{testDataInstance.Attr?.IsBeautiful}");
-
+                Console.WriteLine($"Removing 1 attr..");
                 PressToContinue();
 
-                Console.WriteLine($"Removing 1 attr..");
                 testDataRepository.RemoveAttr(ExampleAttr.Id);
 
                 testDataInstance = testDataRepository.GetById(ExampleData.Id);
                 Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList.Count} children and IsBeautiful:{testDataInstance.Attr?.IsBeautiful}");
-
+                Console.WriteLine($"Removing 1 row..");
                 PressToContinue();
 
-                Console.WriteLine($"Removing 1 row..");
                 testDataRepository.Remove(ExampleData.Id);
 
                 testDataList = testDataRepository.GetAll().ToList();

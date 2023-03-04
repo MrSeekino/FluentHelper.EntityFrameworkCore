@@ -18,10 +18,10 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Dao
         public static IDbContext InitializeContext()
         {
             return EfDbContextManager.GenerateContext()
-                .SetConnectionString(Configuration.GetConnectionString("FluentHelperExampleConnectionString"))
-                .SetLogAction(x => Console.WriteLine(x), true)
-                .UseLazyLoadingProxies()
-                .AddMappingFromAssemblyOf<TestDataMap>();
+                .WithConnectionString(Configuration.GetConnectionString("FluentHelperExampleConnectionString"))
+                .WithLogAction((logLevel, eventId, message) => Console.WriteLine($"{logLevel} | {eventId}: {message}"), true)
+                .WithLazyLoadingProxies()
+                .WithMappingFromAssemblyOf<TestDataMap>();
         }
     }
 }

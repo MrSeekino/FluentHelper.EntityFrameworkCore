@@ -1,9 +1,11 @@
 ﻿using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FluentHelper.EntityFrameworkCore.Common
 {
+    [ExcludeFromCodeCoverage]
     public abstract class EfDbMap : IDbMap
     {
         ModelBuilder ModelBuilder { get; set; }
@@ -21,6 +23,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public abstract void Map();
     }
 
+    [ExcludeFromCodeCoverage]
     public abstract class EfDbMap<T> : EfDbMap, IDbMap where T : class
     {
         public EntityTypeBuilder<T> Entity

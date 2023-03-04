@@ -18,24 +18,23 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         internal string ConnectionString { get; set; }
 
-        internal Action<string> LogAction { get; set; }
-        internal Func<EventId, LogLevel, bool> LogFilter { get; set; }
+        internal Action<LogLevel, EventId, string> LogAction { get; set; }
 
         internal bool EnableSensitiveDataLogging { get; set; }
         internal bool EnableLazyLoadingProxies { get; set; }
 
-        internal Func<string, Action<string>, Func<EventId, LogLevel, bool>, bool, bool, EfDbModel> CreateDbContextBehaviour { get; set; }
+        internal Func<string, Action<LogLevel, EventId, string>, bool, bool, EfDbModel> CreateDbContextBehaviour { get; set; }
 
-        public EfDbContext() : this((cs, la, lf, sdl, llp) => { return new EfDbModel(cs, la, lf, sdl, llp); }) { }
+        public EfDbContext()
+            : this((cs, la, dl, llp) => { return new EfDbModel(cs, la, dl, llp); }) { }
 
-        public EfDbContext(Func<string, Action<string>, Func<EventId, LogLevel, bool>, bool, bool, EfDbModel> createDbContextBehaviour)
+        public EfDbContext(Func<string, Action<LogLevel, EventId, string>, bool, bool, EfDbModel> createDbContextBehaviour)
         {
             DbContext = null;
 
             ConnectionString = null;
 
             LogAction = null;
-            LogFilter = null;
             EnableSensitiveDataLogging = false;
 
             EnableLazyLoadingProxies = false;
@@ -46,22 +45,22 @@ namespace FluentHelper.EntityFrameworkCore.Common
         internal void CreateDbContext()
         {
             DbContext?.Dispose();
-            DbContext = CreateDbContextBehaviour(ConnectionString, LogAction, LogFilter, EnableSensitiveDataLogging, EnableLazyLoadingProxies);
+            DbContext = CreateDbContextBehaviour(ConnectionString, LogAction, EnableSensitiveDataLogging, EnableLazyLoadingProxies);
         }
 
-        public IDbContext SetConnectionString(string connectionString)
+        public IDbContext WithConnectionString(string connectionString)
         {
             ConnectionString = connectionString;
             return this;
         }
 
-        public IDbContext UseLazyLoadingProxies()
+        public IDbContext WithLazyLoadingProxies()
         {
             EnableLazyLoadingProxies = true;
             return this;
         }
 
-        public IDbContext AddMappingFromAssemblyOf<T>()
+        public IDbContext WithMappingFromAssemblyOf<T>()
         {
             var mappingAssembly = Assembly.GetAssembly(typeof(T));
             ((EfDbModel)GetContext()).AddMappingAssembly(mappingAssembly);
@@ -69,25 +68,9 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return this;
         }
 
-        public IDbContext SetLogAction(Action<string> logAction)
-        {
-            return SetLogAction(logAction, false, (e, l) => { return true; });
-        }
-
-        public IDbContext SetLogAction(Action<string> logAction, bool enableSensitiveDataLogging)
-        {
-            return SetLogAction(logAction, enableSensitiveDataLogging, (e, l) => { return true; });
-        }
-
-        public IDbContext SetLogAction(Action<string> logAction, Func<EventId, LogLevel, bool> logFilter)
-        {
-            return SetLogAction(logAction, false, logFilter);
-        }
-
-        public IDbContext SetLogAction(Action<string> logAction, bool enableSensitiveDataLogging, Func<EventId, LogLevel, bool> logFilter)
+        public IDbContext WithLogAction(Action<LogLevel, EventId, string> logAction, bool enableSensitiveDataLogging = false)
         {
             LogAction = logAction;
-            LogFilter = logFilter;
             EnableSensitiveDataLogging = enableSensitiveDataLogging;
             return this;
         }

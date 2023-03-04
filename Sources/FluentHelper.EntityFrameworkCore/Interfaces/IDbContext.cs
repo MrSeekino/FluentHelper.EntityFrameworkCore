@@ -10,14 +10,11 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
 {
     public interface IDbContext : IDisposable
     {
-        IDbContext SetConnectionString(string nameOrConnectionString);
-        IDbContext UseLazyLoadingProxies();
-        IDbContext AddMappingFromAssemblyOf<T>();
+        IDbContext WithConnectionString(string nameOrConnectionString);
+        IDbContext WithLazyLoadingProxies();
+        IDbContext WithMappingFromAssemblyOf<T>();
 
-        IDbContext SetLogAction(Action<string> logAction);
-        IDbContext SetLogAction(Action<string> logAction, bool enableSensitiveDataLogging);
-        IDbContext SetLogAction(Action<string> logAction, Func<EventId, LogLevel, bool> logFilter);
-        IDbContext SetLogAction(Action<string> logAction, bool enableSensitiveDataLogging, Func<EventId, LogLevel, bool> logFilter);
+        IDbContext WithLogAction(Action<LogLevel, EventId, string> logAction, bool enableSensitiveDataLogging = false);
 
         DbContext GetContext();
         DbContext CreateNewContext();

@@ -14,8 +14,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
     {
         internal string ConnectionString { get; set; }
 
-        internal Action<string> LogAction { get; set; }
-        internal Func<EventId, LogLevel, bool> LogFilter { get; set; }
+        internal Action<LogLevel, EventId, string> LogAction { get; set; }
 
         internal bool EnableSensitiveDataLogging { get; set; }
         internal bool EnableLazyLoadingProxies { get; set; }
@@ -26,14 +25,14 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         internal List<Assembly> MappingAssemblies { get; set; }
 
-        public EfDbModel(string connectionString, Action<string> logAction, Func<EventId, LogLevel, bool> logFilter, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies)
-            : this(connectionString, logAction, logFilter, enableSensitiveDataLogging, enableLazyLoadingProxies,
+        public EfDbModel(string connectionString, Action<LogLevel, EventId, string> logAction, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies)
+            : this(connectionString, logAction, enableSensitiveDataLogging, enableLazyLoadingProxies,
                   (ob, cs) => ob.UseSqlServer(cs),
                   (ob) => ob.UseLazyLoadingProxies(),
                   (x) => { return (IDbMap)Activator.CreateInstance(x); })
         { }
 
-        internal EfDbModel(string connectionString, Action<string> logAction, Func<EventId, LogLevel, bool> logFilter, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies,
+        internal EfDbModel(string connectionString, Action<LogLevel, EventId, string> logAction, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies,
             Func<DbContextOptionsBuilder, string, DbContextOptionsBuilder> useSqlServerBehaviour,
             Func<DbContextOptionsBuilder, DbContextOptionsBuilder> useLazyLoadingProxiesBehaviour,
             Func<Type, IDbMap> getInstanceOfDbMapBehaviour) : base()
@@ -41,7 +40,6 @@ namespace FluentHelper.EntityFrameworkCore.Common
             ConnectionString = connectionString;
 
             LogAction = logAction;
-            LogFilter = logFilter;
             EnableSensitiveDataLogging = enableSensitiveDataLogging;
             EnableLazyLoadingProxies = enableLazyLoadingProxies;
 
@@ -78,7 +76,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
             {
                 UseSqlServerBehaviour(optionsBuilder, ConnectionString);
 
-                optionsBuilder.LogTo(LogAction, LogFilter);
+                optionsBuilder.LogTo((e, l) => true, eventData => LogAction(eventData.LogLevel, eventData.EventId, eventData.ToString()));
 
                 if (EnableSensitiveDataLogging)
                     optionsBuilder.EnableSensitiveDataLogging();

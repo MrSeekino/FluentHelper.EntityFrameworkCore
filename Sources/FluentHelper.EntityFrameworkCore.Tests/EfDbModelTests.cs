@@ -1,16 +1,12 @@
 ﻿using FluentHelper.EntityFrameworkCore.Common;
 using FluentHelper.EntityFrameworkCore.Interfaces;
-using FluentHelper.EntityFrameworkCore.Tests.Support;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FluentHelper.EntityFrameworkCore.Tests
 {
@@ -25,8 +21,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
             mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
 
-            Action<string> logAction = (x) => { };
-            Func<EventId, LogLevel, bool> logFilter = (x, y) => { return true; };
+            Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
 
             bool funcCalled = false;
             Func<DbContextOptionsBuilder, string, DbContextOptionsBuilder> useSqlServerBehaviour = (x, cs) =>
@@ -37,7 +32,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
                 return null;
             };
 
-            var dbModel = new EfDbModel(connStringSample, logAction, logFilter, false, false,
+            var dbModel = new EfDbModel(connStringSample, logAction, false, false,
                                         useSqlServerBehaviour, (x) => { return null; },
                                         (x) => { return null; });
             dbModel.Configure(mockOptionsBuilder.Object);
@@ -51,15 +46,14 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
             mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
 
-            Action<string> logAction = (x) => { };
-            Func<EventId, LogLevel, bool> logFilter = (x, y) => { return true; };
+            Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
 
-            var dbModel = new EfDbModel(string.Empty, logAction, logFilter, false, false,
+            var dbModel = new EfDbModel(string.Empty, logAction, false, false,
                                         (x, y) => { return null; }, (x) => { return null; },
                                         (x) => { return null; });
             dbModel.Configure(mockOptionsBuilder.Object);
 
-            mockOptionsBuilder.Verify(x => x.LogTo(logAction, logFilter, null), Times.Once());
+            mockOptionsBuilder.Verify(x => x.LogTo(It.IsAny<Func<EventId, LogLevel, bool>>(), It.IsAny<Action<EventData>>()), Times.Once());
         }
 
         [TestCase(true)]
@@ -69,10 +63,9 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
             mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
 
-            Action<string> logAction = (x) => { };
-            Func<EventId, LogLevel, bool> logFilter = (x, y) => { return true; };
+            Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
 
-            var dbModel = new EfDbModel(string.Empty, logAction, logFilter, enableSensitivityDataLogging, false,
+            var dbModel = new EfDbModel(string.Empty, logAction, enableSensitivityDataLogging, false,
                                         (x, y) => { return null; }, (x) => { return null; },
                                         (x) => { return null; });
             dbModel.Configure(mockOptionsBuilder.Object);
@@ -90,8 +83,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
             mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
 
-            Action<string> logAction = (x) => { };
-            Func<EventId, LogLevel, bool> logFilter = (x, y) => { return true; };
+            Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
 
             bool funcCalled = false;
             Func<DbContextOptionsBuilder, DbContextOptionsBuilder> useLazyLoadingProxiesBehaviour = (x) =>
@@ -100,7 +92,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
                 return null;
             };
 
-            var dbModel = new EfDbModel(string.Empty, logAction, logFilter, false, enableLazyLoadingProxies,
+            var dbModel = new EfDbModel(string.Empty, logAction, false, enableLazyLoadingProxies,
                                         (x, y) => { return null; }, useLazyLoadingProxiesBehaviour,
                                         (x) => { return null; });
 
@@ -112,7 +104,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         [Test]
         public void Verify_AddMappingAssembly_WorksProperly()
         {
-            var dbModel = new EfDbModel(string.Empty, (x) => { }, (x, y) => { return true; }, false, false,
+            var dbModel = new EfDbModel(string.Empty, (x, y, z) => { }, false, false,
                                         (x, y) => { return null; }, (x) => { return null; },
                                         (x) => { return null; });
 
@@ -126,14 +118,14 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         {
             var mockModelBuilder = new Mock<ModelBuilder>();
             var mockOfDbMap = new Mock<IDbMap>();
-            
+
 
             Func<Type, IDbMap> getInstanceOfDbMapBehaviour = (x) =>
             {
                 return mockOfDbMap.Object;
             };
 
-            var dbModel = new EfDbModel(string.Empty, (x) => { }, (x, y) => { return true; }, false, false,
+            var dbModel = new EfDbModel(string.Empty, (x, y, z) => { }, false, false,
                                         (x, y) => { return null; }, (x) => { return null; },
                                         getInstanceOfDbMapBehaviour);
 

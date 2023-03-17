@@ -3,14 +3,13 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 
 namespace FluentHelper.EntityFrameworkCore.Interfaces
 {
     public interface IDbContext : IDisposable
     {
-        IDbContext WithConnectionString(string nameOrConnectionString);
+        IDbContext WithDbProviderConfiguration(IDbProviderConfiguration dbProviderConfiguration);
         IDbContext WithLazyLoadingProxies();
         IDbContext WithMappingFromAssemblyOf<T>();
 
@@ -21,7 +20,7 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
 
         bool IsTransactionOpen();
         IDbContextTransaction BeginTransaction();
-        IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel);
+        //IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel);
         void RollbackTransaction();
         void CommitTransaction();
         bool AreSavepointsSupported();

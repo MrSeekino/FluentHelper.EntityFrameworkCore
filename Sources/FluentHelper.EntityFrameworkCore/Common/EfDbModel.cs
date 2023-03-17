@@ -12,32 +12,28 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     class EfDbModel : DbContext
     {
-        internal string ConnectionString { get; set; }
-
-        internal Action<LogLevel, EventId, string> LogAction { get; set; }
+        internal IDbProviderConfiguration? DbProviderConfiguration { get; set; }
+        internal Action<LogLevel, EventId, string>? LogAction { get; set; }
 
         internal bool EnableSensitiveDataLogging { get; set; }
         internal bool EnableLazyLoadingProxies { get; set; }
 
-        internal Func<DbContextOptionsBuilder, string, DbContextOptionsBuilder> UseSqlServerBehaviour { get; set; }
-        internal Func<DbContextOptionsBuilder, DbContextOptionsBuilder> UseLazyLoadingProxiesBehaviour { get; set; }
-        internal Func<Type, IDbMap> GetInstanceOfDbMapBehaviour { get; set; }
+        internal Func<DbContextOptionsBuilder, DbContextOptionsBuilder>? UseLazyLoadingProxiesBehaviour { get; set; }
+        internal Func<Type, IDbMap>? GetInstanceOfDbMapBehaviour { get; set; }
 
-        internal List<Assembly> MappingAssemblies { get; set; }
+        internal List<Assembly> MappingAssemblies { get; set; } = new List<Assembly>();
 
-        public EfDbModel(string connectionString, Action<LogLevel, EventId, string> logAction, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies)
-            : this(connectionString, logAction, enableSensitiveDataLogging, enableLazyLoadingProxies,
-                  (ob, cs) => ob.UseSqlServer(cs),
+        public EfDbModel(IDbProviderConfiguration dbProviderConfiguration, Action<LogLevel, EventId, string>? logAction, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies)
+            : this(dbProviderConfiguration, logAction, enableSensitiveDataLogging, enableLazyLoadingProxies,
                   (ob) => ob.UseLazyLoadingProxies(),
-                  (x) => { return (IDbMap)Activator.CreateInstance(x); })
+                  (x) => { return (IDbMap)Activator.CreateInstance(x)!; })
         { }
 
-        internal EfDbModel(string connectionString, Action<LogLevel, EventId, string> logAction, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies,
-            Func<DbContextOptionsBuilder, string, DbContextOptionsBuilder> useSqlServerBehaviour,
+        internal EfDbModel(IDbProviderConfiguration dbProviderConfiguration, Action<LogLevel, EventId, string>? logAction, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies,
             Func<DbContextOptionsBuilder, DbContextOptionsBuilder> useLazyLoadingProxiesBehaviour,
             Func<Type, IDbMap> getInstanceOfDbMapBehaviour) : base()
         {
-            ConnectionString = connectionString;
+            DbProviderConfiguration = dbProviderConfiguration;
 
             LogAction = logAction;
             EnableSensitiveDataLogging = enableSensitiveDataLogging;
@@ -45,7 +41,6 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
             MappingAssemblies = new List<Assembly>();
 
-            UseSqlServerBehaviour = useSqlServerBehaviour;
             UseLazyLoadingProxiesBehaviour = useLazyLoadingProxiesBehaviour;
             GetInstanceOfDbMapBehaviour = getInstanceOfDbMapBehaviour;
         }
@@ -74,15 +69,16 @@ namespace FluentHelper.EntityFrameworkCore.Common
         {
             if (!optionsBuilder.IsConfigured)
             {
-                UseSqlServerBehaviour(optionsBuilder, ConnectionString);
+                DbProviderConfiguration!.ConfigureDbProvider(optionsBuilder);
 
-                optionsBuilder.LogTo((e, l) => true, eventData => LogAction(eventData.LogLevel, eventData.EventId, eventData.ToString()));
+                if (LogAction != null)
+                    optionsBuilder.LogTo((e, l) => true, eventData => LogAction(eventData.LogLevel, eventData.EventId, eventData.ToString()));
 
                 if (EnableSensitiveDataLogging)
                     optionsBuilder.EnableSensitiveDataLogging();
 
                 if (EnableLazyLoadingProxies)
-                    UseLazyLoadingProxiesBehaviour(optionsBuilder);
+                    UseLazyLoadingProxiesBehaviour!(optionsBuilder);
             }
         }
 
@@ -93,7 +89,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
             foreach (var m in mappings)
             {
-                var objInstance = GetInstanceOfDbMapBehaviour(m);
+                var objInstance = GetInstanceOfDbMapBehaviour!(m);
                 objInstance.SetModelBuilder(modelBuilder);
                 objInstance.Map();
             }

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -14,29 +13,25 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     class EfDbContext : IDbContext
     {
-        internal DbContext DbContext { get; set; }
-
-        internal string ConnectionString { get; set; }
-
-        internal Action<LogLevel, EventId, string> LogAction { get; set; }
+        internal DbContext? DbContext { get; set; }
+        internal IDbProviderConfiguration? DbProviderConfiguration { get; set; }
+        internal Action<LogLevel, EventId, string>? LogAction { get; set; }
 
         internal bool EnableSensitiveDataLogging { get; set; }
         internal bool EnableLazyLoadingProxies { get; set; }
 
-        internal Func<string, Action<LogLevel, EventId, string>, bool, bool, EfDbModel> CreateDbContextBehaviour { get; set; }
+        internal Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> CreateDbContextBehaviour { get; set; }
 
         public EfDbContext()
-            : this((cs, la, dl, llp) => { return new EfDbModel(cs, la, dl, llp); }) { }
+            : this((dbc, la, dl, llp) => { return new EfDbModel(dbc, la, dl, llp); }) { }
 
-        public EfDbContext(Func<string, Action<LogLevel, EventId, string>, bool, bool, EfDbModel> createDbContextBehaviour)
+        public EfDbContext(Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour)
         {
             DbContext = null;
-
-            ConnectionString = null;
-
+            DbProviderConfiguration = null;
             LogAction = null;
-            EnableSensitiveDataLogging = false;
 
+            EnableSensitiveDataLogging = false;
             EnableLazyLoadingProxies = false;
 
             CreateDbContextBehaviour = createDbContextBehaviour;
@@ -45,12 +40,12 @@ namespace FluentHelper.EntityFrameworkCore.Common
         internal void CreateDbContext()
         {
             DbContext?.Dispose();
-            DbContext = CreateDbContextBehaviour(ConnectionString, LogAction, EnableSensitiveDataLogging, EnableLazyLoadingProxies);
+            DbContext = CreateDbContextBehaviour(DbProviderConfiguration!, LogAction, EnableSensitiveDataLogging, EnableLazyLoadingProxies);
         }
 
-        public IDbContext WithConnectionString(string connectionString)
+        public IDbContext WithDbProviderConfiguration(IDbProviderConfiguration dbProviderConfiguration)
         {
-            ConnectionString = connectionString;
+            DbProviderConfiguration = dbProviderConfiguration;
             return this;
         }
 
@@ -63,8 +58,10 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public IDbContext WithMappingFromAssemblyOf<T>()
         {
             var mappingAssembly = Assembly.GetAssembly(typeof(T));
-            ((EfDbModel)GetContext()).AddMappingAssembly(mappingAssembly);
+            if (mappingAssembly == null)
+                throw new ArgumentException($"Could not find assembly with {typeof(T).Name}");
 
+            ((EfDbModel)GetContext()).AddMappingAssembly(mappingAssembly);
             return this;
         }
 
@@ -80,7 +77,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
             if (DbContext == null)
                 CreateDbContext();
 
-            return DbContext;
+            return DbContext!;
         }
 
         public DbContext CreateNewContext()
@@ -103,45 +100,63 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return GetContext().Database.BeginTransaction();
         }
 
-        public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
-        {
-            if (IsTransactionOpen())
-                throw new Exception("A transaction is already open");
+        //public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
+        //{
+        //    if (IsTransactionOpen())
+        //        throw new Exception("A transaction is already open");
 
-            return GetContext().Database.BeginTransaction(isolationLevel);
-        }
+        //    return GetContext().Database.BeginTransaction(isolationLevel);
+        //}
 
         public void RollbackTransaction()
         {
-            GetContext().Database.CurrentTransaction.Rollback();
+            if (!IsTransactionOpen())
+                return;
+
+            GetContext().Database.CurrentTransaction!.Rollback();
         }
 
         public void CommitTransaction()
         {
-            GetContext().Database.CurrentTransaction.Commit();
+            if (!IsTransactionOpen())
+                return;
+
+            GetContext().Database.CurrentTransaction!.Commit();
         }
 
         public bool AreSavepointsSupported()
         {
-            return GetContext().Database.CurrentTransaction.SupportsSavepoints;
+            if (!IsTransactionOpen())
+                throw new Exception("Cannot check support for savepoints when there is not active transaction");
+
+            return GetContext().Database.CurrentTransaction!.SupportsSavepoints;
         }
 
         public void CreateSavepoint(string savePointName)
         {
-            if (GetContext().Database.CurrentTransaction.SupportsSavepoints)
-                GetContext().Database.CurrentTransaction.CreateSavepoint(savePointName);
+            if (!IsTransactionOpen())
+                return;
+
+            if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
+                GetContext().Database.CurrentTransaction!.CreateSavepoint(savePointName);
         }
 
         public void ReleaseSavepoint(string savePointName)
         {
-            if (GetContext().Database.CurrentTransaction.SupportsSavepoints)
-                GetContext().Database.CurrentTransaction.ReleaseSavepoint(savePointName);
+            if (!IsTransactionOpen())
+                return;
+
+            if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
+                GetContext().Database.CurrentTransaction!.ReleaseSavepoint(savePointName);
         }
 
         public void RollbackToSavepoint(string savePointName)
         {
-            if (GetContext().Database.CurrentTransaction.SupportsSavepoints)
-                GetContext().Database.CurrentTransaction.RollbackToSavepoint(savePointName);
+            if (!IsTransactionOpen())
+                return;
+
+            if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
+                GetContext().Database.CurrentTransaction!.RollbackToSavepoint(savePointName);
         }
 
         public IQueryable<T> Query<T>() where T : class
@@ -177,6 +192,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void Dispose()
         {
             DbContext?.Dispose();
+            DbContext = null;
         }
     }
 }

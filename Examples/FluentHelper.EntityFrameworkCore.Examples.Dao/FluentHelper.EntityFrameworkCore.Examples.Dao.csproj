@@ -11,7 +11,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Sources\FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj" />
+		<ProjectReference Include="..\..\Sources\Core\FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj" />
+		<ProjectReference Include="..\..\Sources\Providers\FluentHelper.EntityFrameworkCore.SqlServer\FluentHelper.EntityFrameworkCore.SqlServer.csproj" />
 		<ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Mappings\FluentHelper.EntityFrameworkCore.Examples.Mappings.csproj" />
 	</ItemGroup>
 

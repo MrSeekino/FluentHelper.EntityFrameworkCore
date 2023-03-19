@@ -7,7 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Sources\FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj" />
 		<ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Models\FluentHelper.EntityFrameworkCore.Examples.Models.csproj" />
 		<ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Repositories\FluentHelper.EntityFrameworkCore.Examples.Repositories.csproj" />
 	</ItemGroup>

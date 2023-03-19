@@ -11,11 +11,11 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Runner
         TestChild ExampleChild { get; set; }
         TestDataAttr ExampleAttr { get; set; }
 
-        TestDataRepository testDataRepository { get; set; }
+        TestDataRepository TestDataRepository { get; set; }
 
-        static void Main(string[] args)
+        static void Main()
         {
-            Program p = new Program();
+            Program p = new();
             p.StartProgram();
         }
 
@@ -42,51 +42,51 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Runner
                 IsBeautiful = true
             };
 
-            testDataRepository = new TestDataRepository();
+            TestDataRepository = new TestDataRepository();
         }
 
         void StartProgram()
         {
             try
             {
-                var testDataList = testDataRepository.GetAll().ToList();
+                var testDataList = TestDataRepository.GetAll().ToList();
                 Console.WriteLine($"Table contains {testDataList.Count} rows");
 
                 Console.WriteLine($"Adding 1 row..");
                 PressToContinue();
 
-                testDataRepository.Add(ExampleData);
+                TestDataRepository.Add(ExampleData);
 
-                testDataList = testDataRepository.GetAll().ToList();
+                testDataList = TestDataRepository.GetAll().ToList();
                 Console.WriteLine($"Table contains {testDataList.Count} rows");
                 Console.WriteLine($"Adding 1 child and 1 attr..");
                 PressToContinue();
 
-                testDataRepository.AddChild(ExampleChild);
-                testDataRepository.AddAttr(ExampleAttr);
+                TestDataRepository.AddChild(ExampleChild);
+                TestDataRepository.AddAttr(ExampleAttr);
 
-                var testDataInstance = testDataRepository.GetById(ExampleData.Id);
-                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList.Count} children and IsBeautiful:{testDataInstance.Attr?.IsBeautiful}");
+                var testDataInstance = TestDataRepository.GetById(ExampleData.Id);
+                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList?.Count} children and IsBeautiful:{testDataInstance?.Attr?.IsBeautiful}");
                 Console.WriteLine($"Removing 1 child..");
                 PressToContinue();
 
-                testDataRepository.RemoveChild(ExampleChild.Id);
+                TestDataRepository.RemoveChild(ExampleChild.Id);
 
-                testDataInstance = testDataRepository.GetById(ExampleData.Id);
-                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList.Count} children and IsBeautiful:{testDataInstance.Attr?.IsBeautiful}");
+                testDataInstance = TestDataRepository.GetById(ExampleData.Id);
+                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList?.Count} children and IsBeautiful:{testDataInstance?.Attr?.IsBeautiful}");
                 Console.WriteLine($"Removing 1 attr..");
                 PressToContinue();
 
-                testDataRepository.RemoveAttr(ExampleAttr.Id);
+                TestDataRepository.RemoveAttr(ExampleAttr.Id);
 
-                testDataInstance = testDataRepository.GetById(ExampleData.Id);
-                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList.Count} children and IsBeautiful:{testDataInstance.Attr?.IsBeautiful}");
+                testDataInstance = TestDataRepository.GetById(ExampleData.Id);
+                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList?.Count} children and IsBeautiful:{testDataInstance?.Attr?.IsBeautiful}");
                 Console.WriteLine($"Removing 1 row..");
                 PressToContinue();
 
-                testDataRepository.Remove(ExampleData.Id);
+                TestDataRepository.Remove(ExampleData.Id);
 
-                testDataList = testDataRepository.GetAll().ToList();
+                testDataList = TestDataRepository.GetAll().ToList();
                 Console.WriteLine($"Table contains {testDataList.Count} rows");
             }
             catch (Exception ex)
@@ -97,7 +97,7 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Runner
             PressToContinue();
         }
 
-        void PressToContinue()
+        static void PressToContinue()
         {
             Console.WriteLine("Enter any key to continue..");
             Console.ReadLine();

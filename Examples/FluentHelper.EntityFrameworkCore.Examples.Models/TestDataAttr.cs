@@ -6,6 +6,6 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Models
     {
         public Guid Id { get; set; }
         public bool IsBeautiful { get; set; }
-        public virtual TestData Data { get; set; }
+        public virtual TestData? Data { get; set; }
     }
 }

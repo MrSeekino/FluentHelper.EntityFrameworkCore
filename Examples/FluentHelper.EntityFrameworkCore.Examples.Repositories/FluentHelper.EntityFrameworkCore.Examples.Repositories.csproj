@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Sources\FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Dao\FluentHelper.EntityFrameworkCore.Examples.Dao.csproj" />
-    <ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Models\FluentHelper.EntityFrameworkCore.Examples.Models.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Sources\FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj" />
+		<ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Dao\FluentHelper.EntityFrameworkCore.Examples.Dao.csproj" />
+		<ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Models\FluentHelper.EntityFrameworkCore.Examples.Models.csproj" />
+	</ItemGroup>
 
 </Project>

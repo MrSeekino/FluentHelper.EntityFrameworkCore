@@ -16,7 +16,7 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Repositories
             return DbContext.Query<TestData>();
         }
 
-        public TestData GetById(Guid id)
+        public TestData? GetById(Guid id)
         {
             return DbContext.Query<TestData>().SingleOrDefault(e => e.Id == id);
         }

@@ -9,7 +9,7 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
 {
     public interface IDbContext : IDisposable
     {
-        IDbContext WithDbProviderConfiguration(IDbProviderConfiguration dbProviderConfiguration);
+        IDbContext WithDbProviderConfiguration(Action<DbContextOptionsBuilder> dbProviderConfiguration);
         IDbContext WithLazyLoadingProxies();
         IDbContext WithMappingFromAssemblyOf<T>();
 

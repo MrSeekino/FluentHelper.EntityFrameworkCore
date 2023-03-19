@@ -23,7 +23,8 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Repositories
 
         public void Add(TestData testData)
         {
-            DbContext.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+            //DbContext.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+            DbContext.BeginTransaction();
 
             DbContext.Add(testData);
             DbContext.SaveChanges();

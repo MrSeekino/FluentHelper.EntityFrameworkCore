@@ -1,5 +1,4 @@
 ﻿using FluentHelper.EntityFrameworkCore.Common;
-using FluentHelper.EntityFrameworkCore.Interfaces;
 using FluentHelper.EntityFrameworkCore.Tests.Support;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -21,7 +20,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var dbModelMock = new Mock<EfDbModel>();
 
             bool funcCalled = false;
-            Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
             {
                 funcCalled = true;
 
@@ -42,15 +41,15 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         {
             var dbModel = new EfDbModel();
 
-            Mock<IDbProviderConfiguration> dbProviderConfigurationMocked = new();
+            Action<DbContextOptionsBuilder> dbProviderConfiguration = (x) => { };
             bool enableSensitiveDataLogging = true;
             Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
             Func<EventId, LogLevel, bool> logFilter = (x, y) => { return true; };
 
             bool funcCalledCorrecly = false;
-            Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
             {
-                if (dbc == dbProviderConfigurationMocked.Object && la == logAction & sdl == enableSensitiveDataLogging
+                if (dbc == dbProviderConfiguration && la == logAction & sdl == enableSensitiveDataLogging
                         && llp == true)
                     funcCalledCorrecly = true;
 
@@ -58,7 +57,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             };
 
             var dbContext = new EfDbContext(createDbContextBehaviour)
-                                .WithDbProviderConfiguration(dbProviderConfigurationMocked.Object)
+                                .WithDbProviderConfiguration(dbProviderConfiguration)
                                 .WithLogAction(logAction, enableSensitiveDataLogging)
                                 .WithLazyLoadingProxies();
 
@@ -72,27 +71,32 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         [Test]
         public void Verify_CreateDbContext_WorksProperly_AfterSetAllProperties_WithoutLazyLoading()
         {
-            Mock<IDbProviderConfiguration> dbProviderConfigurationMocked = new();
+            var dbModel = new EfDbModel();
+
+            Action<DbContextOptionsBuilder> dbProviderConfiguration = (x) => { };
             bool enableSensitiveDataLogging = true;
             Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
             Func<EventId, LogLevel, bool> logFilter = (x, y) => { return true; };
 
             bool funcCalledCorrecly = false;
-            Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
             {
-                if (dbc == dbProviderConfigurationMocked.Object && la == logAction && sdl == enableSensitiveDataLogging
-                        && llp == false)
+                if (dbc == dbProviderConfiguration && la == logAction & sdl == enableSensitiveDataLogging
+                        && llp == true)
                     funcCalledCorrecly = true;
 
-                return null;
+                return dbModel;
             };
 
             var dbContext = new EfDbContext(createDbContextBehaviour)
-                                .WithDbProviderConfiguration(dbProviderConfigurationMocked.Object)
+                                .WithDbProviderConfiguration(dbProviderConfiguration)
                                 .WithLogAction(logAction, enableSensitiveDataLogging);
 
             dbContext.CreateNewContext();
             Assert.True(funcCalledCorrecly);
+
+            dbContext.WithMappingFromAssemblyOf<TestEntityMap>();
+            Assert.That(dbModel.MappingAssemblies.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -101,7 +105,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var dbModelMock = new Mock<EfDbModel>();
 
             bool funcCalled = false;
-            Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
             {
                 funcCalled = true;
 
@@ -123,15 +127,17 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var dbModelMock = new Mock<EfDbModel>();
 
             bool funcCalled = false;
-            Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
             {
                 funcCalled = true;
 
                 return dbModelMock.Object;
             };
 
-            var dbContext = new EfDbContext(createDbContextBehaviour);
-            dbContext.DbContext = dbModelMock.Object;
+            var dbContext = new EfDbContext(createDbContextBehaviour)
+            {
+                DbContext = dbModelMock.Object
+            };
 
             var contextGot = dbContext.GetContext();
 
@@ -151,11 +157,11 @@ namespace FluentHelper.EntityFrameworkCore.Tests
 
             transactionMock.Setup(x => x.Commit()).Callback(() =>
             {
-                dbMock.Setup(x => x.CurrentTransaction).Returns((IDbContextTransaction)null);
+                dbMock.Setup(x => x.CurrentTransaction).Returns((IDbContextTransaction?)null);
             });
             transactionMock.Setup(x => x.Rollback()).Callback(() =>
             {
-                dbMock.Setup(x => x.CurrentTransaction).Returns((IDbContextTransaction)null);
+                dbMock.Setup(x => x.CurrentTransaction).Returns((IDbContextTransaction?)null);
             });
             dbMock.Setup(x => x.BeginTransaction()).Callback(() =>
             {
@@ -165,7 +171,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var dbModelMock = new Mock<EfDbModel>();
             dbModelMock.Setup(x => x.Database).Returns(dbMock.Object);
 
-            Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
             {
                 return dbModelMock.Object;
             };
@@ -203,7 +209,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var dbModelMock = new Mock<EfDbModel>();
             dbModelMock.Setup(x => x.Database).Returns(dbMock.Object);
 
-            Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
             {
                 return dbModelMock.Object;
             };
@@ -231,7 +237,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var dbModelMock = new Mock<EfDbModel>();
             dbModelMock.Setup(x => x.Set<TestEntity>()).Returns(dbsetMock.Object);
 
-            Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
             {
                 return dbModelMock.Object;
             };
@@ -276,7 +282,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var dbModelMock = new Mock<EfDbModel>();
             dbModelMock.Setup(x => x.SaveChanges()).Returns(0);
 
-            Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
             {
                 return dbModelMock.Object;
             };

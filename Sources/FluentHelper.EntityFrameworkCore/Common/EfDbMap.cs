@@ -1,6 +1,7 @@
 ﻿using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FluentHelper.EntityFrameworkCore.Common
@@ -8,10 +9,13 @@ namespace FluentHelper.EntityFrameworkCore.Common
     [ExcludeFromCodeCoverage]
     public abstract class EfDbMap : IDbMap
     {
-        ModelBuilder ModelBuilder { get; set; }
+        ModelBuilder? ModelBuilder { get; set; }
 
         public ModelBuilder GetModelBuilder()
         {
+            if (ModelBuilder == null)
+                throw new Exception("ModelBuilder has not been set");
+
             return ModelBuilder;
         }
 

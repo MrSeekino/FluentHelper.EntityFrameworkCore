@@ -14,38 +14,41 @@ namespace FluentHelper.EntityFrameworkCore.Tests
     internal class EfDbModelTests
     {
         [Test]
-        public void Verify_UseSqlServer_IsCalledCorrectly()
+        public void Verify_DbProviderConfiguration_IsCalledCorrectly()
         {
-            Mock<IDbProviderConfiguration> dbProviderConfigurationMocked = new();
-            dbProviderConfigurationMocked.Setup(x => x.ConfigureDbProvider(It.IsAny<DbContextOptionsBuilder>())).Verifiable();
+            bool funcCalled = false;
+            Action<DbContextOptionsBuilder> dbProviderConfiguration = (x) => { funcCalled = true; };
 
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
             mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
 
             Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
 
-            var dbModel = new EfDbModel(dbProviderConfigurationMocked.Object, logAction, false, false,
-                                        (x) => { return null; },
-                                        (x) => { return null; });
+            Mock<IDbMap> dbMapMocked = new();
+
+            var dbModel = new EfDbModel(dbProviderConfiguration, logAction, false, false,
+                                        (x) => { return x; },
+                                        (x) => { return dbMapMocked.Object; });
             dbModel.Configure(mockOptionsBuilder.Object);
 
-
-            dbProviderConfigurationMocked.Verify(x => x.ConfigureDbProvider(It.IsAny<DbContextOptionsBuilder>()), Times.Once());
+            Assert.True(funcCalled);
         }
 
         [Test]
         public void Verify_LogTo_IsCalledCorrectly()
         {
-            Mock<IDbProviderConfiguration> dbProviderConfigurationMocked = new();
+            Action<DbContextOptionsBuilder> dbProviderConfiguration = (x) => { };
 
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
             mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
 
             Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
 
-            var dbModel = new EfDbModel(dbProviderConfigurationMocked.Object, logAction, false, false,
-                                        (x) => { return null; },
-                                        (x) => { return null; });
+            Mock<IDbMap> dbMapMocked = new();
+
+            var dbModel = new EfDbModel(dbProviderConfiguration, logAction, false, false,
+                                        (x) => { return x; },
+                                        (x) => { return dbMapMocked.Object; });
             dbModel.Configure(mockOptionsBuilder.Object);
 
             mockOptionsBuilder.Verify(x => x.LogTo(It.IsAny<Func<EventId, LogLevel, bool>>(), It.IsAny<Action<EventData>>()), Times.Once());
@@ -55,16 +58,18 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         [TestCase(false)]
         public void Verify_EnableSensitiveDataLogging_IsCalledCorrectly(bool enableSensitivityDataLogging)
         {
-            Mock<IDbProviderConfiguration> dbProviderConfigurationMocked = new();
+            Action<DbContextOptionsBuilder> dbProviderConfiguration = (x) => { };
 
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
             mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
 
             Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
 
-            var dbModel = new EfDbModel(dbProviderConfigurationMocked.Object, logAction, enableSensitivityDataLogging, false,
-                                        (x) => { return null; },
-                                        (x) => { return null; });
+            Mock<IDbMap> dbMapMocked = new();
+
+            var dbModel = new EfDbModel(dbProviderConfiguration, logAction, enableSensitivityDataLogging, false,
+                                        (x) => { return x; },
+                                        (x) => { return dbMapMocked.Object; });
             dbModel.Configure(mockOptionsBuilder.Object);
 
             if (enableSensitivityDataLogging)
@@ -77,7 +82,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         [TestCase(false)]
         public void Verify_UseLazyLoadingProxies_IsCalledCorrectly(bool enableLazyLoadingProxies)
         {
-            Mock<IDbProviderConfiguration> dbProviderConfigurationMocked = new();
+            Action<DbContextOptionsBuilder> dbProviderConfiguration = (x) => { };
 
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
             mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
@@ -88,12 +93,14 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             Func<DbContextOptionsBuilder, DbContextOptionsBuilder> useLazyLoadingProxiesBehaviour = (x) =>
             {
                 funcCalled = true;
-                return null;
+                return x;
             };
 
-            var dbModel = new EfDbModel(dbProviderConfigurationMocked.Object, logAction, false, enableLazyLoadingProxies,
+            Mock<IDbMap> dbMapMocked = new();
+
+            var dbModel = new EfDbModel(dbProviderConfiguration, logAction, false, enableLazyLoadingProxies,
                                         useLazyLoadingProxiesBehaviour,
-                                        (x) => { return null; });
+                                        (x) => { return dbMapMocked.Object; });
 
             dbModel.Configure(mockOptionsBuilder.Object);
 
@@ -103,11 +110,13 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         [Test]
         public void Verify_AddMappingAssembly_WorksProperly()
         {
-            Mock<IDbProviderConfiguration> dbProviderConfigurationMocked = new();
+            Action<DbContextOptionsBuilder> dbProviderConfiguration = (x) => { };
 
-            var dbModel = new EfDbModel(dbProviderConfigurationMocked.Object, (x, y, z) => { }, false, false,
-                                        (x) => { return null; },
-                                        (x) => { return null; });
+            Mock<IDbMap> dbMapMocked = new();
+
+            var dbModel = new EfDbModel(dbProviderConfiguration, (x, y, z) => { }, false, false,
+                                        (x) => { return x; },
+                                        (x) => { return dbMapMocked.Object; });
 
             dbModel.AddMappingAssembly(Assembly.GetExecutingAssembly());
 
@@ -117,7 +126,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         [Test]
         public void Verify_CreateModel_WorksProperly()
         {
-            Mock<IDbProviderConfiguration> dbProviderConfigurationMocked = new();
+            Action<DbContextOptionsBuilder> dbProviderConfiguration = (x) => { };
 
             var mockModelBuilder = new Mock<ModelBuilder>();
             var mockOfDbMap = new Mock<IDbMap>();
@@ -127,8 +136,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests
                 return mockOfDbMap.Object;
             };
 
-            var dbModel = new EfDbModel(dbProviderConfigurationMocked.Object, (x, y, z) => { }, false, false,
-                                        (x) => { return null; },
+            var dbModel = new EfDbModel(dbProviderConfiguration, (x, y, z) => { }, false, false,
+                                        (x) => { return x; },
                                         getInstanceOfDbMapBehaviour);
 
             dbModel.AddMappingAssembly(Assembly.GetExecutingAssembly());

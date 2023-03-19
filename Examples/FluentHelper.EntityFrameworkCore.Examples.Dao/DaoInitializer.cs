@@ -18,7 +18,9 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Dao
         public static IDbContext InitializeContext()
         {
             return EfDbContextManager.GenerateContext()
-                .WithConnectionString(Configuration.GetConnectionString("FluentHelperExampleConnectionString"))
+                .WithSqlDbProvider(Configuration.GetConnectionString("FluentHelperExampleConnectionString"))
+                //.WithDbProviderConfiguration(new SqlDbProviderConfiguration(Configuration.GetConnectionString("FluentHelperExampleConnectionString")))
+                //.WithConnectionString(Configuration.GetConnectionString("FluentHelperExampleConnectionString"))
                 .WithLogAction((logLevel, eventId, message) => Console.WriteLine($"{logLevel} | {eventId}: {message}"), true)
                 .WithLazyLoadingProxies()
                 .WithMappingFromAssemblyOf<TestDataMap>();

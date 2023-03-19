@@ -1,5 +1,4 @@
-﻿
-using FluentHelper.EntityFrameworkCore.Common;
+﻿using FluentHelper.EntityFrameworkCore.Common;
 using FluentHelper.EntityFrameworkCore.Examples.Models;
 using Microsoft.EntityFrameworkCore;
 

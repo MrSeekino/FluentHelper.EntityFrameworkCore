@@ -14,18 +14,18 @@ namespace FluentHelper.EntityFrameworkCore.Common
     class EfDbContext : IDbContext
     {
         internal DbContext? DbContext { get; set; }
-        internal IDbProviderConfiguration? DbProviderConfiguration { get; set; }
+        internal Action<DbContextOptionsBuilder>? DbProviderConfiguration { get; set; }
         internal Action<LogLevel, EventId, string>? LogAction { get; set; }
 
         internal bool EnableSensitiveDataLogging { get; set; }
         internal bool EnableLazyLoadingProxies { get; set; }
 
-        internal Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> CreateDbContextBehaviour { get; set; }
+        internal Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> CreateDbContextBehaviour { get; set; }
 
         public EfDbContext()
             : this((dbc, la, dl, llp) => { return new EfDbModel(dbc, la, dl, llp); }) { }
 
-        public EfDbContext(Func<IDbProviderConfiguration, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour)
+        public EfDbContext(Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour)
         {
             DbContext = null;
             DbProviderConfiguration = null;
@@ -43,7 +43,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
             DbContext = CreateDbContextBehaviour(DbProviderConfiguration!, LogAction, EnableSensitiveDataLogging, EnableLazyLoadingProxies);
         }
 
-        public IDbContext WithDbProviderConfiguration(IDbProviderConfiguration dbProviderConfiguration)
+        public IDbContext WithDbProviderConfiguration(Action<DbContextOptionsBuilder> dbProviderConfiguration)
         {
             DbProviderConfiguration = dbProviderConfiguration;
             return this;

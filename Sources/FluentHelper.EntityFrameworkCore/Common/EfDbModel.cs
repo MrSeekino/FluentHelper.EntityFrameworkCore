@@ -12,7 +12,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     class EfDbModel : DbContext
     {
-        internal IDbProviderConfiguration? DbProviderConfiguration { get; set; }
+        internal Action<DbContextOptionsBuilder>? DbProviderConfiguration { get; set; }
         internal Action<LogLevel, EventId, string>? LogAction { get; set; }
 
         internal bool EnableSensitiveDataLogging { get; set; }
@@ -23,13 +23,13 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         internal List<Assembly> MappingAssemblies { get; set; } = new List<Assembly>();
 
-        public EfDbModel(IDbProviderConfiguration dbProviderConfiguration, Action<LogLevel, EventId, string>? logAction, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies)
+        public EfDbModel(Action<DbContextOptionsBuilder> dbProviderConfiguration, Action<LogLevel, EventId, string>? logAction, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies)
             : this(dbProviderConfiguration, logAction, enableSensitiveDataLogging, enableLazyLoadingProxies,
                   (ob) => ob.UseLazyLoadingProxies(),
                   (x) => { return (IDbMap)Activator.CreateInstance(x)!; })
         { }
 
-        internal EfDbModel(IDbProviderConfiguration dbProviderConfiguration, Action<LogLevel, EventId, string>? logAction, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies,
+        internal EfDbModel(Action<DbContextOptionsBuilder> dbProviderConfiguration, Action<LogLevel, EventId, string>? logAction, bool enableSensitiveDataLogging, bool enableLazyLoadingProxies,
             Func<DbContextOptionsBuilder, DbContextOptionsBuilder> useLazyLoadingProxiesBehaviour,
             Func<Type, IDbMap> getInstanceOfDbMapBehaviour) : base()
         {
@@ -69,7 +69,10 @@ namespace FluentHelper.EntityFrameworkCore.Common
         {
             if (!optionsBuilder.IsConfigured)
             {
-                DbProviderConfiguration!.ConfigureDbProvider(optionsBuilder);
+                if (DbProviderConfiguration == null)
+                    throw new Exception($"Unspecified DbProvider");
+
+                DbProviderConfiguration!(optionsBuilder);
 
                 if (LogAction != null)
                     optionsBuilder.LogTo((e, l) => true, eventData => LogAction(eventData.LogLevel, eventData.EventId, eventData.ToString()));

@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFramewor
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{EDFBE694-96A8-4DC2-9748-8B4F25B5EF8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelper.EntityFrameworkCore.SqlServer", "Providers\FluentHelper.EntityFrameworkCore.SqlServer\FluentHelper.EntityFrameworkCore.SqlServer.csproj", "{94401BEE-242B-4582-B420-D4C339C1BDCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.SqlServer", "Providers\FluentHelper.EntityFrameworkCore.SqlServer\FluentHelper.EntityFrameworkCore.SqlServer.csproj", "{94401BEE-242B-4582-B420-D4C339C1BDCF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.PostgreSQL", "Providers\FluentHelper.EntityFrameworkCore.PostgreSQL\FluentHelper.EntityFrameworkCore.PostgreSQL.csproj", "{BBE8E849-EE06-4790-8529-90477C452B9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,10 @@ Global
 		{94401BEE-242B-4582-B420-D4C339C1BDCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94401BEE-242B-4582-B420-D4C339C1BDCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94401BEE-242B-4582-B420-D4C339C1BDCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBE8E849-EE06-4790-8529-90477C452B9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBE8E849-EE06-4790-8529-90477C452B9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBE8E849-EE06-4790-8529-90477C452B9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBE8E849-EE06-4790-8529-90477C452B9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,6 +45,7 @@ Global
 		{5E385F0C-BB18-40F2-834B-389765B59E21} = {0E88A889-9177-4C65-8B60-EDD30CE33F3B}
 		{7113E000-9572-4828-88D0-00D6AA52FD43} = {0E88A889-9177-4C65-8B60-EDD30CE33F3B}
 		{94401BEE-242B-4582-B420-D4C339C1BDCF} = {EDFBE694-96A8-4DC2-9748-8B4F25B5EF8C}
+		{BBE8E849-EE06-4790-8529-90477C452B9C} = {EDFBE694-96A8-4DC2-9748-8B4F25B5EF8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17AECFE1-D361-41E4-B533-D5155E158EF2}

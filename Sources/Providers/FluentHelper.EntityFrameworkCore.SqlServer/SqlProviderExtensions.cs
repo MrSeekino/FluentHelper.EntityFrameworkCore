@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FluentHelper.EntityFrameworkCore.SqlServer
 {
-    public static class SqlProviderIDbContextExtensions
+    public static class SqlProviderExtensions
     {
         public static IDbContext WithSqlDbProvider(this IDbContext dbContext, string connectionString, Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         {

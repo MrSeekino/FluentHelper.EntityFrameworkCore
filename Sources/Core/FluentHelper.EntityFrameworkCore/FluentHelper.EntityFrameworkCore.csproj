@@ -2,15 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Description>An helper for codefirst's EntityframeworkCore projects using SqlServer</Description>
+    <Description>An helper for codefirst's EntityframeworkCore projects</Description>
     <Copyright>Copyright © Andrea Pittaluga</Copyright>
     <PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
-    <PackageTags>EntityFrameworkCore,FluentHelper,Sql,SqlServer</PackageTags>
+    <PackageTags>EntityFrameworkCore,FluentHelper</PackageTags>
     <PackageId>FluentHelper.EntityFrameworkCore</PackageId>
     <Authors>Andrea Pittaluga</Authors>
     <Company>Andrea Pittaluga</Company>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <Version>1.6.0</Version>
+    <Version>1.7.0</Version>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</RepositoryUrl>
 	<Nullable>enable</Nullable>

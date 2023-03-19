@@ -4,21 +4,21 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PackageId>FluentHelper.EntityFrameworkCore.SqlServer</PackageId>
     <Version>1.7.0</Version>
+    <PackageId>FluentHelper.EntityFrameworkCore.PostgreSQL</PackageId>
     <Authors>Andrea Pittaluga</Authors>
     <Company>Andrea Pittaluga</Company>
-    <PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
+    <Description>An helper for codefirst's EntityframeworkCore projects using PostgreSQL</Description>
     <Copyright>Copyright © Andrea Pittaluga</Copyright>
-    <Description>An helper for codefirst's EntityframeworkCore projects using SqlServer</Description>
+    <PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</RepositoryUrl>
-    <PackageTags>EntityFrameworkCore,FluentHelper,Sql,SqlServer</PackageTags>
+    <PackageTags>EntityFrameworkCore,FluentHelper,Sql,Postgre,PostgreSQL</PackageTags>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.4" />
   </ItemGroup>
 
   <ItemGroup>

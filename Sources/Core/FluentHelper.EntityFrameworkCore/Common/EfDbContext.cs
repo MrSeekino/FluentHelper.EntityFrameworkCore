@@ -1,5 +1,6 @@
 ﻿using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using System;
@@ -57,9 +58,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public IDbContext WithMappingFromAssemblyOf<T>()
         {
-            var mappingAssembly = Assembly.GetAssembly(typeof(T));
-            if (mappingAssembly == null)
-                throw new ArgumentException($"Could not find assembly with {typeof(T).Name}");
+            var mappingAssembly = Assembly.GetAssembly(typeof(T)) ?? throw new ArgumentException($"Could not find assembly with {typeof(T).Name}");
 
             ((EfDbModel)GetContext()).AddMappingAssembly(mappingAssembly);
             return this;
@@ -99,14 +98,6 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
             return GetContext().Database.BeginTransaction();
         }
-
-        //public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
-        //{
-        //    if (IsTransactionOpen())
-        //        throw new Exception("A transaction is already open");
-
-        //    return GetContext().Database.BeginTransaction(isolationLevel);
-        //}
 
         public void RollbackTransaction()
         {
@@ -193,6 +184,11 @@ namespace FluentHelper.EntityFrameworkCore.Common
         {
             DbContext?.Dispose();
             DbContext = null;
+        }
+
+        public T ExecuteOnDatabase<T>(Func<DatabaseFacade, T> funcToExecute)
+        {
+            return funcToExecute(GetContext().Database);
         }
     }
 }

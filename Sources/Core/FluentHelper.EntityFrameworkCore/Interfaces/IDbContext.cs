@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using System;
@@ -20,7 +21,7 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
 
         bool IsTransactionOpen();
         IDbContextTransaction BeginTransaction();
-        //IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel);
+
         void RollbackTransaction();
         void CommitTransaction();
         bool AreSavepointsSupported();
@@ -35,5 +36,7 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         void RemoveRange<T>(IEnumerable<T> inputData) where T : class;
 
         int SaveChanges();
+
+        T ExecuteOnDatabase<T>(Func<DatabaseFacade, T> funcToExecute);
     }
 }

@@ -49,9 +49,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public void AddMappingAssembly(Assembly mappingAssembly)
         {
-            if (MappingAssemblies == null)
-                MappingAssemblies = new List<Assembly>();
-
+            MappingAssemblies ??= new List<Assembly>();
             MappingAssemblies.Add(mappingAssembly);
         }
 

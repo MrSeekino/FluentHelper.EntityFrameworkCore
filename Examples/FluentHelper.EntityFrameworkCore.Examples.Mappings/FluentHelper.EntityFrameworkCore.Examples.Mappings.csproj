@@ -6,13 +6,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.15" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\Sources\Core\FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj" />
-		<ProjectReference Include="..\..\Sources\Providers\FluentHelper.EntityFrameworkCore.SqlServer\FluentHelper.EntityFrameworkCore.SqlServer.csproj" />
-		<ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Models\FluentHelper.EntityFrameworkCore.Examples.Models.csproj" />
+	  <ProjectReference Include="..\..\Sources\Providers\FluentHelper.EntityFrameworkCore.SqlServer\FluentHelper.EntityFrameworkCore.SqlServer.csproj" />
+	  <ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Models\FluentHelper.EntityFrameworkCore.Examples.Models.csproj" />
 	</ItemGroup>
 
 </Project>

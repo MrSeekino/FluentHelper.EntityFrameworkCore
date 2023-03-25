@@ -1,4 +1,5 @@
-﻿using FluentHelper.EntityFrameworkCore.Interfaces;
+﻿using FluentHelper.EntityFrameworkCore.Common;
+using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
@@ -7,17 +8,17 @@ namespace FluentHelper.EntityFramworkCore.PostgreSQL
 {
     public static class PostgreProviderExtensions
     {
-        public static IDbContext WithSqlDbProvider(this IDbContext dbContext, string connectionString, Action<NpgsqlDbContextOptionsBuilder>? npgSqlOptionsAction = null)
+        public static EfDbConfigBuilder WithSqlDbProvider(this EfDbConfigBuilder dbContextBuilder, string connectionString, Action<NpgsqlDbContextOptionsBuilder>? npgSqlOptionsAction = null)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
                 throw new ArgumentNullException(nameof(connectionString));
 
-            dbContext = dbContext.WithDbProviderConfiguration(dbContextOptionsBuilder =>
+            dbContextBuilder = dbContextBuilder.WithDbProviderConfiguration(dbContextOptionsBuilder =>
             {
                 dbContextOptionsBuilder = npgSqlOptionsAction != null ? dbContextOptionsBuilder.UseNpgsql(connectionString, npgSqlOptionsAction) : dbContextOptionsBuilder.UseNpgsql(connectionString);
             });
 
-            return dbContext;
+            return dbContextBuilder;
         }
 
         public static IDbContextTransaction BeginTransaction(this IDbContext dbContext, System.Data.IsolationLevel isolationLevel)

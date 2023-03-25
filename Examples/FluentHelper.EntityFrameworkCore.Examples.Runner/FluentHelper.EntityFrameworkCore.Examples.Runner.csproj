@@ -7,6 +7,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Sources\Providers\FluentHelper.EntityFrameworkCore.SqlServer\FluentHelper.EntityFrameworkCore.SqlServer.csproj" />
+		<ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Mappings\FluentHelper.EntityFrameworkCore.Examples.Mappings.csproj" />
 		<ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Models\FluentHelper.EntityFrameworkCore.Examples.Models.csproj" />
 		<ProjectReference Include="..\FluentHelper.EntityFrameworkCore.Examples.Repositories\FluentHelper.EntityFrameworkCore.Examples.Repositories.csproj" />
 	</ItemGroup>

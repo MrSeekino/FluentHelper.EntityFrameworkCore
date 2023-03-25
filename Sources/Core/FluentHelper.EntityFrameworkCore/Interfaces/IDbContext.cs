@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +9,6 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
 {
     public interface IDbContext : IDisposable
     {
-        IDbContext WithDbProviderConfiguration(Action<DbContextOptionsBuilder> dbProviderConfiguration);
-        IDbContext WithLazyLoadingProxies();
-        IDbContext WithMappingFromAssemblyOf<T>();
-
-        IDbContext WithLogAction(Action<LogLevel, EventId, string> logAction, bool enableSensitiveDataLogging = false);
-
         DbContext GetContext();
         DbContext CreateNewContext();
 

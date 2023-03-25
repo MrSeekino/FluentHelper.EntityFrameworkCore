@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<PackageId>FluentHelper.EntityFrameworkCore.Moq</PackageId>
+		<Authors>Andrea Pittaluga</Authors>
+		<Company>Andrea Pittaluga</Company>
+		<Product>FluentHelper.EntityFrameworkCore.Moq</Product>
+		<Copyright>Copyright © Andrea Pittaluga</Copyright>
+		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore.Moq</PackageProjectUrl>
+		<PackageTags>EntityFrameworkCore,FluentHelper,Moq</PackageTags>
+		<Description>A simplified way to test FluentHelper.EntityFrameworkCore projects</Description>
+		<RepositoryUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore.Moq</RepositoryUrl>
+		<Version>1.6.1</Version>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<WarningLevel>7</WarningLevel>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<WarningLevel>7</WarningLevel>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Moq" Version="4.17.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Core\FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj" />
+	</ItemGroup>
+
+</Project>

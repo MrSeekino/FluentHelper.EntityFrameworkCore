@@ -10,8 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sources", "Sources", "{28E0B6EC-7CB2-4790-B5DE-BA0B6AB37E07}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.Examples.Dao", "FluentHelper.EntityFrameworkCore.Examples.Dao\FluentHelper.EntityFrameworkCore.Examples.Dao.csproj", "{D212F9B5-A0EB-4201-A8D3-CAE9F4F3C2BE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.Examples.Mappings", "FluentHelper.EntityFrameworkCore.Examples.Mappings\FluentHelper.EntityFrameworkCore.Examples.Mappings.csproj", "{1C566C0D-105A-42B3-BFD0-7B363718310B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.Examples.Models", "FluentHelper.EntityFrameworkCore.Examples.Models\FluentHelper.EntityFrameworkCore.Examples.Models.csproj", "{9A6213B8-9476-45D0-8088-0D437DCCDA80}"
@@ -30,10 +28,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D212F9B5-A0EB-4201-A8D3-CAE9F4F3C2BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D212F9B5-A0EB-4201-A8D3-CAE9F4F3C2BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D212F9B5-A0EB-4201-A8D3-CAE9F4F3C2BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D212F9B5-A0EB-4201-A8D3-CAE9F4F3C2BE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1C566C0D-105A-42B3-BFD0-7B363718310B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1C566C0D-105A-42B3-BFD0-7B363718310B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C566C0D-105A-42B3-BFD0-7B363718310B}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -2,73 +2,39 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    class EfDbContext : IDbContext
+    internal class EfDbContext : IDbContext
     {
         internal DbContext? DbContext { get; set; }
-        internal Action<DbContextOptionsBuilder>? DbProviderConfiguration { get; set; }
-        internal Action<LogLevel, EventId, string>? LogAction { get; set; }
+        internal IDbConfig DbConfig { get; set; }
+        internal IEnumerable<IDbMap> Mappings { get; set; }
 
-        internal bool EnableSensitiveDataLogging { get; set; }
-        internal bool EnableLazyLoadingProxies { get; set; }
+        internal Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> CreateDbContextBehaviour { get; set; }
 
-        internal Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> CreateDbContextBehaviour { get; set; }
+        public EfDbContext(IDbConfig dbConfig, IEnumerable<IDbMap> mappings)
+            : this(dbConfig, mappings, (c, m) => new EfDbModel(c, m))
+        { }
 
-        public EfDbContext()
-            : this((dbc, la, dl, llp) => { return new EfDbModel(dbc, la, dl, llp); }) { }
-
-        public EfDbContext(Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour)
+        public EfDbContext(IDbConfig dbConfig, IEnumerable<IDbMap> mappings, Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour)
         {
             DbContext = null;
-            DbProviderConfiguration = null;
-            LogAction = null;
 
-            EnableSensitiveDataLogging = false;
-            EnableLazyLoadingProxies = false;
-
+            DbConfig = dbConfig;
+            Mappings = mappings;
             CreateDbContextBehaviour = createDbContextBehaviour;
         }
 
         internal void CreateDbContext()
         {
             DbContext?.Dispose();
-            DbContext = CreateDbContextBehaviour(DbProviderConfiguration!, LogAction, EnableSensitiveDataLogging, EnableLazyLoadingProxies);
-        }
-
-        public IDbContext WithDbProviderConfiguration(Action<DbContextOptionsBuilder> dbProviderConfiguration)
-        {
-            DbProviderConfiguration = dbProviderConfiguration;
-            return this;
-        }
-
-        public IDbContext WithLazyLoadingProxies()
-        {
-            EnableLazyLoadingProxies = true;
-            return this;
-        }
-
-        public IDbContext WithMappingFromAssemblyOf<T>()
-        {
-            var mappingAssembly = Assembly.GetAssembly(typeof(T)) ?? throw new ArgumentException($"Could not find assembly with {typeof(T).Name}");
-
-            ((EfDbModel)GetContext()).AddMappingAssembly(mappingAssembly);
-            return this;
-        }
-
-        public IDbContext WithLogAction(Action<LogLevel, EventId, string> logAction, bool enableSensitiveDataLogging = false)
-        {
-            LogAction = logAction;
-            EnableSensitiveDataLogging = enableSensitiveDataLogging;
-            return this;
+            DbContext = CreateDbContextBehaviour(DbConfig, Mappings);
         }
 
         public DbContext GetContext()

@@ -7,9 +7,8 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Repositories
 {
     public class TestDataRepository : BaseRepository
     {
-        public TestDataRepository() : base() { }
-
-        public TestDataRepository(IDbContext dbContext) : base(dbContext) { }
+        public TestDataRepository(IDbContext dbContext)
+            : base(dbContext) { }
 
         public IQueryable<TestData> GetAll()
         {

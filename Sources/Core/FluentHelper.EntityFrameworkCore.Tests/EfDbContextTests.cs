@@ -1,13 +1,14 @@
 ﻿using FluentHelper.EntityFrameworkCore.Common;
+using FluentHelper.EntityFrameworkCore.Interfaces;
 using FluentHelper.EntityFrameworkCore.Tests.Support;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FluentHelper.EntityFrameworkCore.Tests
 {
@@ -17,19 +18,19 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         [Test]
         public void Verify_CreateDbContext_IsCalledCorrectly()
         {
-            var dbModelMock = new Mock<EfDbModel>();
+            var dbConfigMock = new Mock<IDbConfig>();
+            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
 
             bool funcCalled = false;
-            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
                 funcCalled = true;
-
                 return dbModelMock.Object;
             };
 
-            var dbContext = new EfDbContext(createDbContextBehaviour);
-
+            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateDbContext();
+
             Assert.True(funcCalled);
 
             dbContext.CreateNewContext();
@@ -39,107 +40,57 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         [Test]
         public void Verify_CreateDbContext_WorksProperly_AfterSetAllProperties_WithLazyLoading()
         {
-            var dbModel = new EfDbModel();
+            var dbConfigMock = new Mock<IDbConfig>();
+            dbConfigMock.Setup(x => x.DbProviderConfiguration).Returns(x => { });
+            dbConfigMock.Setup(x => x.LogAction).Returns((x, y, z) => { });
+            dbConfigMock.Setup(x => x.EnableSensitiveDataLogging).Returns(true);
+            dbConfigMock.Setup(x => x.EnableLazyLoadingProxies).Returns(true);
+            dbConfigMock.Setup(x => x.MappingAssemblies).Returns(new List<System.Reflection.Assembly>());
 
-            Action<DbContextOptionsBuilder> dbProviderConfiguration = (x) => { };
-            bool enableSensitiveDataLogging = true;
-            Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
-            Func<EventId, LogLevel, bool> logFilter = (x, y) => { return true; };
+            var mockDbMap = new Mock<IDbMap>();
 
             bool funcCalledCorrecly = false;
-            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
-                if (dbc == dbProviderConfiguration && la == logAction & sdl == enableSensitiveDataLogging
-                        && llp == true)
+                if (c.DbProviderConfiguration == dbConfigMock.Object.DbProviderConfiguration
+                        && c.LogAction == dbConfigMock.Object.LogAction
+                        && c.EnableSensitiveDataLogging == dbConfigMock.Object.EnableSensitiveDataLogging
+                        && c.EnableLazyLoadingProxies == dbConfigMock.Object.EnableLazyLoadingProxies)
                     funcCalledCorrecly = true;
 
-                return dbModel;
+                return new EfDbModel(c, m);
             };
 
-            var dbContext = new EfDbContext(createDbContextBehaviour)
-                                .WithDbProviderConfiguration(dbProviderConfiguration)
-                                .WithLogAction(logAction, enableSensitiveDataLogging)
-                                .WithLazyLoadingProxies();
-
+            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>() { mockDbMap.Object }, createDbContextBehaviour);
             dbContext.CreateNewContext();
             Assert.True(funcCalledCorrecly);
 
-            dbContext.WithMappingFromAssemblyOf<TestEntityMap>();
-            Assert.That(dbModel.MappingAssemblies.Count, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void Verify_CreateDbContext_WorksProperly_AfterSetAllProperties_WithoutLazyLoading()
-        {
-            var dbModel = new EfDbModel();
-
-            Action<DbContextOptionsBuilder> dbProviderConfiguration = (x) => { };
-            bool enableSensitiveDataLogging = true;
-            Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
-            Func<EventId, LogLevel, bool> logFilter = (x, y) => { return true; };
-
-            bool funcCalledCorrecly = false;
-            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
-            {
-                if (dbc == dbProviderConfiguration && la == logAction & sdl == enableSensitiveDataLogging
-                        && llp == true)
-                    funcCalledCorrecly = true;
-
-                return dbModel;
-            };
-
-            var dbContext = new EfDbContext(createDbContextBehaviour)
-                                .WithDbProviderConfiguration(dbProviderConfiguration)
-                                .WithLogAction(logAction, enableSensitiveDataLogging);
-
-            dbContext.CreateNewContext();
-            Assert.True(funcCalledCorrecly);
-
-            dbContext.WithMappingFromAssemblyOf<TestEntityMap>();
-            Assert.That(dbModel.MappingAssemblies.Count, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void Verify_CreateNewContext_WorksProperly()
-        {
-            var dbModelMock = new Mock<EfDbModel>();
-
-            bool funcCalled = false;
-            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
-            {
-                funcCalled = true;
-
-                return dbModelMock.Object;
-            };
-
-            var dbContext = new EfDbContext(createDbContextBehaviour);
-
-            dbContext.CreateNewContext();
-            Assert.True(funcCalled);
-
-            dbContext.CreateNewContext();
-            dbModelMock.Verify(x => x.Dispose(), Times.Once());
+            Assert.That(dbContext.DbContext, Is.Not.Null);
+            Assert.That(dbContext.DbContext!.GetType(), Is.EqualTo(typeof(EfDbModel)));
+            Assert.That(((EfDbModel)dbContext.DbContext).Mappings.Count, Is.EqualTo(1));
         }
 
         [Test]
         public void Verify_GetContext_WorksProperly()
         {
-            var dbModelMock = new Mock<EfDbModel>();
+            var dbConfigMock = new Mock<IDbConfig>();
+            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
 
             bool funcCalled = false;
-            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
                 funcCalled = true;
-
                 return dbModelMock.Object;
             };
 
-            var dbContext = new EfDbContext(createDbContextBehaviour)
+            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour)
             {
                 DbContext = dbModelMock.Object
             };
 
             var contextGot = dbContext.GetContext();
+
+            Assert.False(funcCalled);
 
             Assert.That(contextGot, Is.Not.Null);
             Assert.That(contextGot, Is.EqualTo(dbModelMock.Object));
@@ -151,6 +102,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         [Test]
         public void Verify_Transactions_WorksProperly()
         {
+            var dbConfigMock = new Mock<IDbConfig>();
+
             var sqlDbContextMock = new Mock<DbContext>();
             var transactionMock = new Mock<IDbContextTransaction>();
             var dbMock = new Mock<DatabaseFacade>(sqlDbContextMock.Object);
@@ -168,15 +121,15 @@ namespace FluentHelper.EntityFrameworkCore.Tests
                 dbMock.Setup(x => x.CurrentTransaction).Returns(transactionMock.Object);
             });
 
-            var dbModelMock = new Mock<EfDbModel>();
+            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
             dbModelMock.Setup(x => x.Database).Returns(dbMock.Object);
 
-            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
                 return dbModelMock.Object;
             };
 
-            var dbContext = new EfDbContext(createDbContextBehaviour);
+            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateDbContext();
 
             dbContext.BeginTransaction();
@@ -199,6 +152,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         {
             string savePointName = "A_SavePoint";
 
+            var dbConfigMock = new Mock<IDbConfig>();
+
             var sqlDbContextMock = new Mock<DbContext>();
             var transactionMock = new Mock<IDbContextTransaction>();
             var dbMock = new Mock<DatabaseFacade>(sqlDbContextMock.Object);
@@ -206,15 +161,15 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             transactionMock.Setup(x => x.SupportsSavepoints).Returns(true);
             dbMock.Setup(x => x.CurrentTransaction).Returns(transactionMock.Object);
 
-            var dbModelMock = new Mock<EfDbModel>();
+            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
             dbModelMock.Setup(x => x.Database).Returns(dbMock.Object);
 
-            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
                 return dbModelMock.Object;
             };
 
-            var dbContext = new EfDbContext(createDbContextBehaviour);
+            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateDbContext();
 
             dbContext.CreateSavepoint(savePointName);
@@ -232,17 +187,19 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         {
             int setCalls = 0;
 
+            var dbConfigMock = new Mock<IDbConfig>();
+
             var dbsetMock = new Mock<DbSet<TestEntity>>();
 
-            var dbModelMock = new Mock<EfDbModel>();
+            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
             dbModelMock.Setup(x => x.Set<TestEntity>()).Returns(dbsetMock.Object);
 
-            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
                 return dbModelMock.Object;
             };
 
-            var dbContext = new EfDbContext(createDbContextBehaviour);
+            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateDbContext();
 
             var queryable = dbContext.Query<TestEntity>();
@@ -279,15 +236,17 @@ namespace FluentHelper.EntityFrameworkCore.Tests
         [Test]
         public void Verify_SaveChanges_WorksProperly()
         {
-            var dbModelMock = new Mock<EfDbModel>();
+            var dbConfigMock = new Mock<IDbConfig>();
+
+            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
             dbModelMock.Setup(x => x.SaveChanges()).Returns(0);
 
-            Func<Action<DbContextOptionsBuilder>, Action<LogLevel, EventId, string>?, bool, bool, EfDbModel> createDbContextBehaviour = (dbc, la, sdl, llp) =>
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
                 return dbModelMock.Object;
             };
 
-            var dbContext = new EfDbContext(createDbContextBehaviour);
+            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateDbContext();
 
             int result = dbContext.SaveChanges();

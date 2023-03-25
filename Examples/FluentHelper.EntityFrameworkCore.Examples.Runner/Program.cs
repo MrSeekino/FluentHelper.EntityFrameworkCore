@@ -1,106 +1,54 @@
-﻿using FluentHelper.EntityFrameworkCore.Examples.Models;
+﻿using FluentHelper.EntityFrameworkCore.Common;
+using FluentHelper.EntityFrameworkCore.Examples.Mappings;
 using FluentHelper.EntityFrameworkCore.Examples.Repositories;
+using FluentHelper.EntityFrameworkCore.SqlServer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Linq;
 
 namespace FluentHelper.EntityFrameworkCore.Examples.Runner
 {
     class Program
     {
-        TestData ExampleData { get; set; }
-        TestChild ExampleChild { get; set; }
-        TestDataAttr ExampleAttr { get; set; }
+        static IConfiguration Configuration { get; }
+        static ServiceProvider? ServiceProvider { get; set; }
 
-        TestDataRepository TestDataRepository { get; set; }
+        static Program()
+        {
+            Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
+            ServiceProvider = null;
+        }
 
         static void Main()
         {
-            Program p = new();
-            p.StartProgram();
+            Program program = new();
+            program.StartProgram();
         }
 
-        public Program()
+        private void StartProgram()
         {
-            ExampleData = new TestData
-            {
-                Id = Guid.NewGuid(),
-                Name = "ExampleData",
-                CreationDate = DateTime.UtcNow,
-                Active = true
-            };
-            ExampleChild = new TestChild
-            {
-                Id = Guid.NewGuid(),
-                IdParent = ExampleData.Id,
-                Name = "ExampleData",
-                CreationDate = DateTime.UtcNow,
-                Active = true
-            };
-            ExampleAttr = new TestDataAttr
-            {
-                Id = ExampleData.Id,
-                IsBeautiful = true
-            };
+            SetupDependencyInjection();
 
-            TestDataRepository = new TestDataRepository();
+            ExampleRunner? exampleRunner = ServiceProvider?.GetRequiredService<ExampleRunner>();
+            exampleRunner?.Start();
         }
 
-        void StartProgram()
+        private void SetupDependencyInjection()
         {
-            try
+            IServiceCollection serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddFluentDbContext(dbConfigBuilder =>
             {
-                var testDataList = TestDataRepository.GetAll().ToList();
-                Console.WriteLine($"Table contains {testDataList.Count} rows");
+                dbConfigBuilder.WithSqlDbProvider(Configuration.GetConnectionString("FluentHelperExampleConnectionString"))
+                        .WithLogAction((logLevel, eventId, message) => Console.WriteLine($"{logLevel} | {eventId}: {message}"), true)
+                        .WithLazyLoadingProxies()
+                        .WithMappingFromAssemblyOf<TestDataMap>();
+            });
 
-                Console.WriteLine($"Adding 1 row..");
-                PressToContinue();
+            serviceCollection.AddSingleton<TestDataRepository, TestDataRepository>();
+            serviceCollection.AddSingleton<ExampleRunner, ExampleRunner>();
 
-                TestDataRepository.Add(ExampleData);
-
-                testDataList = TestDataRepository.GetAll().ToList();
-                Console.WriteLine($"Table contains {testDataList.Count} rows");
-                Console.WriteLine($"Adding 1 child and 1 attr..");
-                PressToContinue();
-
-                TestDataRepository.AddChild(ExampleChild);
-                TestDataRepository.AddAttr(ExampleAttr);
-
-                var testDataInstance = TestDataRepository.GetById(ExampleData.Id);
-                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList?.Count} children and IsBeautiful:{testDataInstance?.Attr?.IsBeautiful}");
-                Console.WriteLine($"Removing 1 child..");
-                PressToContinue();
-
-                TestDataRepository.RemoveChild(ExampleChild.Id);
-
-                testDataInstance = TestDataRepository.GetById(ExampleData.Id);
-                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList?.Count} children and IsBeautiful:{testDataInstance?.Attr?.IsBeautiful}");
-                Console.WriteLine($"Removing 1 attr..");
-                PressToContinue();
-
-                TestDataRepository.RemoveAttr(ExampleAttr.Id);
-
-                testDataInstance = TestDataRepository.GetById(ExampleData.Id);
-                Console.WriteLine($"TestData is null:{testDataInstance == null}, contains {testDataInstance?.ChildList?.Count} children and IsBeautiful:{testDataInstance?.Attr?.IsBeautiful}");
-                Console.WriteLine($"Removing 1 row..");
-                PressToContinue();
-
-                TestDataRepository.Remove(ExampleData.Id);
-
-                testDataList = TestDataRepository.GetAll().ToList();
-                Console.WriteLine($"Table contains {testDataList.Count} rows");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-
-            PressToContinue();
-        }
-
-        static void PressToContinue()
-        {
-            Console.WriteLine("Enter any key to continue..");
-            Console.ReadLine();
+            ServiceProvider = serviceCollection.BuildServiceProvider();
         }
     }
 }

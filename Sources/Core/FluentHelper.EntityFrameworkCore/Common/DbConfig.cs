@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace FluentHelper.EntityFrameworkCore.Common
 {
+    [ExcludeFromCodeCoverage]
     internal class DbConfig : IDbConfig
     {
         public Action<DbContextOptionsBuilder>? DbProviderConfiguration { get; set; }

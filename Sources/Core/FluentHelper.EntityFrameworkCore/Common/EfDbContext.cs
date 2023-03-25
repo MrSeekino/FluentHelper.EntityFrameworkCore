@@ -68,7 +68,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void RollbackTransaction()
         {
             if (!IsTransactionOpen())
-                return;
+                throw new Exception("Cannot find an open transaction to rollback");
 
             GetContext().Database.CurrentTransaction!.Rollback();
         }
@@ -76,7 +76,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void CommitTransaction()
         {
             if (!IsTransactionOpen())
-                return;
+                throw new Exception("Cannot find an open transaction to commit");
 
             GetContext().Database.CurrentTransaction!.Commit();
         }
@@ -92,7 +92,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void CreateSavepoint(string savePointName)
         {
             if (!IsTransactionOpen())
-                return;
+                throw new Exception("An open transaction is needed to create a savepoint");
 
             if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
                 GetContext().Database.CurrentTransaction!.CreateSavepoint(savePointName);
@@ -101,7 +101,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void ReleaseSavepoint(string savePointName)
         {
             if (!IsTransactionOpen())
-                return;
+                throw new Exception("An open transaction is needed to release a savepoint");
 
             if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
                 GetContext().Database.CurrentTransaction!.ReleaseSavepoint(savePointName);
@@ -110,7 +110,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void RollbackToSavepoint(string savePointName)
         {
             if (!IsTransactionOpen())
-                return;
+                throw new Exception("An open transaction is needed to rollback to a savepoint");
 
             if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
                 GetContext().Database.CurrentTransaction!.RollbackToSavepoint(savePointName);

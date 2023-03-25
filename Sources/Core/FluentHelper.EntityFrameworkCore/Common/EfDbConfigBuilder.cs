@@ -9,13 +9,13 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     public class EfDbConfigBuilder
     {
-        internal Action<DbContextOptionsBuilder>? DbProviderConfiguration { get; set; }
-        internal Action<LogLevel, EventId, string>? LogAction { get; set; }
+        internal Action<DbContextOptionsBuilder>? DbProviderConfiguration { get; private set; }
+        internal Action<LogLevel, EventId, string>? LogAction { get; private set; }
 
-        internal bool EnableSensitiveDataLogging { get; set; }
-        internal bool EnableLazyLoadingProxies { get; set; }
+        internal bool EnableSensitiveDataLogging { get; private set; }
+        internal bool EnableLazyLoadingProxies { get; private set; }
 
-        internal List<Assembly> MappingAssemblies { get; set; } = new List<Assembly>();
+        internal List<Assembly> MappingAssemblies { get; private set; } = new List<Assembly>();
 
         public EfDbConfigBuilder WithDbProviderConfiguration(Action<DbContextOptionsBuilder> dbProviderConfiguration)
         {

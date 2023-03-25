@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
@@ -26,11 +27,13 @@ namespace FluentHelper.EntityFrameworkCore.Common
             UseLazyLoadingProxiesBehaviour = useLazyLoadingProxiesBehaviour;
         }
 
+        [ExcludeFromCodeCoverage]
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             Configure(optionsBuilder);
         }
 
+        [ExcludeFromCodeCoverage]
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             CreateModel(modelBuilder);

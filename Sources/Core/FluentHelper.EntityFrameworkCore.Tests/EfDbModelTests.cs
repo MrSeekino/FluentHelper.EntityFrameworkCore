@@ -115,5 +115,23 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             mockDbMap.Verify(x => x.SetModelBuilder(mockModelBuilder.Object), Times.Once());
             mockDbMap.Verify(x => x.Map(), Times.Once());
         }
+
+        [Test]
+        public void Verify_CreateModel_Throws_Without_DbProviderConfiguration()
+        {
+            var mockModelBuilder = new Mock<ModelBuilder>();
+
+            var mockDbConfig = new Mock<IDbConfig>();
+
+            var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
+            mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
+
+            var mockDbMap = new Mock<IDbMap>();
+            mockDbMap.Setup(x => x.SetModelBuilder(It.IsAny<ModelBuilder>())).Verifiable();
+            mockDbMap.Setup(x => x.Map()).Verifiable();
+
+            var dbModel = new EfDbModel(mockDbConfig.Object, new List<IDbMap>() { mockDbMap.Object });
+            Assert.Throws<Exception>(() => dbModel.Configure(mockOptionsBuilder.Object));
+        }
     }
 }

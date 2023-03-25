@@ -16,10 +16,27 @@ namespace FluentHelper.EntityFrameworkCore.Tests
     internal class EfDbContextTests
     {
         [Test]
+        public void Verify_EfDbContext_IsCreatedCorrectly()
+        {
+            var dbConfigMock = new Mock<IDbConfig>();
+            var dbMapMock = new Mock<IDbMap>();
+
+            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>() { dbMapMock.Object });
+            Assert.That(dbContext.CreateDbContextBehaviour, Is.Not.Null);
+
+            dbContext.CreateDbContext();
+            Assert.That(dbContext.DbContext, Is.Not.Null);
+            Assert.That(dbContext.DbContext!.GetType(), Is.EqualTo(typeof(EfDbModel)));
+            Assert.That(((EfDbModel)dbContext.DbContext).DbConfig, Is.Not.Null);
+            Assert.That(((EfDbModel)dbContext.DbContext).Mappings.Count(), Is.EqualTo(1));
+        }
+
+        [Test]
         public void Verify_CreateDbContext_IsCalledCorrectly()
         {
             var dbConfigMock = new Mock<IDbConfig>();
             var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
+            dbModelMock.Setup(x => x.Dispose()).Verifiable();
 
             bool funcCalled = false;
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
@@ -35,6 +52,9 @@ namespace FluentHelper.EntityFrameworkCore.Tests
 
             dbContext.CreateNewContext();
             dbModelMock.Verify(x => x.Dispose(), Times.Once());
+
+            dbContext.CreateDbContext();
+            dbModelMock.Verify(x => x.Dispose(), Times.Exactly(2));
         }
 
         [Test]
@@ -145,6 +165,9 @@ namespace FluentHelper.EntityFrameworkCore.Tests
 
             dbContext.RollbackTransaction();
             transactionMock.Verify(x => x.Rollback(), Times.Once());
+
+            Assert.Throws<Exception>(() => { dbContext.RollbackTransaction(); });
+            Assert.Throws<Exception>(() => { dbContext.CommitTransaction(); });
         }
 
         [Test]
@@ -160,6 +183,10 @@ namespace FluentHelper.EntityFrameworkCore.Tests
 
             transactionMock.Setup(x => x.SupportsSavepoints).Returns(true);
             dbMock.Setup(x => x.CurrentTransaction).Returns(transactionMock.Object);
+            dbMock.Setup(x => x.CurrentTransaction!.Commit()).Callback(() =>
+            {
+                dbMock.Setup(x => x.CurrentTransaction).Returns((IDbContextTransaction?)null);
+            });
 
             var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
             dbModelMock.Setup(x => x.Database).Returns(dbMock.Object);
@@ -172,6 +199,9 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateDbContext();
 
+            dbContext.AreSavepointsSupported();
+            transactionMock.Verify(x => x.SupportsSavepoints, Times.Once());
+
             dbContext.CreateSavepoint(savePointName);
             transactionMock.Verify(x => x.CreateSavepoint(savePointName), Times.Once());
 
@@ -180,6 +210,13 @@ namespace FluentHelper.EntityFrameworkCore.Tests
 
             dbContext.RollbackToSavepoint(savePointName);
             transactionMock.Verify(x => x.RollbackToSavepoint(savePointName), Times.Once());
+
+            dbContext.CommitTransaction();
+
+            Assert.Throws<Exception>(() => { dbContext.AreSavepointsSupported(); });
+            Assert.Throws<Exception>(() => { dbContext.CreateSavepoint(savePointName); });
+            Assert.Throws<Exception>(() => { dbContext.ReleaseSavepoint(savePointName); });
+            Assert.Throws<Exception>(() => { dbContext.RollbackToSavepoint(savePointName); });
         }
 
         [Test]
@@ -189,10 +226,17 @@ namespace FluentHelper.EntityFrameworkCore.Tests
 
             var dbConfigMock = new Mock<IDbConfig>();
 
-            var dbsetMock = new Mock<DbSet<TestEntity>>();
+            var dbSetMock = new Mock<DbSet<TestEntity>>();
+
+            var dbContextOptMock = new Mock<DbContextOptions>();
+            dbContextOptMock.Setup(x => x.ContextType.IsAssignableFrom(It.IsAny<Type>())).Returns(true);
+
+            var dbFacadeMock = new Mock<DatabaseFacade>(new DbContext(dbContextOptMock.Object));
+            dbFacadeMock.Setup(x => x.CanConnect()).Returns(true).Verifiable();
 
             var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
-            dbModelMock.Setup(x => x.Set<TestEntity>()).Returns(dbsetMock.Object);
+            dbModelMock.Setup(x => x.Set<TestEntity>()).Returns(dbSetMock.Object);
+            dbModelMock.Setup(x => x.Database).Returns(dbFacadeMock.Object);
 
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
@@ -206,31 +250,35 @@ namespace FluentHelper.EntityFrameworkCore.Tests
             setCalls++;
 
             dbModelMock.Verify(x => x.Set<TestEntity>(), Times.Exactly(setCalls));
-            dbsetMock.Verify(x => x.AsQueryable(), Times.Once());
+            dbSetMock.Verify(x => x.AsQueryable(), Times.Once());
 
             dbContext.Add(new TestEntity());
             setCalls++;
 
             dbModelMock.Verify(x => x.Set<TestEntity>(), Times.Exactly(setCalls));
-            dbsetMock.Verify(x => x.Add(It.IsAny<TestEntity>()), Times.Once());
+            dbSetMock.Verify(x => x.Add(It.IsAny<TestEntity>()), Times.Once());
 
             dbContext.AddRange(new List<TestEntity>());
             setCalls++;
 
             dbModelMock.Verify(x => x.Set<TestEntity>(), Times.Exactly(setCalls));
-            dbsetMock.Verify(x => x.AddRange(It.IsAny<List<TestEntity>>()), Times.Once());
+            dbSetMock.Verify(x => x.AddRange(It.IsAny<List<TestEntity>>()), Times.Once());
 
             dbContext.Remove(new TestEntity());
             setCalls++;
 
             dbModelMock.Verify(x => x.Set<TestEntity>(), Times.Exactly(setCalls));
-            dbsetMock.Verify(x => x.Remove(It.IsAny<TestEntity>()), Times.Once());
+            dbSetMock.Verify(x => x.Remove(It.IsAny<TestEntity>()), Times.Once());
 
             dbContext.RemoveRange(new List<TestEntity>());
             setCalls++;
 
             dbModelMock.Verify(x => x.Set<TestEntity>(), Times.Exactly(setCalls));
-            dbsetMock.Verify(x => x.RemoveRange(It.IsAny<List<TestEntity>>()), Times.Once());
+            dbSetMock.Verify(x => x.RemoveRange(It.IsAny<List<TestEntity>>()), Times.Once());
+
+            bool opResult = dbContext.ExecuteOnDatabase(db => db.CanConnect());
+            dbFacadeMock.Verify(x => x.CanConnect(), Times.Once());
+            Assert.True(opResult);
         }
 
         [Test]

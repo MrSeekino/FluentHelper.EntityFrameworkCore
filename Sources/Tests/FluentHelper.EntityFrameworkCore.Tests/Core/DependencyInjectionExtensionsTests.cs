@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using System.Linq;
 
-namespace FluentHelper.EntityFrameworkCore.Tests
+namespace FluentHelper.EntityFrameworkCore.Tests.Core
 {
     [TestFixture]
     internal class DependencyInjectionExtensionsTests

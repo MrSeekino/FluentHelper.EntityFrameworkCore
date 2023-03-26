@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FluentHelper.EntityFrameworkCore.Tests
+namespace FluentHelper.EntityFrameworkCore.Tests.Core
 {
     [TestFixture]
     internal class EfDbContextTests

@@ -8,7 +8,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace FluentHelper.EntityFrameworkCore.Tests
+namespace FluentHelper.EntityFrameworkCore.Tests.Core
 {
     [TestFixture]
     internal class EfDbModelTests

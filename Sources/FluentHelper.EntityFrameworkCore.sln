@@ -7,8 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{0E88A889-9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore", "Core\FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj", "{5E385F0C-BB18-40F2-834B-389765B59E21}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.Tests", "Core\FluentHelper.EntityFrameworkCore.Tests\FluentHelper.EntityFrameworkCore.Tests.csproj", "{7113E000-9572-4828-88D0-00D6AA52FD43}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{EDFBE694-96A8-4DC2-9748-8B4F25B5EF8C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.SqlServer", "Providers\FluentHelper.EntityFrameworkCore.SqlServer\FluentHelper.EntityFrameworkCore.SqlServer.csproj", "{94401BEE-242B-4582-B420-D4C339C1BDCF}"
@@ -25,6 +23,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		finecodecoverage-settings.xml = finecodecoverage-settings.xml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{11B15C4B-F32C-496B-8F8D-3B749C0DAA86}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.Tests", "Tests\FluentHelper.EntityFrameworkCore.Tests\FluentHelper.EntityFrameworkCore.Tests.csproj", "{6B842F72-5E12-4A0E-9E29-9FB58122426C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +37,6 @@ Global
 		{5E385F0C-BB18-40F2-834B-389765B59E21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E385F0C-BB18-40F2-834B-389765B59E21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E385F0C-BB18-40F2-834B-389765B59E21}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7113E000-9572-4828-88D0-00D6AA52FD43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7113E000-9572-4828-88D0-00D6AA52FD43}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7113E000-9572-4828-88D0-00D6AA52FD43}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7113E000-9572-4828-88D0-00D6AA52FD43}.Release|Any CPU.Build.0 = Release|Any CPU
 		{94401BEE-242B-4582-B420-D4C339C1BDCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{94401BEE-242B-4582-B420-D4C339C1BDCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94401BEE-242B-4582-B420-D4C339C1BDCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,16 +49,20 @@ Global
 		{B4B92EC3-B70B-4D68-9A71-3F055FE6FDB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4B92EC3-B70B-4D68-9A71-3F055FE6FDB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4B92EC3-B70B-4D68-9A71-3F055FE6FDB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B842F72-5E12-4A0E-9E29-9FB58122426C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B842F72-5E12-4A0E-9E29-9FB58122426C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B842F72-5E12-4A0E-9E29-9FB58122426C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B842F72-5E12-4A0E-9E29-9FB58122426C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5E385F0C-BB18-40F2-834B-389765B59E21} = {0E88A889-9177-4C65-8B60-EDD30CE33F3B}
-		{7113E000-9572-4828-88D0-00D6AA52FD43} = {0E88A889-9177-4C65-8B60-EDD30CE33F3B}
 		{94401BEE-242B-4582-B420-D4C339C1BDCF} = {EDFBE694-96A8-4DC2-9748-8B4F25B5EF8C}
 		{BBE8E849-EE06-4790-8529-90477C452B9C} = {EDFBE694-96A8-4DC2-9748-8B4F25B5EF8C}
 		{B4B92EC3-B70B-4D68-9A71-3F055FE6FDB0} = {D980BF6E-8894-4E96-B8E1-D378A33117BB}
+		{6B842F72-5E12-4A0E-9E29-9FB58122426C} = {11B15C4B-F32C-496B-8F8D-3B749C0DAA86}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17AECFE1-D361-41E4-B533-D5155E158EF2}

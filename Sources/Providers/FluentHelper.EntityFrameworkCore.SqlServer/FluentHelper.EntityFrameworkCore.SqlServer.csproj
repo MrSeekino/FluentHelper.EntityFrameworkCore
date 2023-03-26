@@ -6,10 +6,7 @@
     <Nullable>enable</Nullable>
     <PackageId>FluentHelper.EntityFrameworkCore.SqlServer</PackageId>
     <Version>1.7.0</Version>
-    <Authors>Andrea Pittaluga</Authors>
-    <Company>Andrea Pittaluga</Company>
     <PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
-    <Copyright>Copyright © Andrea Pittaluga</Copyright>
     <Description>An helper for codefirst's EntityframeworkCore projects using SqlServer</Description>
     <RepositoryUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</RepositoryUrl>
     <PackageTags>EntityFrameworkCore,FluentHelper,Sql,SqlServer</PackageTags>

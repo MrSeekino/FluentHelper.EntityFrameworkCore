@@ -5,11 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Version>1.7.0</Version>
-    <PackageId>FluentHelper.EntityFrameworkCore.PostgreSQL</PackageId>
-    <Authors>Andrea Pittaluga</Authors>
-    <Company>Andrea Pittaluga</Company>
+    <PackageId>FluentHelper.EntityFrameworkCore.PostgreSQL</PackageId>    
     <Description>An helper for codefirst's EntityframeworkCore projects using PostgreSQL</Description>
-    <Copyright>Copyright © Andrea Pittaluga</Copyright>
     <PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</RepositoryUrl>
     <PackageTags>EntityFrameworkCore,FluentHelper,Sql,Postgre,PostgreSQL</PackageTags>

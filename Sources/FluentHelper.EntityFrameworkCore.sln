@@ -19,6 +19,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ForTesting", "ForTesting", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.Moq", "ForTesting\FluentHelper.EntityFrameworkCore.Moq\FluentHelper.EntityFrameworkCore.Moq.csproj", "{B4B92EC3-B70B-4D68-9A71-3F055FE6FDB0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{87CD0196-257F-408F-94D5-3C7E2C06B02F}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		finecodecoverage-settings.xml = finecodecoverage-settings.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

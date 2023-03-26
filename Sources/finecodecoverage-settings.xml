@@ -1,0 +1,5 @@
+<FineCodeCoverage>
+	<Enabled>True</Enabled>
+	<Exclude></Exclude>
+	<IncludeTestAssembly>False</IncludeTestAssembly>
+</FineCodeCoverage>

@@ -3,10 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<PackageId>FluentHelper.EntityFrameworkCore.Moq</PackageId>
-		<Authors>Andrea Pittaluga</Authors>
-		<Company>Andrea Pittaluga</Company>
 		<Product>FluentHelper.EntityFrameworkCore.Moq</Product>
-		<Copyright>Copyright © Andrea Pittaluga</Copyright>
 		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
 		<PackageTags>EntityFrameworkCore,FluentHelper,Moq</PackageTags>

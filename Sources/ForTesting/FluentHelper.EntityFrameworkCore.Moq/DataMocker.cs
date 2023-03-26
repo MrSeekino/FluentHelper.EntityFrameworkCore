@@ -3,10 +3,12 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.Moq
 {
-    class DataMocker<T> : IDataMocker<T> where T : class
+    internal class DataMocker<T> : IDataMocker<T> where T : class
     {
         List<T> RollbackList { get; set; }
         List<T> FinalList { get; set; }

@@ -4,15 +4,17 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.Moq
 {
     public class DbContextMocker
     {
-        bool HasActiveTransaction { get; set; }
+        internal bool HasActiveTransaction { get; set; }
 
-        Dictionary<Type, IDataMocker> MockData { get; set; }
-        Mock<IDbContext> MockContext { get; set; }
+        internal Dictionary<Type, IDataMocker> MockData { get; set; }
+        internal Mock<IDbContext> MockContext { get; set; }
 
         public IDbContext Object
         {
@@ -94,14 +96,14 @@ namespace FluentHelper.EntityFrameworkCore.Moq
             MockContext.Setup(c => c.RemoveRange(It.IsAny<IEnumerable<T>>())).Callback<IEnumerable<T>>(x => ((IDataMocker<T>)MockData[typeof(T)]).RemoveRange(x));
         }
 
-        public void AddMockToExecuteOnDatabase<T>(Func<DatabaseFacade, T> callBackFunc)
+        public void AddMockToExecuteOnDatabase<T>(DatabaseFacade databaseFacade, Action<T> callBackFunc)
         {
             if (typeof(T) == typeof(IDbContextTransaction))
                 throw new ArgumentException($"{typeof(IDbContextTransaction).Name} cannot be mocked with ExecuteOnDatabase");
 
-            MockContext.Setup(c => c.ExecuteOnDatabase(It.IsAny<Func<DatabaseFacade, T>>())).Callback<DatabaseFacade>((dbFacade) =>
+            MockContext.Setup(c => c.ExecuteOnDatabase(It.IsAny<Func<DatabaseFacade, T>>())).Callback<Func<DatabaseFacade, T>>(funcResult =>
             {
-                callBackFunc(dbFacade);
+                callBackFunc(funcResult(databaseFacade));
             });
         }
     }

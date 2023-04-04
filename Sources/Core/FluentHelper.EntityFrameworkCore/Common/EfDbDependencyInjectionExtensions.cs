@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    public static class DependencyInjectionExtensions
+    public static class EfDbDependencyInjectionExtensions
     {
-        public static void AddFluentDbContext(this IServiceCollection serviceCollection, Action<EfDbConfigBuilder> dbConfigBuilderFunc)
+        public static void AddFluentDbContext(this IServiceCollection serviceCollection, Action<EfDbConfigBuilder> dbConfigBuilderFunc, ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
         {
             EfDbConfigBuilder dbConfigBuilder = new EfDbConfigBuilder();
             dbConfigBuilderFunc(dbConfigBuilder);
@@ -19,7 +19,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
             foreach (var mappingType in mappingTypes)
                 serviceCollection.AddSingleton(typeof(IDbMap), mappingType!);
 
-            serviceCollection.AddSingleton<IDbContext, EfDbContext>();
+            serviceCollection.Add(new ServiceDescriptor(typeof(IDbContext), typeof(EfDbContext), serviceLifetime));
         }
     }
 }

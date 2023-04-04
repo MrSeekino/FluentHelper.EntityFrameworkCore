@@ -10,7 +10,7 @@ namespace FluentHelper.EntityFrameworkCore.Moq
 
         IDbContextTransaction BeginTransaction();
         void CommitTransaction();
-        void RollbackTransaction();
+        void RollbackTransaction(bool noThrow = false);
     }
 
     interface IDataMocker<T> : IDataMocker

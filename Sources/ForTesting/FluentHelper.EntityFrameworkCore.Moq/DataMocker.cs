@@ -10,16 +10,16 @@ namespace FluentHelper.EntityFrameworkCore.Moq
 {
     internal class DataMocker<T> : IDataMocker<T> where T : class
     {
-        List<T> RollbackList { get; set; }
-        List<T> FinalList { get; set; }
+        internal List<T> RollbackList { get; set; }
+        internal List<T> FinalList { get; set; }
 
-        List<T> AddList { get; set; }
-        List<T> RemoveList { get; set; }
+        internal List<T> AddList { get; set; }
+        internal List<T> RemoveList { get; set; }
 
-        bool HasActiveTransaction { get; set; }
-        Mock<IDbContextTransaction> DbContectTransactionMock { get; set; }
+        internal bool HasActiveTransaction { get; set; }
+        internal Mock<IDbContextTransaction> DbContectTransactionMock { get; set; }
 
-        public DataMocker(IEnumerable<T>? initialData)
+        public DataMocker(IEnumerable<T>? initialData = null)
         {
             FinalList = initialData == null ? new List<T>() : initialData.ToList();
 
@@ -32,6 +32,7 @@ namespace FluentHelper.EntityFrameworkCore.Moq
             DbContectTransactionMock = new Mock<IDbContextTransaction>();
             DbContectTransactionMock.Setup(x => x.Commit()).Callback(() => CommitTransaction());
             DbContectTransactionMock.Setup(x => x.Rollback()).Callback(() => RollbackTransaction());
+            DbContectTransactionMock.Setup(x => x.Dispose()).Callback(() => RollbackTransaction(true));
         }
 
         public int AddListCount()
@@ -116,14 +117,20 @@ namespace FluentHelper.EntityFrameworkCore.Moq
 
             HasActiveTransaction = false;
 
-            FinalList.Clear();
+            AddList.Clear();
+            RemoveList.Clear();
             RollbackList.Clear();
         }
 
-        public void RollbackTransaction()
+        public void RollbackTransaction(bool noThrow = false)
         {
             if (!HasActiveTransaction)
+            {
+                if (noThrow)
+                    return;
+
                 throw new Exception("No Open Transaction found");
+            }
 
             HasActiveTransaction = false;
 
@@ -131,6 +138,8 @@ namespace FluentHelper.EntityFrameworkCore.Moq
             foreach (var item in RollbackList)
                 FinalList.Add(item);
 
+            AddList.Clear();
+            RemoveList.Clear();
             RollbackList.Clear();
         }
     }

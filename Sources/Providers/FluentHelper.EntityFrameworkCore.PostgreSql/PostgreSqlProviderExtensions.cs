@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
-namespace FluentHelper.EntityFramworkCore.PostgreSQL
+namespace FluentHelper.EntityFramworkCore.PostgreSql
 {
-    public static class PostgreProviderExtensions
+    public static class PostgreSqlProviderExtensions
     {
         public static EfDbConfigBuilder WithPostgreSQLProvider(this EfDbConfigBuilder dbContextBuilder, string connectionString, Action<NpgsqlDbContextOptionsBuilder>? npgSqlOptionsAction = null)
         {

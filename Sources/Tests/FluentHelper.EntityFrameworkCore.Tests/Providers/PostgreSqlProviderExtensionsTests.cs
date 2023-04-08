@@ -1,6 +1,6 @@
 ﻿using FluentHelper.EntityFrameworkCore.Common;
 using FluentHelper.EntityFrameworkCore.Interfaces;
-using FluentHelper.EntityFramworkCore.PostgreSQL;
+using FluentHelper.EntityFramworkCore.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -13,7 +13,7 @@ using System.Data;
 namespace FluentHelper.EntityFrameworkCore.Tests.Providers
 {
     [TestFixture]
-    internal class PostgreProviderExtensionsTests
+    internal class PostgreSqlProviderExtensionsTests
     {
         [Test]
         public void Verify_WithSqlDbProvider_WorksCorrectly()
@@ -24,7 +24,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             mockedContextOptionsBuilder.Setup(x => x.Options).Returns(mockedDbContextOptions.Object);
 
             EfDbConfigBuilder efDbConfigBuilder = new EfDbConfigBuilder();
-            efDbConfigBuilder.WithSqlDbProvider("A_Connection_String");
+            efDbConfigBuilder.WithPostgreSqlProvider("A_Connection_String");
 
             Assert.DoesNotThrow(() => efDbConfigBuilder.DbProviderConfiguration!(mockedContextOptionsBuilder.Object));
         }
@@ -38,7 +38,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             mockedContextOptionsBuilder.Setup(x => x.Options).Returns(mockedDbContextOptions.Object);
 
             EfDbConfigBuilder efDbConfigBuilder = new EfDbConfigBuilder();
-            efDbConfigBuilder.WithSqlDbProvider("A_Connection_String", x => x.MinBatchSize(1));
+            efDbConfigBuilder.WithPostgreSqlProvider("A_Connection_String", x => x.MinBatchSize(1));
 
             Assert.DoesNotThrow(() => efDbConfigBuilder.DbProviderConfiguration!(mockedContextOptionsBuilder.Object));
         }
@@ -47,7 +47,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
         public void Verify_WithSqlDbProvider_Throws_WhenConnectionString_IsEmpty()
         {
             EfDbConfigBuilder efDbConfigBuilder = new EfDbConfigBuilder();
-            Assert.Throws<ArgumentNullException>(() => efDbConfigBuilder.WithSqlDbProvider(string.Empty));
+            Assert.Throws<ArgumentNullException>(() => efDbConfigBuilder.WithPostgreSqlProvider(string.Empty));
         }
 
         [Test]

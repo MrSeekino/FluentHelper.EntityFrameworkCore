@@ -8,7 +8,7 @@ namespace FluentHelper.EntityFramworkCore.PostgreSql
 {
     public static class PostgreSqlProviderExtensions
     {
-        public static EfDbConfigBuilder WithPostgreSQLProvider(this EfDbConfigBuilder dbContextBuilder, string connectionString, Action<NpgsqlDbContextOptionsBuilder>? npgSqlOptionsAction = null)
+        public static EfDbConfigBuilder WithPostgreSqlProvider(this EfDbConfigBuilder dbContextBuilder, string connectionString, Action<NpgsqlDbContextOptionsBuilder>? npgSqlOptionsAction = null)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
                 throw new ArgumentNullException(nameof(connectionString));

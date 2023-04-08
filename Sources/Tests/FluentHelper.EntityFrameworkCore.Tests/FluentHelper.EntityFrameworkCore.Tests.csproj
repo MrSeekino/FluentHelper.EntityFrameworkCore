@@ -6,16 +6,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
-		<PackageReference Include="Moq" Version="4.17.2" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+		<PackageReference Include="Moq" Version="4.18.4" />
 		<PackageReference Include="NUnit" Version="3.13.3" />
-		<PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Core\FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj" />
 	  <ProjectReference Include="..\..\ForTesting\FluentHelper.EntityFrameworkCore.Moq\FluentHelper.EntityFrameworkCore.Moq.csproj" />
-	  <ProjectReference Include="..\..\Providers\FluentHelper.EntityFrameworkCore.PostgreSQL\FluentHelper.EntityFrameworkCore.PostgreSQL.csproj" />
+	  <ProjectReference Include="..\..\Providers\FluentHelper.EntityFrameworkCore.PostgreSQL\FluentHelper.EntityFrameworkCore.PostgreSql.csproj" />
 	  <ProjectReference Include="..\..\Providers\FluentHelper.EntityFrameworkCore.SqlServer\FluentHelper.EntityFrameworkCore.SqlServer.csproj" />
 	</ItemGroup>
 

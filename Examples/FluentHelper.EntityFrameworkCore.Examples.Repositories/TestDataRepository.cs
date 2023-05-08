@@ -22,7 +22,6 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Repositories
 
         public void Add(TestData testData)
         {
-            //DbContext.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
             DbContext.BeginTransaction();
 
             DbContext.Add(testData);
@@ -48,10 +47,6 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Repositories
             var testDataInstance = DbContext.Query<TestData>().SingleOrDefault(e => e.Id == id);
             if (testDataInstance != null)
             {
-                //if (testDataInstance.ChildList != null && testDataInstance.ChildList.Any())
-                //    foreach (var childInstance in testDataInstance.ChildList)
-                //        DbContext.Remove(childInstance);
-
                 DbContext.Remove(testDataInstance);
                 DbContext.SaveChanges();
             }
@@ -87,6 +82,21 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Repositories
                 DbContext.Remove(testAttrInstance);
                 DbContext.SaveChanges();
             }
+        }
+
+        public void BulkUpdate(Guid id, bool active, string name)
+        {
+            DbContext.ExecuteUpdate<TestData>(x => x.Id == id, x => x.SetProperty(y => y.Active, active).SetProperty(y => y.Name, name));
+        }
+
+        public void BulkDelete(Guid id)
+        {
+            DbContext.ExecuteDelete<TestData>(x => x.Id == id);
+        }
+
+        public void ClearTracker()
+        {
+            DbContext.ClearTracker();
         }
     }
 }

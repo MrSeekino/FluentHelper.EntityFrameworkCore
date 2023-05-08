@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace FluentHelper.EntityFrameworkCore.Interfaces
 {
@@ -31,5 +33,10 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         int SaveChanges();
 
         T ExecuteOnDatabase<T>(Func<DatabaseFacade, T> funcToExecute);
+
+        int ExecuteDelete<T>(Expression<Func<T, bool>> deletePredicate) where T : class;
+        int ExecuteUpdate<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls) where T : class;
+
+        void ClearTracker();
     }
 }

@@ -6,9 +6,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace FluentHelper.EntityFrameworkCore.Tests.Core
 {
@@ -222,11 +224,20 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_QueriesMethods_WorksProperly()
         {
+            var testDataList = new List<TestEntity>() { new TestEntity() };
+
             int setCalls = 0;
 
             var dbConfigMock = new Mock<IDbConfig>();
+            var queryProvider = new Mock<IQueryProvider>();
+            queryProvider.Setup(x => x.Execute<int>(It.IsAny<Expression>())).Callback<Expression>(expression =>
+            {
+                Assert.That(expression, Is.Not.Null);
+            });
 
             var dbSetMock = new Mock<DbSet<TestEntity>>();
+            dbSetMock.As<IQueryable<TestEntity>>().Setup(x => x.Provider).Returns(queryProvider.Object);
+            dbSetMock.As<IQueryable<TestEntity>>().Setup(x => x.Expression).Returns(Expression.Constant(testDataList.AsQueryable()));
 
             var dbContextOptMock = new Mock<DbContextOptions>();
             dbContextOptMock.Setup(x => x.ContextType.IsAssignableFrom(It.IsAny<Type>())).Returns(true);

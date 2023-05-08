@@ -82,6 +82,28 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Runner
 
                 testDataList = TestDataRepository.GetAll().ToList();
                 Console.WriteLine($"Table contains {testDataList.Count} rows");
+
+                TestDataRepository.Add(ExampleData);
+
+                testDataList = TestDataRepository.GetAll().ToList();
+                Console.WriteLine($"Table contains {testDataList.Count} rows");
+                Console.WriteLine($"Updating 'Active'=false and 'Name'='UpdatedName'");
+                PressToContinue();
+
+                TestDataRepository.BulkUpdate(ExampleData.Id, false, "UpdatedName");
+
+                TestDataRepository.ClearTracker();
+                var updatedData = TestDataRepository.GetById(ExampleData.Id);
+
+                Console.WriteLine($"Data now has => Active:{updatedData?.Active}, Name:{updatedData?.Name}");
+                Console.WriteLine($"Bulk Delete by Id");
+                PressToContinue();
+
+                TestDataRepository.BulkDelete(ExampleData.Id);
+
+                TestDataRepository.ClearTracker();
+                testDataList = TestDataRepository.GetAll().ToList();
+                Console.WriteLine($"Table contains {testDataList.Count} rows");
             }
             catch (Exception ex)
             {

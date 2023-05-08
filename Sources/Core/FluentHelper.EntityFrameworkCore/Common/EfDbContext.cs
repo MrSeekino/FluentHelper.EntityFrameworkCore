@@ -1,10 +1,13 @@
 ﻿using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
@@ -146,15 +149,33 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return GetContext().SaveChanges();
         }
 
+        public T ExecuteOnDatabase<T>(Func<DatabaseFacade, T> funcToExecute)
+        {
+            return funcToExecute(GetContext().Database);
+        }
+
+        [ExcludeFromCodeCoverage(Justification = "Extensions Method Not Testable")]
+        public int ExecuteDelete<T>(Expression<Func<T, bool>> deletePredicate) where T : class
+        {
+            return GetContext().Set<T>().Where(deletePredicate).ExecuteDelete();
+        }
+
+        [ExcludeFromCodeCoverage(Justification = "Extensions Method Not Testable")]
+        public int ExecuteUpdate<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls) where T : class
+        {
+            return GetContext().Set<T>().Where(updatePredicate).ExecuteUpdate(updateSetPropertyCalls);
+        }
+
+        [ExcludeFromCodeCoverage]
+        public void ClearTracker()
+        {
+            GetContext().ChangeTracker.Clear();
+        }
+
         public void Dispose()
         {
             DbContext?.Dispose();
             DbContext = null;
-        }
-
-        public T ExecuteOnDatabase<T>(Func<DatabaseFacade, T> funcToExecute)
-        {
-            return funcToExecute(GetContext().Database);
         }
     }
 }

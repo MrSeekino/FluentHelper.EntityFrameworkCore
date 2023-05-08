@@ -59,13 +59,13 @@ namespace FluentHelper.EntityFrameworkCore.Examples.Runner
             serviceCollection.AddFluentDbContext(dbConfigBuilder =>
             {
                 if (providerChoice == ProviderChoice.SqlServer)
-                    dbConfigBuilder.WithSqlDbProvider(Configuration.GetConnectionString("FluentHelperExampleConnectionStringSqlServer"))
+                    dbConfigBuilder.WithSqlDbProvider(Configuration.GetConnectionString("FluentHelperExampleConnectionStringSqlServer")!)
                             .WithLogAction((logLevel, eventId, message) => Console.WriteLine($"{logLevel} | {eventId}: {message}"), true)
                             .WithLazyLoadingProxies()
                             .WithMappingFromAssemblyOf<TestDataMap>();
 
                 if (providerChoice == ProviderChoice.PostgreSql)
-                    dbConfigBuilder.WithPostgreSQLProvider(Configuration.GetConnectionString("FluentHelperExampleConnectionStringPostgreSql"))
+                    dbConfigBuilder.WithPostgreSqlProvider(Configuration.GetConnectionString("FluentHelperExampleConnectionStringPostgreSql")!)
                             .WithLogAction((logLevel, eventId, message) => Console.WriteLine($"{logLevel} | {eventId}: {message}"), true)
                             .WithLazyLoadingProxies()
                             .WithMappingFromAssemblyOf<TestDataMap>();

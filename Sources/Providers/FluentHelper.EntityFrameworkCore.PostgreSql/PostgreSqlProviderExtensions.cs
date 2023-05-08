@@ -3,6 +3,7 @@ using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FluentHelper.EntityFramworkCore.PostgreSql
 {
@@ -21,6 +22,7 @@ namespace FluentHelper.EntityFramworkCore.PostgreSql
             return dbContextBuilder;
         }
 
+        [ExcludeFromCodeCoverage]
         public static IDbContextTransaction BeginTransaction(this IDbContext dbContext, System.Data.IsolationLevel isolationLevel)
         {
             if (dbContext.IsTransactionOpen())

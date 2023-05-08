@@ -1,6 +1,6 @@
 ﻿using FluentHelper.EntityFrameworkCore.Common;
 using FluentHelper.EntityFrameworkCore.Interfaces;
-using FluentHelper.EntityFramworkCore.PostgreSql;
+using FluentHelper.EntityFrameworkCore.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;

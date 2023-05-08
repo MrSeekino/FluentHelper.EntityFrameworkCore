@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using System.Diagnostics.CodeAnalysis;
 
-namespace FluentHelper.EntityFramworkCore.PostgreSql
+namespace FluentHelper.EntityFrameworkCore.PostgreSql
 {
     public static class PostgreSqlProviderExtensions
     {

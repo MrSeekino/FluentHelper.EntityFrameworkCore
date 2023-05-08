@@ -5,8 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Version>1.7.0</Version>
-    <PackageId>FluentHelper.EntityFrameworkCore.PostgreSQL</PackageId>    
-    <Description>An helper for codefirst's EntityframeworkCore projects using PostgreSQL</Description>
+    <PackageId>FluentHelper.EntityFrameworkCore.PostgreSql</PackageId>    
+    <Description>An helper for codefirst's EntityframeworkCore projects using PostgreSql</Description>
     <PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</RepositoryUrl>
     <PackageTags>EntityFrameworkCore,FluentHelper,Sql,Postgre,PostgreSQL</PackageTags>
@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.3" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSql" Version="7.0.3" />
   </ItemGroup>
 
   <ItemGroup>

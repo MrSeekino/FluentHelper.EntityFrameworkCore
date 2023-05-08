@@ -15,6 +15,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Core\FluentHelper.EntityFrameworkCore\FluentHelper.EntityFrameworkCore.csproj" />
 	  <ProjectReference Include="..\..\ForTesting\FluentHelper.EntityFrameworkCore.Moq\FluentHelper.EntityFrameworkCore.Moq.csproj" />
+	  <ProjectReference Include="..\..\Providers\FluentHelper.EntityFrameworkCore.PostgreSQL\FluentHelper.EntityFrameworkCore.PostgreSql.csproj" />
 	  <ProjectReference Include="..\..\Providers\FluentHelper.EntityFrameworkCore.SqlServer\FluentHelper.EntityFrameworkCore.SqlServer.csproj" />
 	</ItemGroup>
 

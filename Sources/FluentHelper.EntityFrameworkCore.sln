@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.SqlServer", "Providers\FluentHelper.EntityFrameworkCore.SqlServer\FluentHelper.EntityFrameworkCore.SqlServer.csproj", "{94401BEE-242B-4582-B420-D4C339C1BDCF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.PostgreSql", "Providers\FluentHelper.EntityFrameworkCore.PostgreSQL\FluentHelper.EntityFrameworkCore.PostgreSql.csproj", "{BBE8E849-EE06-4790-8529-90477C452B9C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.PostgreSql", "Providers\FluentHelper.EntityFrameworkCore.PostgreSql\FluentHelper.EntityFrameworkCore.PostgreSql.csproj", "{BBE8E849-EE06-4790-8529-90477C452B9C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ForTesting", "ForTesting", "{D980BF6E-8894-4E96-B8E1-D378A33117BB}"
 EndProject

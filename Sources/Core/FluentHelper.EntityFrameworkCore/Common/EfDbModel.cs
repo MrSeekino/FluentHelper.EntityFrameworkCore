@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    class EfDbModel : DbContext
+    internal class EfDbModel : DbContext
     {
         internal IDbConfig DbConfig { get; set; }
         internal IEnumerable<IDbMap> Mappings { get; set; }
@@ -16,7 +16,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         internal Action<DbContextOptionsBuilder> UseLazyLoadingProxiesBehaviour { get; set; }
 
         public EfDbModel(IDbConfig dbConfig, IEnumerable<IDbMap> mappings)
-            : this(dbConfig, mappings, (optionsBuilder) => { optionsBuilder.UseLazyLoadingProxies(); })
+            : this(dbConfig, mappings, optionsBuilder => { optionsBuilder.UseLazyLoadingProxies(); })
         { }
 
         public EfDbModel(IDbConfig dbConfig, IEnumerable<IDbMap> mappings, Action<DbContextOptionsBuilder> useLazyLoadingProxiesBehaviour)

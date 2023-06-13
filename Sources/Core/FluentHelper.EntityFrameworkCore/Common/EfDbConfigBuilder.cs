@@ -50,7 +50,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
             {
                 DbProviderConfiguration = DbProviderConfiguration,
                 LogAction = LogAction,
-                EnableSensitiveDataLogging = EnableLazyLoadingProxies,
+                EnableSensitiveDataLogging = EnableSensitiveDataLogging,
                 EnableLazyLoadingProxies = EnableLazyLoadingProxies,
                 MappingAssemblies = MappingAssemblies
             };

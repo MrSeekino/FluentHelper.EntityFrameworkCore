@@ -21,6 +21,3 @@ This software is distributed under the terms of the Free Software Foundation [GN
 
 ## Examples
 Example projects that uses FluentHelper.EntityFrameworkCore can be found under the [Examples](https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore/tree/master/Examples) folder in current repository.
-
-## Related Projects
-  - [FluentHelper.EntityFrameworkCore.Moq](https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore.Moq)

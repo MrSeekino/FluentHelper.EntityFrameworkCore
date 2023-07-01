@@ -4,12 +4,12 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<PackageId>FluentHelper.EntityFrameworkCore.Moq</PackageId>
 		<Product>FluentHelper.EntityFrameworkCore.Moq</Product>
-		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
 		<PackageTags>EntityFrameworkCore,FluentHelper,Moq</PackageTags>
 		<Description>A simplified way to test FluentHelper.EntityFrameworkCore projects</Description>
 		<RepositoryUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</RepositoryUrl>
-		<Version>1.7.0</Version>
+		<Version>1.7.2</Version>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 

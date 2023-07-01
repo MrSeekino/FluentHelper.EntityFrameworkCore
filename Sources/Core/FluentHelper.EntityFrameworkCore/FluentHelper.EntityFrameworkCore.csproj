@@ -6,8 +6,8 @@
     <PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
     <PackageTags>EntityFrameworkCore,FluentHelper</PackageTags>
     <PackageId>FluentHelper.EntityFrameworkCore</PackageId>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <Version>1.7.1</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>1.7.2</Version>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</RepositoryUrl>
 	<Nullable>enable</Nullable>

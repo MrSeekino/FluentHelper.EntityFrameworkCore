@@ -82,7 +82,7 @@ namespace FluentHelper.EntityFrameworkCore.Moq
             foreach (var addItem in AddList)
             {
                 if (FinalList.Any(x => x.Equals(addItem)))
-                    throw new Exception("Cannot add twice the same item");
+                    throw new InvalidOperationException("Cannot add twice the same item");
 
                 FinalList.Add(addItem);
             }
@@ -90,7 +90,7 @@ namespace FluentHelper.EntityFrameworkCore.Moq
             foreach (var removeItem in RemoveList)
             {
                 if (!FinalList.Any(x => x.Equals(removeItem)))
-                    throw new Exception("Cannot remove items that are not in the list");
+                    throw new InvalidOperationException("Cannot remove items that are not in the list");
 
                 FinalList.Remove(removeItem);
             }
@@ -104,7 +104,7 @@ namespace FluentHelper.EntityFrameworkCore.Moq
         public IDbContextTransaction BeginTransaction()
         {
             if (HasActiveTransaction)
-                throw new Exception("There is already a transaction opened");
+                throw new InvalidOperationException("There is already a transaction opened");
 
             HasActiveTransaction = true;
             return DbContectTransactionMock.Object;
@@ -113,7 +113,7 @@ namespace FluentHelper.EntityFrameworkCore.Moq
         public void CommitTransaction()
         {
             if (!HasActiveTransaction)
-                throw new Exception("No Open Transaction found");
+                throw new InvalidOperationException("No Open Transaction found");
 
             HasActiveTransaction = false;
 
@@ -129,7 +129,7 @@ namespace FluentHelper.EntityFrameworkCore.Moq
                 if (noThrow)
                     return;
 
-                throw new Exception("No Open Transaction found");
+                throw new InvalidOperationException("No Open Transaction found");
             }
 
             HasActiveTransaction = false;

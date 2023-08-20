@@ -27,7 +27,7 @@ namespace FluentHelper.EntityFrameworkCore.SqlServer
         public static IDbContextTransaction BeginTransaction(this IDbContext dbContext, IsolationLevel isolationLevel)
         {
             if (dbContext.IsTransactionOpen())
-                throw new Exception("A transaction is already open");
+                throw new InvalidOperationException("A transaction is already open");
 
             return dbContext.ExecuteOnDatabase(db => db.BeginTransaction(isolationLevel));
         }

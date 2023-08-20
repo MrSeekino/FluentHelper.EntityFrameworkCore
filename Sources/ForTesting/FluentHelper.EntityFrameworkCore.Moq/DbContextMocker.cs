@@ -44,7 +44,7 @@ namespace FluentHelper.EntityFrameworkCore.Moq
             MockContext.Setup(c => c.BeginTransaction()).Callback(() =>
             {
                 if (HasActiveTransaction)
-                    throw new Exception("There is already a transaction opened");
+                    throw new InvalidOperationException("There is already a transaction opened");
 
                 HasActiveTransaction = true;
 
@@ -54,7 +54,7 @@ namespace FluentHelper.EntityFrameworkCore.Moq
             MockContext.Setup(c => c.ExecuteOnDatabase(It.IsAny<Func<DatabaseFacade, IDbContextTransaction>>())).Callback(() =>
             {
                 if (HasActiveTransaction)
-                    throw new Exception("There is already a transaction opened");
+                    throw new InvalidOperationException("There is already a transaction opened");
 
                 HasActiveTransaction = true;
 
@@ -64,7 +64,7 @@ namespace FluentHelper.EntityFrameworkCore.Moq
             MockContext.Setup(c => c.RollbackTransaction()).Callback(() =>
             {
                 if (!HasActiveTransaction)
-                    throw new Exception("No Open Transaction found");
+                    throw new InvalidOperationException("No Open Transaction found");
 
                 HasActiveTransaction = false;
 
@@ -74,7 +74,7 @@ namespace FluentHelper.EntityFrameworkCore.Moq
             MockContext.Setup(c => c.CommitTransaction()).Callback(() =>
             {
                 if (!HasActiveTransaction)
-                    throw new Exception("No Open Transaction found");
+                    throw new InvalidOperationException("No Open Transaction found");
 
                 HasActiveTransaction = false;
 

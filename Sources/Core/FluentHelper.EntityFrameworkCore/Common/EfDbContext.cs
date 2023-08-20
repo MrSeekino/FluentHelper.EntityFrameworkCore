@@ -63,7 +63,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public IDbContextTransaction BeginTransaction()
         {
             if (IsTransactionOpen())
-                throw new Exception("A transaction is already open");
+                throw new InvalidOperationException("A transaction is already open");
 
             return GetContext().Database.BeginTransaction();
         }
@@ -71,7 +71,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void RollbackTransaction()
         {
             if (!IsTransactionOpen())
-                throw new Exception("Cannot find an open transaction to rollback");
+                throw new InvalidOperationException("Cannot find an open transaction to rollback");
 
             GetContext().Database.CurrentTransaction!.Rollback();
         }
@@ -79,7 +79,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void CommitTransaction()
         {
             if (!IsTransactionOpen())
-                throw new Exception("Cannot find an open transaction to commit");
+                throw new InvalidOperationException("Cannot find an open transaction to commit");
 
             GetContext().Database.CurrentTransaction!.Commit();
         }
@@ -87,7 +87,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public bool AreSavepointsSupported()
         {
             if (!IsTransactionOpen())
-                throw new Exception("Cannot check support for savepoints when there is not active transaction");
+                throw new InvalidOperationException("Cannot check support for savepoints when there is not active transaction");
 
             return GetContext().Database.CurrentTransaction!.SupportsSavepoints;
         }
@@ -95,7 +95,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void CreateSavepoint(string savePointName)
         {
             if (!IsTransactionOpen())
-                throw new Exception("An open transaction is needed to create a savepoint");
+                throw new InvalidOperationException("An open transaction is needed to create a savepoint");
 
             if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
                 GetContext().Database.CurrentTransaction!.CreateSavepoint(savePointName);
@@ -104,7 +104,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void ReleaseSavepoint(string savePointName)
         {
             if (!IsTransactionOpen())
-                throw new Exception("An open transaction is needed to release a savepoint");
+                throw new InvalidOperationException("An open transaction is needed to release a savepoint");
 
             if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
                 GetContext().Database.CurrentTransaction!.ReleaseSavepoint(savePointName);
@@ -113,7 +113,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void RollbackToSavepoint(string savePointName)
         {
             if (!IsTransactionOpen())
-                throw new Exception("An open transaction is needed to rollback to a savepoint");
+                throw new InvalidOperationException("An open transaction is needed to rollback to a savepoint");
 
             if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
                 GetContext().Database.CurrentTransaction!.RollbackToSavepoint(savePointName);

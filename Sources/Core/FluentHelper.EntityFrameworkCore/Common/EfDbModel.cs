@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    internal class EfDbModel : DbContext
+    internal sealed class EfDbModel : DbContext
     {
         internal IDbConfig DbConfig { get; set; }
         internal IEnumerable<IDbMap> Mappings { get; set; }
@@ -27,13 +27,11 @@ namespace FluentHelper.EntityFrameworkCore.Common
             UseLazyLoadingProxiesBehaviour = useLazyLoadingProxiesBehaviour;
         }
 
-        [ExcludeFromCodeCoverage]
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             Configure(optionsBuilder);
         }
 
-        [ExcludeFromCodeCoverage]
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             CreateModel(modelBuilder);

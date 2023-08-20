@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    internal class EfDbContext : IDbContext
+    internal sealed class EfDbContext : IDbContext
     {
         internal DbContext? DbContext { get; set; }
         internal IDbConfig DbConfig { get; set; }
@@ -154,19 +154,16 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return funcToExecute(GetContext().Database);
         }
 
-        [ExcludeFromCodeCoverage(Justification = "Extensions Method Not Testable")]
         public int ExecuteDelete<T>(Expression<Func<T, bool>> deletePredicate) where T : class
         {
             return GetContext().Set<T>().Where(deletePredicate).ExecuteDelete();
         }
 
-        [ExcludeFromCodeCoverage(Justification = "Extensions Method Not Testable")]
         public int ExecuteUpdate<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls) where T : class
         {
             return GetContext().Set<T>().Where(updatePredicate).ExecuteUpdate(updateSetPropertyCalls);
         }
 
-        [ExcludeFromCodeCoverage]
         public void ClearTracker()
         {
             GetContext().ChangeTracker.Clear();

@@ -8,8 +8,7 @@ using System.Reflection;
 
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    [ExcludeFromCodeCoverage]
-    internal class DbConfig : IDbConfig
+    internal sealed class DbConfig : IDbConfig
     {
         public Action<DbContextOptionsBuilder>? DbProviderConfiguration { get; set; }
         public Action<LogLevel, EventId, string>? LogAction { get; set; }

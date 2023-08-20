@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
 
 namespace FluentHelper.EntityFrameworkCore.SqlServer
 {
@@ -23,7 +22,6 @@ namespace FluentHelper.EntityFrameworkCore.SqlServer
             return dbContextBuilder;
         }
 
-        [ExcludeFromCodeCoverage]
         public static IDbContextTransaction BeginTransaction(this IDbContext dbContext, IsolationLevel isolationLevel)
         {
             if (dbContext.IsTransactionOpen())

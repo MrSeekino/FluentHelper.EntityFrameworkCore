@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    [ExcludeFromCodeCoverage]
     public abstract class EfDbMap : IDbMap
     {
         ModelBuilder? ModelBuilder { get; set; }
@@ -28,7 +27,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
     }
 
     [ExcludeFromCodeCoverage]
-    public abstract class EfDbMap<T> : EfDbMap, IDbMap where T : class
+    public abstract class EfDbMap<T> : EfDbMap where T : class
     {
         public EntityTypeBuilder<T> Entity
         {

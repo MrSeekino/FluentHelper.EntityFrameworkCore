@@ -22,7 +22,6 @@ namespace FluentHelper.EntityFrameworkCore.PostgreSql
             return dbContextBuilder;
         }
 
-        [ExcludeFromCodeCoverage]
         public static IDbContextTransaction BeginTransaction(this IDbContext dbContext, System.Data.IsolationLevel isolationLevel)
         {
             if (dbContext.IsTransactionOpen())

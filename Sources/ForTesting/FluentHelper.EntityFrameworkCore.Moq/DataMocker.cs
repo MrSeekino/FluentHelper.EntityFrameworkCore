@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.Moq
 {
-    internal class DataMocker<T> : IDataMocker<T> where T : class
+    internal sealed class DataMocker<T> : IDataMocker<T> where T : class
     {
         internal List<T> RollbackList { get; set; }
         internal List<T> FinalList { get; set; }

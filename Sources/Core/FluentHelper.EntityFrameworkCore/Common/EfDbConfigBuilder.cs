@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    public class EfDbConfigBuilder
+    public sealed class EfDbConfigBuilder
     {
         internal Action<DbContextOptionsBuilder>? DbProviderConfiguration { get; private set; }
         internal Action<LogLevel, EventId, string>? LogAction { get; private set; }

@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.Moq
 {
-    public class DbContextMocker
+    public sealed class DbContextMocker
     {
         internal bool HasActiveTransaction { get; set; }
 

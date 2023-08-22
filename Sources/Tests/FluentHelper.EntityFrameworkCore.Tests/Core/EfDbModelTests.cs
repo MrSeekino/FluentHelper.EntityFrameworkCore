@@ -131,7 +131,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             mockDbMap.Setup(x => x.Map()).Verifiable();
 
             var dbModel = new EfDbModel(mockDbConfig.Object, new List<IDbMap>() { mockDbMap.Object });
-            Assert.Throws<Exception>(() => dbModel.Configure(mockOptionsBuilder.Object));
+            Assert.Throws<NullReferenceException>(() => dbModel.Configure(mockOptionsBuilder.Object));
         }
     }
 }

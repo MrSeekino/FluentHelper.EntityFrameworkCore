@@ -64,7 +64,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             var mockedDbConfig = new Mock<IDbConfig>();
 
             EfDbContext dbContext = new EfDbContext(mockedDbConfig.Object, new List<IDbMap>(), (c, m) => mockedDbModel.Object);
-            Assert.Throws<Exception>(() => dbContext.BeginTransaction(IsolationLevel.ReadUncommitted));
+            Assert.Throws<InvalidOperationException>(() => dbContext.BeginTransaction(IsolationLevel.ReadUncommitted));
         }
     }
 }

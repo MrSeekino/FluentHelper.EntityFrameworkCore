@@ -174,7 +174,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.ForTesting
             dataMocker.Add(testData);
             dataMocker.Add(testData);
 
-            Assert.Throws<Exception>(() => dataMocker.SaveChanges());
+            Assert.Throws<InvalidOperationException>(() => dataMocker.SaveChanges());
         }
 
         [Test]
@@ -199,7 +199,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.ForTesting
             dataMocker.Remove(testDataList[0]);
             dataMocker.Remove(testDataList[0]);
 
-            Assert.Throws<Exception>(() => dataMocker.SaveChanges());
+            Assert.Throws<InvalidOperationException>(() => dataMocker.SaveChanges());
         }
 
         [Test]
@@ -242,11 +242,11 @@ namespace FluentHelper.EntityFrameworkCore.Tests.ForTesting
 
             DataMocker<TestEntity> dataMocker = new DataMocker<TestEntity>(initialDataList);
 
-            Assert.Throws<Exception>(() => dataMocker.CommitTransaction());
-            Assert.Throws<Exception>(() => dataMocker.RollbackTransaction());
+            Assert.Throws<InvalidOperationException>(() => dataMocker.CommitTransaction());
+            Assert.Throws<InvalidOperationException>(() => dataMocker.RollbackTransaction());
 
             dataMocker.BeginTransaction();
-            Assert.Throws<Exception>(() => dataMocker.BeginTransaction());
+            Assert.Throws<InvalidOperationException>(() => dataMocker.BeginTransaction());
 
             dataMocker.Add(testData);
 

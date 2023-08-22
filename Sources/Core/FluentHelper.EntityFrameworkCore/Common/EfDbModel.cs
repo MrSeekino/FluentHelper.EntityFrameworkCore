@@ -2,13 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    internal sealed class EfDbModel : DbContext
+    internal class EfDbModel : DbContext
     {
         internal IDbConfig DbConfig { get; set; }
         internal IEnumerable<IDbMap> Mappings { get; set; }

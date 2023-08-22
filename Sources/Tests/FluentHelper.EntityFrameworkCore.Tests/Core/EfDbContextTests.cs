@@ -157,7 +157,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             dbContext.BeginTransaction();
             dbMock.Verify(x => x.BeginTransaction(), Times.Once());
 
-            Assert.Throws<Exception>(() => { dbContext.BeginTransaction(); });
+            Assert.Throws<InvalidOperationException>(() => { dbContext.BeginTransaction(); });
 
             dbContext.CommitTransaction();
             transactionMock.Verify(x => x.Commit(), Times.Once());
@@ -168,8 +168,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             dbContext.RollbackTransaction();
             transactionMock.Verify(x => x.Rollback(), Times.Once());
 
-            Assert.Throws<Exception>(() => { dbContext.RollbackTransaction(); });
-            Assert.Throws<Exception>(() => { dbContext.CommitTransaction(); });
+            Assert.Throws<InvalidOperationException>(() => { dbContext.RollbackTransaction(); });
+            Assert.Throws<InvalidOperationException>(() => { dbContext.CommitTransaction(); });
         }
 
         [Test]
@@ -215,10 +215,10 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             dbContext.CommitTransaction();
 
-            Assert.Throws<Exception>(() => { dbContext.AreSavepointsSupported(); });
-            Assert.Throws<Exception>(() => { dbContext.CreateSavepoint(savePointName); });
-            Assert.Throws<Exception>(() => { dbContext.ReleaseSavepoint(savePointName); });
-            Assert.Throws<Exception>(() => { dbContext.RollbackToSavepoint(savePointName); });
+            Assert.Throws<InvalidOperationException>(() => { dbContext.AreSavepointsSupported(); });
+            Assert.Throws<InvalidOperationException>(() => { dbContext.CreateSavepoint(savePointName); });
+            Assert.Throws<InvalidOperationException>(() => { dbContext.ReleaseSavepoint(savePointName); });
+            Assert.Throws<InvalidOperationException>(() => { dbContext.RollbackToSavepoint(savePointName); });
         }
 
         [Test]

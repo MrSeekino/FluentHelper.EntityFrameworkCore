@@ -14,7 +14,7 @@ namespace FluentHelper.EntityFrameworkCore.SqlServer
             if (string.IsNullOrWhiteSpace(connectionString))
                 throw new ArgumentNullException(nameof(connectionString));
 
-            dbContextBuilder = dbContextBuilder.WithDbProviderConfiguration(dbContextOptionsBuilder =>
+            dbContextBuilder = dbContextBuilder.WithDbProvider(dbContextOptionsBuilder =>
             {
                 dbContextOptionsBuilder = sqlServerOptionsAction != null ? dbContextOptionsBuilder.UseSqlServer(connectionString, sqlServerOptionsAction) : dbContextOptionsBuilder.UseSqlServer(connectionString);
             });

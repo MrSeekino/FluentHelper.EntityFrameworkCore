@@ -14,7 +14,7 @@ namespace FluentHelper.EntityFrameworkCore.PostgreSql
             if (string.IsNullOrWhiteSpace(connectionString))
                 throw new ArgumentNullException(nameof(connectionString));
 
-            dbContextBuilder = dbContextBuilder.WithDbProviderConfiguration(dbContextOptionsBuilder =>
+            dbContextBuilder = dbContextBuilder.WithDbProvider(dbContextOptionsBuilder =>
             {
                 dbContextOptionsBuilder = npgSqlOptionsAction != null ? dbContextOptionsBuilder.UseNpgsql(connectionString, npgSqlOptionsAction) : dbContextOptionsBuilder.UseNpgsql(connectionString);
             });

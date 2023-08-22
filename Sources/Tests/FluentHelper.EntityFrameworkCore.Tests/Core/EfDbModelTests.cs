@@ -14,12 +14,33 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
     internal class EfDbModelTests
     {
         [Test]
-        public void Verify_DbProviderConfiguration_IsCalledCorrectly()
+        public void Verify_DbConfiguration_IsCalledCorrectly()
         {
             bool funcCalled = false;
 
             var mockDbConfig = new Mock<IDbConfig>();
-            mockDbConfig.Setup(x => x.DbProviderConfiguration).Returns(x =>
+            mockDbConfig.Setup(x => x.DbProvider).Returns(x => { });
+            mockDbConfig.Setup(x => x.DbConfiguration).Returns(x =>
+            {
+                funcCalled = true;
+            });
+
+            var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
+            mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
+
+            var dbModel = new EfDbModel(mockDbConfig.Object, new List<IDbMap>());
+            dbModel.Configure(mockOptionsBuilder.Object);
+
+            Assert.True(funcCalled);
+        }
+
+        [Test]
+        public void Verify_DbProvider_IsCalledCorrectly()
+        {
+            bool funcCalled = false;
+
+            var mockDbConfig = new Mock<IDbConfig>();
+            mockDbConfig.Setup(x => x.DbProvider).Returns(x =>
             {
                 funcCalled = true;
             });
@@ -39,7 +60,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
 
             var mockDbConfig = new Mock<IDbConfig>();
-            mockDbConfig.Setup(x => x.DbProviderConfiguration).Returns(x => { });
+            mockDbConfig.Setup(x => x.DbProvider).Returns(x => { });
             mockDbConfig.Setup(x => x.LogAction).Returns(logAction);
 
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
@@ -56,7 +77,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         public void Verify_EnableSensitiveDataLogging_IsCalledCorrectly(bool enableSensitivityDataLogging)
         {
             var mockDbConfig = new Mock<IDbConfig>();
-            mockDbConfig.Setup(x => x.DbProviderConfiguration).Returns(x => { });
+            mockDbConfig.Setup(x => x.DbProvider).Returns(x => { });
             mockDbConfig.Setup(x => x.EnableSensitiveDataLogging).Returns(enableSensitivityDataLogging);
 
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
@@ -78,7 +99,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             bool funcCalled = false;
 
             var mockDbConfig = new Mock<IDbConfig>();
-            mockDbConfig.Setup(x => x.DbProviderConfiguration).Returns(x => { });
+            mockDbConfig.Setup(x => x.DbProvider).Returns(x => { });
             mockDbConfig.Setup(x => x.EnableLazyLoadingProxies).Returns(enableLazyLoadingProxies);
 
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
@@ -99,7 +120,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var mockModelBuilder = new Mock<ModelBuilder>();
 
             var mockDbConfig = new Mock<IDbConfig>();
-            mockDbConfig.Setup(x => x.DbProviderConfiguration).Returns(x => { });
+            mockDbConfig.Setup(x => x.DbProvider).Returns(x => { });
 
             var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
             mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);

@@ -63,7 +63,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         public void Verify_CreateDbContext_WorksProperly_AfterSetAllProperties_WithLazyLoading()
         {
             var dbConfigMock = new Mock<IDbConfig>();
-            dbConfigMock.Setup(x => x.DbProviderConfiguration).Returns(x => { });
+            dbConfigMock.Setup(x => x.DbConfiguration).Returns(null);
+            dbConfigMock.Setup(x => x.DbProvider).Returns(x => { });
             dbConfigMock.Setup(x => x.LogAction).Returns((x, y, z) => { });
             dbConfigMock.Setup(x => x.EnableSensitiveDataLogging).Returns(true);
             dbConfigMock.Setup(x => x.EnableLazyLoadingProxies).Returns(true);
@@ -74,7 +75,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             bool funcCalledCorrecly = false;
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
-                if (c.DbProviderConfiguration == dbConfigMock.Object.DbProviderConfiguration
+                if (c.DbProvider == dbConfigMock.Object.DbProvider
                         && c.LogAction == dbConfigMock.Object.LogAction
                         && c.EnableSensitiveDataLogging == dbConfigMock.Object.EnableSensitiveDataLogging
                         && c.EnableLazyLoadingProxies == dbConfigMock.Object.EnableLazyLoadingProxies)

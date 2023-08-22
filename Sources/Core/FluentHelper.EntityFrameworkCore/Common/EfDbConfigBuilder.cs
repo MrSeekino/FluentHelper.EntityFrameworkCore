@@ -9,7 +9,8 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     public sealed class EfDbConfigBuilder
     {
-        internal Action<DbContextOptionsBuilder>? DbProviderConfiguration { get; private set; }
+        internal Action<DbContextOptionsBuilder>? DbConfiguration { get; private set; }
+        internal Action<DbContextOptionsBuilder>? DbProvider { get; private set; }
         internal Action<LogLevel, EventId, string>? LogAction { get; private set; }
 
         internal bool EnableSensitiveDataLogging { get; private set; }
@@ -17,9 +18,15 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         internal List<Assembly> MappingAssemblies { get; private set; } = new List<Assembly>();
 
-        public EfDbConfigBuilder WithDbProviderConfiguration(Action<DbContextOptionsBuilder> dbProviderConfiguration)
+        public EfDbConfigBuilder WithDbConfiguration(Action<DbContextOptionsBuilder> dbConfiguration)
         {
-            DbProviderConfiguration = dbProviderConfiguration;
+            DbConfiguration = dbConfiguration;
+            return this;
+        }
+
+        public EfDbConfigBuilder WithDbProvider(Action<DbContextOptionsBuilder> dbProvider)
+        {
+            DbProvider = dbProvider;
             return this;
         }
 
@@ -48,7 +55,8 @@ namespace FluentHelper.EntityFrameworkCore.Common
         {
             return new DbConfig
             {
-                DbProviderConfiguration = DbProviderConfiguration,
+                DbConfiguration = DbConfiguration,
+                DbProvider = DbProvider,
                 LogAction = LogAction,
                 EnableSensitiveDataLogging = EnableSensitiveDataLogging,
                 EnableLazyLoadingProxies = EnableLazyLoadingProxies,

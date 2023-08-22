@@ -16,7 +16,9 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddFluentDbContext(dbConfigBuilder =>
             {
-                dbConfigBuilder.WithDbProviderConfiguration(x => { })
+                dbConfigBuilder
+                    .WithDbConfiguration(x => { })
+                    .WithDbProvider(x => { })
                     .WithLazyLoadingProxies()
                     .WithLogAction((x, y, z) => { }, true)
                     .WithMappingFromAssemblyOf<TestEntityMap>();
@@ -26,7 +28,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             var dbConfig = serviceProvider.GetRequiredService<IDbConfig>();
             Assert.That(dbConfig, Is.Not.Null);
-            Assert.That(dbConfig.DbProviderConfiguration, Is.Not.Null);
+            Assert.That(dbConfig.DbConfiguration, Is.Not.Null);
+            Assert.That(dbConfig.DbProvider, Is.Not.Null);
             Assert.That(dbConfig.LogAction, Is.Not.Null);
             Assert.That(dbConfig.EnableSensitiveDataLogging, Is.True);
             Assert.That(dbConfig.EnableLazyLoadingProxies, Is.True);

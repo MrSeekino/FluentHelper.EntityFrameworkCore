@@ -8,14 +8,25 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
     internal class EfDbConfigBuilderTests
     {
         [Test]
-        public void Verify_EfDbConfigBuilder_WithDbProviderConfiguration_Works()
+        public void Verify_EfDbConfigBuilder_WithDbConfiguration_Works()
         {
             var efDbConfig = new EfDbConfigBuilder()
-                                .WithDbProviderConfiguration(x => { })
+                                .WithDbConfiguration(x => { })
                                 .Build();
 
             Assert.That(efDbConfig, Is.Not.Null);
-            Assert.That(efDbConfig.DbProviderConfiguration, Is.Not.Null);
+            Assert.That(efDbConfig.DbConfiguration, Is.Not.Null);
+        }
+
+        [Test]
+        public void Verify_EfDbConfigBuilder_WithDbProvider_Works()
+        {
+            var efDbConfig = new EfDbConfigBuilder()
+                                .WithDbProvider(x => { })
+                                .Build();
+
+            Assert.That(efDbConfig, Is.Not.Null);
+            Assert.That(efDbConfig.DbProvider, Is.Not.Null);
         }
 
         [Test]

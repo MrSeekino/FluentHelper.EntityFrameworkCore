@@ -40,10 +40,13 @@ namespace FluentHelper.EntityFrameworkCore.Common
         {
             if (!optionsBuilder.IsConfigured)
             {
-                if (DbConfig.DbProviderConfiguration == null)
+                if (DbConfig.DbProvider == null)
                     throw new NullReferenceException($"Unspecified DbProvider");
 
-                DbConfig.DbProviderConfiguration!(optionsBuilder);
+                if (DbConfig.DbConfiguration != null)
+                    DbConfig.DbConfiguration!(optionsBuilder);
+
+                DbConfig.DbProvider!(optionsBuilder);
 
                 if (DbConfig.LogAction != null)
                     optionsBuilder.LogTo((e, l) => true, eventData => DbConfig.LogAction(eventData.LogLevel, eventData.EventId, eventData.ToString()));

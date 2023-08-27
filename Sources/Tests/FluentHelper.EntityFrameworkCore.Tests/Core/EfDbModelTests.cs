@@ -3,7 +3,7 @@ using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -18,18 +18,15 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             bool funcCalled = false;
 
-            var mockDbConfig = new Mock<IDbConfig>();
-            mockDbConfig.Setup(x => x.DbProvider).Returns(x => { });
-            mockDbConfig.Setup(x => x.DbConfiguration).Returns(x =>
-            {
-                funcCalled = true;
-            });
+            var dbConfig = Substitute.For<IDbConfig>();
+            dbConfig.DbProvider.Returns(x => { });
+            dbConfig.DbConfiguration.Returns(x => { funcCalled = true; });
 
-            var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
-            mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
+            var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
+            contextOptBuilder.IsConfigured.Returns(false);
 
-            var dbModel = new EfDbModel(mockDbConfig.Object, new List<IDbMap>());
-            dbModel.Configure(mockOptionsBuilder.Object);
+            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>());
+            dbModel.Configure(contextOptBuilder);
 
             Assert.True(funcCalled);
         }
@@ -39,17 +36,17 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             bool funcCalled = false;
 
-            var mockDbConfig = new Mock<IDbConfig>();
-            mockDbConfig.Setup(x => x.DbProvider).Returns(x =>
+            var dbConfig = Substitute.For<IDbConfig>();
+            dbConfig.DbProvider.Returns(x => { }).AndDoes(x =>
             {
                 funcCalled = true;
             });
 
-            var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
-            mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
+            var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
+            contextOptBuilder.IsConfigured.Returns(false);
 
-            var dbModel = new EfDbModel(mockDbConfig.Object, new List<IDbMap>());
-            dbModel.Configure(mockOptionsBuilder.Object);
+            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>());
+            dbModel.Configure(contextOptBuilder);
 
             Assert.True(funcCalled);
         }
@@ -59,57 +56,57 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
 
-            var mockDbConfig = new Mock<IDbConfig>();
-            mockDbConfig.Setup(x => x.DbProvider).Returns(x => { });
-            mockDbConfig.Setup(x => x.LogAction).Returns(logAction);
+            var dbConfig = Substitute.For<IDbConfig>();
+            dbConfig.DbProvider.Returns(x => { });
+            dbConfig.LogAction.Returns(logAction);
 
-            var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
-            mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
+            var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
+            contextOptBuilder.IsConfigured.Returns(false);
 
-            var dbModel = new EfDbModel(mockDbConfig.Object, new List<IDbMap>());
-            dbModel.Configure(mockOptionsBuilder.Object);
+            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>());
+            dbModel.Configure(contextOptBuilder);
 
-            mockOptionsBuilder.Verify(x => x.LogTo(It.IsAny<Func<EventId, LogLevel, bool>>(), It.IsAny<Action<EventData>>()), Times.Once());
+            contextOptBuilder.Received(1).LogTo(Arg.Any<Func<EventId, LogLevel, bool>>(), Arg.Any<Action<EventData>>());
         }
 
         [TestCase(true)]
         [TestCase(false)]
         public void Verify_EnableSensitiveDataLogging_IsCalledCorrectly(bool enableSensitivityDataLogging)
         {
-            var mockDbConfig = new Mock<IDbConfig>();
-            mockDbConfig.Setup(x => x.DbProvider).Returns(x => { });
-            mockDbConfig.Setup(x => x.EnableSensitiveDataLogging).Returns(enableSensitivityDataLogging);
+            var dbConfig = Substitute.For<IDbConfig>();
+            dbConfig.DbProvider.Returns(x => { });
+            dbConfig.EnableSensitiveDataLogging.Returns(enableSensitivityDataLogging);
 
-            var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
-            mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
+            var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
+            contextOptBuilder.IsConfigured.Returns(false);
 
-            var dbModel = new EfDbModel(mockDbConfig.Object, new List<IDbMap>());
-            dbModel.Configure(mockOptionsBuilder.Object);
+            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>());
+            dbModel.Configure(contextOptBuilder);
 
             if (enableSensitivityDataLogging)
-                mockOptionsBuilder.Verify(x => x.EnableSensitiveDataLogging(true), Times.Once());
+                contextOptBuilder.Received(1).EnableSensitiveDataLogging(true);
             else
-                mockOptionsBuilder.Verify(x => x.EnableSensitiveDataLogging(It.IsAny<bool>()), Times.Never());
+                contextOptBuilder.DidNotReceive().EnableSensitiveDataLogging(true);
         }
 
         [TestCase(true)]
         [TestCase(false)]
-        public void Verify_UseLazyLoadingProxies_IsCalledCorrectly(bool enableLazyLoadingProxies)
+        public void Verify_UseLazyLoadingProxies_IsCalledCorrectly(bool enableLazyLoadingProxies) // to be verified
         {
             bool funcCalled = false;
 
-            var mockDbConfig = new Mock<IDbConfig>();
-            mockDbConfig.Setup(x => x.DbProvider).Returns(x => { });
-            mockDbConfig.Setup(x => x.EnableLazyLoadingProxies).Returns(enableLazyLoadingProxies);
+            var dbConfig = Substitute.For<IDbConfig>();
+            dbConfig.DbProvider.Returns(x => { });
+            dbConfig.EnableLazyLoadingProxies.Returns(enableLazyLoadingProxies);
 
-            var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
-            mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
+            var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
+            contextOptBuilder.IsConfigured.Returns(false);
 
-            var dbModel = new EfDbModel(mockDbConfig.Object, new List<IDbMap>(), x =>
+            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>(), x =>
             {
                 funcCalled = true;
             });
-            dbModel.Configure(mockOptionsBuilder.Object);
+            dbModel.Configure(contextOptBuilder);
 
             Assert.That(funcCalled, Is.EqualTo(enableLazyLoadingProxies));
         }
@@ -117,42 +114,40 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_CreateModel_WorksProperly()
         {
-            var mockModelBuilder = new Mock<ModelBuilder>();
+            var modelBuilder = Substitute.For<ModelBuilder>();
 
-            var mockDbConfig = new Mock<IDbConfig>();
-            mockDbConfig.Setup(x => x.DbProvider).Returns(x => { });
+            var dbConfig = Substitute.For<IDbConfig>();
+            dbConfig.DbProvider.Returns(x => { });
 
-            var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
-            mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
+            var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
+            contextOptBuilder.IsConfigured.Returns(false);
 
-            var mockDbMap = new Mock<IDbMap>();
-            mockDbMap.Setup(x => x.SetModelBuilder(It.IsAny<ModelBuilder>())).Verifiable();
-            mockDbMap.Setup(x => x.Map()).Verifiable();
+            var dbMap = Substitute.For<IDbMap>();
+            dbMap.SetModelBuilder(Arg.Any<ModelBuilder>());
 
-            var dbModel = new EfDbModel(mockDbConfig.Object, new List<IDbMap>() { mockDbMap.Object });
-            dbModel.Configure(mockOptionsBuilder.Object);
-            dbModel.CreateModel(mockModelBuilder.Object);
+            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>() { dbMap });
+            dbModel.Configure(contextOptBuilder);
+            dbModel.CreateModel(modelBuilder);
 
-            mockDbMap.Verify(x => x.SetModelBuilder(mockModelBuilder.Object), Times.Once());
-            mockDbMap.Verify(x => x.Map(), Times.Once());
+            dbMap.Received(1).SetModelBuilder(modelBuilder);
+            dbMap.Received(1).Map();
         }
 
         [Test]
         public void Verify_CreateModel_Throws_Without_DbProviderConfiguration()
         {
-            var mockModelBuilder = new Mock<ModelBuilder>();
+            var moedlBuilder = Substitute.For<ModelBuilder>();
 
-            var mockDbConfig = new Mock<IDbConfig>();
+            var dbConfig = Substitute.For<IDbConfig>();
+            dbConfig.DbProvider.Returns(null);
 
-            var mockOptionsBuilder = new Mock<DbContextOptionsBuilder>();
-            mockOptionsBuilder.Setup(x => x.IsConfigured).Returns(false);
+            var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
+            contextOptBuilder.IsConfigured.Returns(false);
 
-            var mockDbMap = new Mock<IDbMap>();
-            mockDbMap.Setup(x => x.SetModelBuilder(It.IsAny<ModelBuilder>())).Verifiable();
-            mockDbMap.Setup(x => x.Map()).Verifiable();
+            var mockDbMap = Substitute.For<IDbMap>();
 
-            var dbModel = new EfDbModel(mockDbConfig.Object, new List<IDbMap>() { mockDbMap.Object });
-            Assert.Throws<NullReferenceException>(() => dbModel.Configure(mockOptionsBuilder.Object));
+            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>() { mockDbMap });
+            Assert.Throws<NullReferenceException>(() => dbModel.Configure(contextOptBuilder));
         }
     }
 }

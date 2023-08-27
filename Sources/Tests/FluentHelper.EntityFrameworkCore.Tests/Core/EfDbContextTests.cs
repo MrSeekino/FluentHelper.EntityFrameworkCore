@@ -3,14 +3,17 @@ using FluentHelper.EntityFrameworkCore.Interfaces;
 using FluentHelper.EntityFrameworkCore.Tests.Support;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Moq;
+using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace FluentHelper.EntityFrameworkCore.Tests.Core
 {
@@ -20,10 +23,10 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_EfDbContext_IsCreatedCorrectly()
         {
-            var dbConfigMock = new Mock<IDbConfig>();
-            var dbMapMock = new Mock<IDbMap>();
+            var dbConfig = Substitute.For<IDbConfig>();
+            var dbMap = Substitute.For<IDbMap>();
 
-            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>() { dbMapMock.Object });
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>() { dbMap });
             Assert.That(dbContext.CreateDbContextBehaviour, Is.Not.Null);
 
             dbContext.CreateDbContext();
@@ -36,55 +39,54 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_CreateDbContext_IsCalledCorrectly()
         {
-            var dbConfigMock = new Mock<IDbConfig>();
-            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
-            dbModelMock.Setup(x => x.Dispose()).Verifiable();
+            var dbConfig = Substitute.For<IDbConfig>();
+            var dbModel = Substitute.For<EfDbModel>(Arg.Any<IDbConfig>(), Arg.Any<IEnumerable<IDbMap>>());
 
             bool funcCalled = false;
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
                 funcCalled = true;
-                return dbModelMock.Object;
+                return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateDbContext();
 
             Assert.True(funcCalled);
 
             dbContext.CreateNewContext();
-            dbModelMock.Verify(x => x.Dispose(), Times.Once());
+            dbModel.Received(1).Dispose();
 
             dbContext.CreateDbContext();
-            dbModelMock.Verify(x => x.Dispose(), Times.Exactly(2));
+            dbModel.Received(2).Dispose();
         }
 
         [Test]
         public void Verify_CreateDbContext_WorksProperly_AfterSetAllProperties_WithLazyLoading()
         {
-            var dbConfigMock = new Mock<IDbConfig>();
-            dbConfigMock.Setup(x => x.DbConfiguration).Returns(null);
-            dbConfigMock.Setup(x => x.DbProvider).Returns(x => { });
-            dbConfigMock.Setup(x => x.LogAction).Returns((x, y, z) => { });
-            dbConfigMock.Setup(x => x.EnableSensitiveDataLogging).Returns(true);
-            dbConfigMock.Setup(x => x.EnableLazyLoadingProxies).Returns(true);
-            dbConfigMock.Setup(x => x.MappingAssemblies).Returns(new List<System.Reflection.Assembly>());
+            var dbConfig = Substitute.For<IDbConfig>();
+            dbConfig.DbConfiguration.Returns(null);
+            dbConfig.DbProvider.Returns(x => { });
+            dbConfig.LogAction.Returns((x, y, z) => { });
+            dbConfig.EnableSensitiveDataLogging.Returns(true);
+            dbConfig.EnableLazyLoadingProxies.Returns(true);
+            dbConfig.MappingAssemblies.Returns(new List<Assembly>());
 
-            var mockDbMap = new Mock<IDbMap>();
+            var dbMap = Substitute.For<IDbMap>();
 
             bool funcCalledCorrecly = false;
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
-                if (c.DbProvider == dbConfigMock.Object.DbProvider
-                        && c.LogAction == dbConfigMock.Object.LogAction
-                        && c.EnableSensitiveDataLogging == dbConfigMock.Object.EnableSensitiveDataLogging
-                        && c.EnableLazyLoadingProxies == dbConfigMock.Object.EnableLazyLoadingProxies)
+                if (c.DbProvider == dbConfig.DbProvider
+                        && c.LogAction == dbConfig.LogAction
+                        && c.EnableSensitiveDataLogging == dbConfig.EnableSensitiveDataLogging
+                        && c.EnableLazyLoadingProxies == dbConfig.EnableLazyLoadingProxies)
                     funcCalledCorrecly = true;
 
                 return new EfDbModel(c, m);
             };
 
-            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>() { mockDbMap.Object }, createDbContextBehaviour);
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>() { dbMap }, createDbContextBehaviour);
             dbContext.CreateNewContext();
             Assert.True(funcCalledCorrecly);
 
@@ -96,19 +98,19 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_GetContext_WorksProperly()
         {
-            var dbConfigMock = new Mock<IDbConfig>();
-            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
+            var dbConfig = Substitute.For<IDbConfig>();
+            var dbModel = Substitute.For<EfDbModel>(Arg.Any<IDbConfig>(), Arg.Any<IEnumerable<IDbMap>>());
 
             bool funcCalled = false;
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
                 funcCalled = true;
-                return dbModelMock.Object;
+                return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour)
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour)
             {
-                DbContext = dbModelMock.Object
+                DbContext = dbModel
             };
 
             var contextGot = dbContext.GetContext();
@@ -116,58 +118,60 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             Assert.False(funcCalled);
 
             Assert.That(contextGot, Is.Not.Null);
-            Assert.That(contextGot, Is.EqualTo(dbModelMock.Object));
+            Assert.That(contextGot, Is.EqualTo(dbModel));
 
-            dbModelMock.Verify(x => x.Dispose(), Times.Never());
+            dbModel.Received(0).Dispose();
             Assert.False(funcCalled);
         }
 
         [Test]
         public void Verify_Transactions_WorksProperly()
         {
-            var dbConfigMock = new Mock<IDbConfig>();
+            var dbConfig = Substitute.For<IDbConfig>();
 
-            var sqlDbContextMock = new Mock<DbContext>();
-            var transactionMock = new Mock<IDbContextTransaction>();
-            var dbMock = new Mock<DatabaseFacade>(sqlDbContextMock.Object);
+            var sqlDbContext = Substitute.For<DbContext>();
+            var contextTransaction = Substitute.For<IDbContextTransaction>();
 
-            transactionMock.Setup(x => x.Commit()).Callback(() =>
+            var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
+            dbFacade.CurrentTransaction.Returns((IDbContextTransaction?)null);
+
+            contextTransaction.When(x => x.Commit()).Do(x =>
             {
-                dbMock.Setup(x => x.CurrentTransaction).Returns((IDbContextTransaction?)null);
+                dbFacade.CurrentTransaction.Returns((IDbContextTransaction?)null);
             });
-            transactionMock.Setup(x => x.Rollback()).Callback(() =>
+            contextTransaction.When(x => x.Rollback()).Do(x =>
             {
-                dbMock.Setup(x => x.CurrentTransaction).Returns((IDbContextTransaction?)null);
+                dbFacade.CurrentTransaction.Returns((IDbContextTransaction?)null);
             });
-            dbMock.Setup(x => x.BeginTransaction()).Callback(() =>
+            dbFacade.When(x => x.BeginTransaction()).Do(x =>
             {
-                dbMock.Setup(x => x.CurrentTransaction).Returns(transactionMock.Object);
+                dbFacade.CurrentTransaction.Returns(contextTransaction);
             });
 
-            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
-            dbModelMock.Setup(x => x.Database).Returns(dbMock.Object);
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Database.Returns(dbFacade);
 
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
-                return dbModelMock.Object;
+                return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateDbContext();
 
             dbContext.BeginTransaction();
-            dbMock.Verify(x => x.BeginTransaction(), Times.Once());
+            dbFacade.Received(1).BeginTransaction();
 
             Assert.Throws<InvalidOperationException>(() => { dbContext.BeginTransaction(); });
 
             dbContext.CommitTransaction();
-            transactionMock.Verify(x => x.Commit(), Times.Once());
+            contextTransaction.Received(1).Commit();
 
             dbContext.BeginTransaction();
-            dbMock.Verify(x => x.BeginTransaction(), Times.Exactly(2));
+            dbFacade.Received(2).BeginTransaction();
 
             dbContext.RollbackTransaction();
-            transactionMock.Verify(x => x.Rollback(), Times.Once());
+            contextTransaction.Received(1).Rollback();
 
             Assert.Throws<InvalidOperationException>(() => { dbContext.RollbackTransaction(); });
             Assert.Throws<InvalidOperationException>(() => { dbContext.CommitTransaction(); });
@@ -178,41 +182,41 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             string savePointName = "A_SavePoint";
 
-            var dbConfigMock = new Mock<IDbConfig>();
+            var dbConfig = Substitute.For<IDbConfig>();
 
-            var sqlDbContextMock = new Mock<DbContext>();
-            var transactionMock = new Mock<IDbContextTransaction>();
-            var dbMock = new Mock<DatabaseFacade>(sqlDbContextMock.Object);
+            var sqlDbContext = Substitute.For<DbContext>();
+            var contextTransaction = Substitute.For<IDbContextTransaction>();
+            var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
 
-            transactionMock.Setup(x => x.SupportsSavepoints).Returns(true);
-            dbMock.Setup(x => x.CurrentTransaction).Returns(transactionMock.Object);
-            dbMock.Setup(x => x.CurrentTransaction!.Commit()).Callback(() =>
+            contextTransaction.SupportsSavepoints.Returns(true);
+            dbFacade.CurrentTransaction.Returns(contextTransaction);
+            contextTransaction.When(x => x.Commit()).Do(x =>
             {
-                dbMock.Setup(x => x.CurrentTransaction).Returns((IDbContextTransaction?)null);
+                dbFacade.CurrentTransaction.Returns((IDbContextTransaction?)null);
             });
 
-            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
-            dbModelMock.Setup(x => x.Database).Returns(dbMock.Object);
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Database.Returns(dbFacade);
 
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
-                return dbModelMock.Object;
+                return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateDbContext();
 
             dbContext.AreSavepointsSupported();
-            transactionMock.Verify(x => x.SupportsSavepoints, Times.Once());
+            _ = contextTransaction.Received(1).SupportsSavepoints;
 
             dbContext.CreateSavepoint(savePointName);
-            transactionMock.Verify(x => x.CreateSavepoint(savePointName), Times.Once());
+            contextTransaction.Received(1).CreateSavepoint(savePointName);
 
             dbContext.ReleaseSavepoint(savePointName);
-            transactionMock.Verify(x => x.ReleaseSavepoint(savePointName), Times.Once());
+            contextTransaction.Received(1).ReleaseSavepoint(savePointName);
 
             dbContext.RollbackToSavepoint(savePointName);
-            transactionMock.Verify(x => x.RollbackToSavepoint(savePointName), Times.Once());
+            contextTransaction.Received(1).RollbackToSavepoint(savePointName);
 
             dbContext.CommitTransaction();
 
@@ -229,88 +233,82 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             int setCalls = 0;
 
-            var dbConfigMock = new Mock<IDbConfig>();
-            var queryProvider = new Mock<IQueryProvider>();
-            queryProvider.Setup(x => x.Execute<int>(It.IsAny<Expression>())).Callback<Expression>(expression =>
-            {
-                Assert.That(expression, Is.Not.Null);
-            });
+            var dbConfig = Substitute.For<IDbConfig>();
+            var queryProvider = Substitute.For<IQueryProvider>();
 
-            var dbSetMock = new Mock<DbSet<TestEntity>>();
-            dbSetMock.As<IQueryable<TestEntity>>().Setup(x => x.Provider).Returns(queryProvider.Object);
-            dbSetMock.As<IQueryable<TestEntity>>().Setup(x => x.Expression).Returns(Expression.Constant(testDataList.AsQueryable()));
+            var dbSet = Substitute.For<DbSet<TestEntity>, IQueryable<TestEntity>>();
+            ((IQueryable<TestEntity>)dbSet).Provider.Returns(queryProvider);
+            ((IQueryable<TestEntity>)dbSet).Expression.Returns(Expression.Constant(testDataList.AsQueryable()));
 
-            var dbContextOptMock = new Mock<DbContextOptions>();
-            dbContextOptMock.Setup(x => x.ContextType.IsAssignableFrom(It.IsAny<Type>())).Returns(true);
+            var sqlDbContext = Substitute.For<DbContext>();
+            var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
+            dbFacade.CanConnect().Returns(true);
 
-            var dbFacadeMock = new Mock<DatabaseFacade>(new DbContext(dbContextOptMock.Object));
-            dbFacadeMock.Setup(x => x.CanConnect()).Returns(true).Verifiable();
-
-            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
-            dbModelMock.Setup(x => x.Set<TestEntity>()).Returns(dbSetMock.Object);
-            dbModelMock.Setup(x => x.Database).Returns(dbFacadeMock.Object);
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Set<TestEntity>().Returns(dbSet);
+            dbModel.Database.Returns(dbFacade);
 
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
-                return dbModelMock.Object;
+                return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateDbContext();
 
             var queryable = dbContext.Query<TestEntity>();
             setCalls++;
 
-            dbModelMock.Verify(x => x.Set<TestEntity>(), Times.Exactly(setCalls));
-            dbSetMock.Verify(x => x.AsQueryable(), Times.Once());
+            dbModel.Received(setCalls).Set<TestEntity>();
+            dbSet.Received(1).AsQueryable();
 
             dbContext.Add(new TestEntity());
             setCalls++;
 
-            dbModelMock.Verify(x => x.Set<TestEntity>(), Times.Exactly(setCalls));
-            dbSetMock.Verify(x => x.Add(It.IsAny<TestEntity>()), Times.Once());
+            dbModel.Received(setCalls).Set<TestEntity>();
+            dbSet.Received(1).Add(Arg.Any<TestEntity>());
 
             dbContext.AddRange(new List<TestEntity>());
             setCalls++;
 
-            dbModelMock.Verify(x => x.Set<TestEntity>(), Times.Exactly(setCalls));
-            dbSetMock.Verify(x => x.AddRange(It.IsAny<List<TestEntity>>()), Times.Once());
+            dbModel.Received(setCalls).Set<TestEntity>();
+            dbSet.Received(1).AddRange(Arg.Any<List<TestEntity>>());
 
             dbContext.Remove(new TestEntity());
             setCalls++;
 
-            dbModelMock.Verify(x => x.Set<TestEntity>(), Times.Exactly(setCalls));
-            dbSetMock.Verify(x => x.Remove(It.IsAny<TestEntity>()), Times.Once());
+            dbModel.Received(setCalls).Set<TestEntity>();
+            dbSet.Received(1).Remove(Arg.Any<TestEntity>());
 
             dbContext.RemoveRange(new List<TestEntity>());
             setCalls++;
 
-            dbModelMock.Verify(x => x.Set<TestEntity>(), Times.Exactly(setCalls));
-            dbSetMock.Verify(x => x.RemoveRange(It.IsAny<List<TestEntity>>()), Times.Once());
+            dbModel.Received(setCalls).Set<TestEntity>();
+            dbSet.Received(1).RemoveRange(Arg.Any<List<TestEntity>>());
 
             bool opResult = dbContext.ExecuteOnDatabase(db => db.CanConnect());
-            dbFacadeMock.Verify(x => x.CanConnect(), Times.Once());
+            dbFacade.Received(1).CanConnect();
             Assert.True(opResult);
         }
 
         [Test]
         public void Verify_SaveChanges_WorksProperly()
         {
-            var dbConfigMock = new Mock<IDbConfig>();
+            var dbConfig = Substitute.For<IDbConfig>();
 
-            var dbModelMock = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
-            dbModelMock.Setup(x => x.SaveChanges()).Returns(0);
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.SaveChanges().Returns(0);
 
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
             {
-                return dbModelMock.Object;
+                return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfigMock.Object, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateDbContext();
 
             int result = dbContext.SaveChanges();
-            dbModelMock.Verify(x => x.SaveChanges(), Times.Once());
+            dbModel.Received(1).SaveChanges();
         }
     }
 }

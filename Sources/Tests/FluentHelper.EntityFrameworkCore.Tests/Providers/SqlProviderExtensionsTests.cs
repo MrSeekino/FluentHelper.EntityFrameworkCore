@@ -3,8 +3,9 @@ using FluentHelper.EntityFrameworkCore.Interfaces;
 using FluentHelper.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Moq;
+using NSubstitute;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -18,29 +19,23 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
         [Test]
         public void Verify_WithSqlDbProvider_WorksCorrectly()
         {
-            Mock<DbContextOptions> mockedDbContextOptions = new Mock<DbContextOptions>();
-
-            Mock<DbContextOptionsBuilder> mockedContextOptionsBuilder = new Mock<DbContextOptionsBuilder>();
-            mockedContextOptionsBuilder.Setup(x => x.Options).Returns(mockedDbContextOptions.Object);
+            var contextOptBuilder = new DbContextOptionsBuilder();
 
             EfDbConfigBuilder efDbConfigBuilder = new EfDbConfigBuilder();
             efDbConfigBuilder.WithSqlDbProvider("A_Connection_String");
 
-            Assert.DoesNotThrow(() => efDbConfigBuilder.DbProvider!(mockedContextOptionsBuilder.Object));
+            Assert.DoesNotThrow(() => efDbConfigBuilder.DbProvider!(contextOptBuilder));
         }
 
         [Test]
         public void Verify_WithSqlDbProvider_WorksCorrectly_WithMoreOptions()
         {
-            Mock<DbContextOptions> mockedDbContextOptions = new Mock<DbContextOptions>();
-
-            Mock<DbContextOptionsBuilder> mockedContextOptionsBuilder = new Mock<DbContextOptionsBuilder>();
-            mockedContextOptionsBuilder.Setup(x => x.Options).Returns(mockedDbContextOptions.Object);
+            var contextOptBuilder = new DbContextOptionsBuilder();
 
             EfDbConfigBuilder efDbConfigBuilder = new EfDbConfigBuilder();
             efDbConfigBuilder.WithSqlDbProvider("A_Connection_String", x => x.MinBatchSize(1));
 
-            Assert.DoesNotThrow(() => efDbConfigBuilder.DbProvider!(mockedContextOptionsBuilder.Object));
+            Assert.DoesNotThrow(() => efDbConfigBuilder.DbProvider!(contextOptBuilder));
         }
 
         [Test]
@@ -53,18 +48,19 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
         [Test]
         public void Verify_BeginTransaction_With_IsolationLevel_Throws_WhenTransaction_IsOpen()
         {
-            var dbContextTransaction = new Mock<IDbContextTransaction>();
-            var sqlDbContextMock = new Mock<DbContext>();
-            var dbMock = new Mock<DatabaseFacade>(sqlDbContextMock.Object);
-            dbMock.Setup(x => x.CurrentTransaction).Returns(dbContextTransaction.Object);
+            var dbConfig = Substitute.For<IDbConfig>();
 
-            var mockedDbModel = new Mock<EfDbModel>(It.IsAny<IDbConfig>(), It.IsAny<IEnumerable<IDbMap>>());
-            mockedDbModel.Setup(x => x.Database).Returns(dbMock.Object);
+            var contextTransaction = Substitute.For<IDbContextTransaction>();
+            var dbContext = Substitute.For<DbContext>();
 
-            var mockedDbConfig = new Mock<IDbConfig>();
+            var dbFacade = Substitute.For<DatabaseFacade>(dbContext);
+            dbFacade.CurrentTransaction.Returns(contextTransaction);
 
-            EfDbContext dbContext = new EfDbContext(mockedDbConfig.Object, new List<IDbMap>(), (c, m) => mockedDbModel.Object);
-            Assert.Throws<InvalidOperationException>(() => dbContext.BeginTransaction(IsolationLevel.ReadUncommitted));
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Database.Returns(dbFacade);
+
+            EfDbContext realDbContext = new EfDbContext(dbConfig, new List<IDbMap>(), (c, m) => dbModel);
+            Assert.Throws<InvalidOperationException>(() => realDbContext.BeginTransaction(IsolationLevel.ReadUncommitted));
         }
     }
 }

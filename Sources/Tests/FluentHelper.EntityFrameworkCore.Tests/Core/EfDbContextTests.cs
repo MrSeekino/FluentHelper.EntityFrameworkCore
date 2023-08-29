@@ -5,7 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Options;
 using NSubstitute;
+using NSubstitute.ClearExtensions;
+using NSubstitute.Core;
+using NSubstitute.Core.DependencyInjection;
+using NSubstitute.Exceptions;
 using NSubstitute.ReceivedExtensions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
@@ -40,7 +45,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         public void Verify_CreateDbContext_IsCalledCorrectly()
         {
             var dbConfig = Substitute.For<IDbConfig>();
-            var dbModel = Substitute.For<EfDbModel>(Arg.Any<IDbConfig>(), Arg.Any<IEnumerable<IDbMap>>());
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
 
             bool funcCalled = false;
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
@@ -99,7 +104,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         public void Verify_GetContext_WorksProperly()
         {
             var dbConfig = Substitute.For<IDbConfig>();
-            var dbModel = Substitute.For<EfDbModel>(Arg.Any<IDbConfig>(), Arg.Any<IEnumerable<IDbMap>>());
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
 
             bool funcCalled = false;
             Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>

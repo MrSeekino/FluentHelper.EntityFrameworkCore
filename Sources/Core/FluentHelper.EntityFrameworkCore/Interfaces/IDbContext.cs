@@ -28,6 +28,7 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
 
         IQueryable<T> Query<T>() where T : class;
         IQueryable<T> QueryNoTracking<T>() where T : class;
+        IQueryable<T> QueryRaw<T>(string sqlQuery, params object[] parameters) where T : class;
 
         void Add<T>(T inputData) where T : class;
         Task AddAsync<T>(T inputData, CancellationToken cancellationToken = default) where T : class;
@@ -48,6 +49,10 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
 
         int ExecuteUpdate<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls) where T : class;
         Task<int> ExecuteUpdateAsync<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls, CancellationToken cancellationToken = default) where T : class;
+
+        int ExecuteSqlRaw(string sqlQuery, params object[] parameters);
+        Task<int> ExecuteSqlRawAsync(string sqlQuery, IEnumerable<object> parameters, CancellationToken cancellationToken = default);
+        Task<int> ExecuteSqlRawAsync(string sqlQuery, CancellationToken cancellationToken = default);
 
         void ClearTracker();
     }

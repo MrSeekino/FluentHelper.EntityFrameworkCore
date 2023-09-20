@@ -130,6 +130,11 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return GetContext().Set<T>().AsQueryable().AsNoTracking();
         }
 
+        public IQueryable<T> QueryRaw<T>(string sqlQuery, params object[] parameters) where T : class
+        {
+            return GetContext().Set<T>().FromSqlRaw(sqlQuery, parameters);
+        }
+
         public void Add<T>(T inputData) where T : class
         {
             GetContext().Set<T>().Add(inputData);
@@ -193,6 +198,21 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public async Task<int> ExecuteUpdateAsync<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls, CancellationToken cancellationToken = default) where T : class
         {
             return await GetContext().Set<T>().Where(updatePredicate).ExecuteUpdateAsync(updateSetPropertyCalls, cancellationToken);
+        }
+
+        public int ExecuteSqlRaw(string sqlQuery, params object[] parameters)
+        {
+            return GetContext().Database.ExecuteSqlRaw(sqlQuery, parameters);
+        }
+
+        public async Task<int> ExecuteSqlRawAsync(string sqlQuery, IEnumerable<object> parameters, CancellationToken cancellationToken = default)
+        {
+            return await GetContext().Database.ExecuteSqlRawAsync(sqlQuery, parameters, cancellationToken);
+        }
+
+        public async Task<int> ExecuteSqlRawAsync(string sqlQuery, CancellationToken cancellationToken = default)
+        {
+            return await GetContext().Database.ExecuteSqlRawAsync(sqlQuery, cancellationToken);
         }
 
         public void ClearTracker()

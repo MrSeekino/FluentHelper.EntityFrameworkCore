@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{11B15C4B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.Tests", "Tests\FluentHelper.EntityFrameworkCore.Tests\FluentHelper.EntityFrameworkCore.Tests.csproj", "{6B842F72-5E12-4A0E-9E29-9FB58122426C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentHelper.EntityFrameworkCore.InMemory", "Providers\FluentHelper.EntityFrameworkCore.InMemory\FluentHelper.EntityFrameworkCore.InMemory.csproj", "{01AB4062-B393-4BBA-9E84-5ABE0E2C722A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{6B842F72-5E12-4A0E-9E29-9FB58122426C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B842F72-5E12-4A0E-9E29-9FB58122426C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B842F72-5E12-4A0E-9E29-9FB58122426C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01AB4062-B393-4BBA-9E84-5ABE0E2C722A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01AB4062-B393-4BBA-9E84-5ABE0E2C722A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01AB4062-B393-4BBA-9E84-5ABE0E2C722A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01AB4062-B393-4BBA-9E84-5ABE0E2C722A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +68,7 @@ Global
 		{BBE8E849-EE06-4790-8529-90477C452B9C} = {EDFBE694-96A8-4DC2-9748-8B4F25B5EF8C}
 		{B4B92EC3-B70B-4D68-9A71-3F055FE6FDB0} = {D980BF6E-8894-4E96-B8E1-D378A33117BB}
 		{6B842F72-5E12-4A0E-9E29-9FB58122426C} = {11B15C4B-F32C-496B-8F8D-3B749C0DAA86}
+		{01AB4062-B393-4BBA-9E84-5ABE0E2C722A} = {EDFBE694-96A8-4DC2-9748-8B4F25B5EF8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17AECFE1-D361-41E4-B533-D5155E158EF2}

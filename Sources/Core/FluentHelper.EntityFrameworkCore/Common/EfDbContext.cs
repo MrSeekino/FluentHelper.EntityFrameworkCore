@@ -5,10 +5,11 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.Common
@@ -124,14 +125,29 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return GetContext().Set<T>().AsQueryable();
         }
 
+        public IQueryable<T> QueryNoTracking<T>() where T : class
+        {
+            return GetContext().Set<T>().AsQueryable().AsNoTracking();
+        }
+
         public void Add<T>(T inputData) where T : class
         {
             GetContext().Set<T>().Add(inputData);
         }
 
+        public async Task AddAsync<T>(T inputData, CancellationToken cancellationToken = default) where T : class
+        {
+            await GetContext().Set<T>().AddAsync(inputData, cancellationToken);
+        }
+
         public void AddRange<T>(IEnumerable<T> inputData) where T : class
         {
             GetContext().Set<T>().AddRange(inputData);
+        }
+
+        public async Task AddRangeAsync<T>(IEnumerable<T> inputData, CancellationToken cancellationToken = default) where T : class
+        {
+            await GetContext().Set<T>().AddRangeAsync(inputData, cancellationToken);
         }
 
         public void Remove<T>(T inputData) where T : class
@@ -149,6 +165,11 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return GetContext().SaveChanges();
         }
 
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            return await GetContext().SaveChangesAsync(cancellationToken);
+        }
+
         public T ExecuteOnDatabase<T>(Func<DatabaseFacade, T> funcToExecute)
         {
             return funcToExecute(GetContext().Database);
@@ -159,9 +180,19 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return GetContext().Set<T>().Where(deletePredicate).ExecuteDelete();
         }
 
+        public async Task<int> ExecuteDeleteAsync<T>(Expression<Func<T, bool>> deletePredicate, CancellationToken cancellationToken = default) where T : class
+        {
+            return await GetContext().Set<T>().Where(deletePredicate).ExecuteDeleteAsync();
+        }
+
         public int ExecuteUpdate<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls) where T : class
         {
             return GetContext().Set<T>().Where(updatePredicate).ExecuteUpdate(updateSetPropertyCalls);
+        }
+
+        public async Task<int> ExecuteUpdateAsync<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls, , CancellationToken cancellationToken = default) where T : class
+        {
+            return await GetContext().Set<T>().Where(updatePredicate).ExecuteUpdateAsync(updateSetPropertyCalls, cancellationToken);
         }
 
         public void ClearTracker()

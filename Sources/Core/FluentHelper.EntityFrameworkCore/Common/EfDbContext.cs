@@ -69,6 +69,14 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return GetContext().Database.BeginTransaction();
         }
 
+        public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            if (IsTransactionOpen())
+                throw new InvalidOperationException("A transaction is already open");
+
+            return await GetContext().Database.BeginTransactionAsync(cancellationToken);
+        }
+
         public void RollbackTransaction()
         {
             if (!IsTransactionOpen())
@@ -77,12 +85,28 @@ namespace FluentHelper.EntityFrameworkCore.Common
             GetContext().Database.CurrentTransaction!.Rollback();
         }
 
+        public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            if (!IsTransactionOpen())
+                throw new InvalidOperationException("Cannot find an open transaction to rollback");
+
+            await GetContext().Database.CurrentTransaction!.RollbackAsync(cancellationToken);
+        }
+
         public void CommitTransaction()
         {
             if (!IsTransactionOpen())
                 throw new InvalidOperationException("Cannot find an open transaction to commit");
 
             GetContext().Database.CurrentTransaction!.Commit();
+        }
+
+        public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            if (!IsTransactionOpen())
+                throw new InvalidOperationException("Cannot find an open transaction to commit");
+
+            await GetContext().Database.CurrentTransaction!.CommitAsync(cancellationToken);
         }
 
         public bool AreSavepointsSupported()
@@ -102,6 +126,15 @@ namespace FluentHelper.EntityFrameworkCore.Common
                 GetContext().Database.CurrentTransaction!.CreateSavepoint(savePointName);
         }
 
+        public async Task CreateSavepointAsync(string savePointName, CancellationToken cancellationToken = default)
+        {
+            if (!IsTransactionOpen())
+                throw new InvalidOperationException("An open transaction is needed to create a savepoint");
+
+            if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
+                await GetContext().Database.CurrentTransaction!.CreateSavepointAsync(savePointName, cancellationToken);
+        }
+
         public void ReleaseSavepoint(string savePointName)
         {
             if (!IsTransactionOpen())
@@ -111,6 +144,15 @@ namespace FluentHelper.EntityFrameworkCore.Common
                 GetContext().Database.CurrentTransaction!.ReleaseSavepoint(savePointName);
         }
 
+        public async Task ReleaseSavepoint(string savePointName, CancellationToken cancellationToken = default)
+        {
+            if (!IsTransactionOpen())
+                throw new InvalidOperationException("An open transaction is needed to release a savepoint");
+
+            if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
+                await GetContext().Database.CurrentTransaction!.ReleaseSavepointAsync(savePointName, cancellationToken);
+        }
+
         public void RollbackToSavepoint(string savePointName)
         {
             if (!IsTransactionOpen())
@@ -118,6 +160,15 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
             if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
                 GetContext().Database.CurrentTransaction!.RollbackToSavepoint(savePointName);
+        }
+
+        public async Task RollbackToSavepointAsync(string savePointName, CancellationToken cancellationToken = default)
+        {
+            if (!IsTransactionOpen())
+                throw new InvalidOperationException("An open transaction is needed to rollback to a savepoint");
+
+            if (GetContext().Database.CurrentTransaction!.SupportsSavepoints)
+                await GetContext().Database.CurrentTransaction!.RollbackToSavepointAsync(savePointName, cancellationToken);
         }
 
         public IQueryable<T> Query<T>() where T : class

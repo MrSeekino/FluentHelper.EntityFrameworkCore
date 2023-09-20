@@ -17,14 +17,26 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         DbContext CreateNewContext();
 
         bool IsTransactionOpen();
+
         IDbContextTransaction BeginTransaction();
+        Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
 
         void RollbackTransaction();
+        Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
+
         void CommitTransaction();
+        Task CommitTransactionAsync(CancellationToken cancellationToken = default);
+
         bool AreSavepointsSupported();
+
         void CreateSavepoint(string savePointName);
+        Task CreateSavepointAsync(string savePointName, CancellationToken cancellationToken = default);
+
         void ReleaseSavepoint(string savePointName);
+        Task ReleaseSavepoint(string savePointName, CancellationToken cancellationToken = default);
+
         void RollbackToSavepoint(string savePointName);
+        Task RollbackToSavepointAsync(string savePointName, CancellationToken cancellationToken = default);
 
         IQueryable<T> Query<T>() where T : class;
         IQueryable<T> QueryNoTracking<T>() where T : class;

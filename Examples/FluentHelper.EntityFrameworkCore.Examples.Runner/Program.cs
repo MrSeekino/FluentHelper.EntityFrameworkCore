@@ -1,8 +1,8 @@
 ﻿using FluentHelper.EntityFrameworkCore.Common;
 using FluentHelper.EntityFrameworkCore.Examples.Mappings;
 using FluentHelper.EntityFrameworkCore.Examples.Repositories;
+using FluentHelper.EntityFrameworkCore.PostgreSql;
 using FluentHelper.EntityFrameworkCore.SqlServer;
-using FluentHelper.EntityFramworkCore.PostgreSql;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;

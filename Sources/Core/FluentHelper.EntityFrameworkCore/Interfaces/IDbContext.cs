@@ -54,6 +54,7 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         int SaveChanges();
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
+        void ExecuteOnDatabase(Action<DatabaseFacade> actionToExecute);
         T ExecuteOnDatabase<T>(Func<DatabaseFacade, T> funcToExecute);
 
         int ExecuteDelete<T>(Expression<Func<T, bool>> deletePredicate) where T : class;

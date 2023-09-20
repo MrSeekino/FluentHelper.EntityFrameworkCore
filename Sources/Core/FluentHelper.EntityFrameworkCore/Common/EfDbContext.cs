@@ -226,6 +226,11 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return await GetContext().SaveChangesAsync(cancellationToken);
         }
 
+        public void ExecuteOnDatabase(Action<DatabaseFacade> actionToExecute)
+        {
+            actionToExecute(GetContext().Database);
+        }
+
         public T ExecuteOnDatabase<T>(Func<DatabaseFacade, T> funcToExecute)
         {
             return funcToExecute(GetContext().Database);

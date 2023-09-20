@@ -190,7 +190,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return GetContext().Set<T>().Where(updatePredicate).ExecuteUpdate(updateSetPropertyCalls);
         }
 
-        public async Task<int> ExecuteUpdateAsync<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls, , CancellationToken cancellationToken = default) where T : class
+        public async Task<int> ExecuteUpdateAsync<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls, CancellationToken cancellationToken = default) where T : class
         {
             return await GetContext().Set<T>().Where(updatePredicate).ExecuteUpdateAsync(updateSetPropertyCalls, cancellationToken);
         }

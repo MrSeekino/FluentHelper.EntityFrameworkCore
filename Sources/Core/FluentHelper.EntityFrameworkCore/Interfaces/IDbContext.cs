@@ -30,7 +30,7 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         IQueryable<T> QueryNoTracking<T>() where T : class;
 
         void Add<T>(T inputData) where T : class;
-        Task AddAsync<T>(T inputData) where T : class;
+        Task AddAsync<T>(T inputData, CancellationToken cancellationToken = default) where T : class;
 
         void AddRange<T>(IEnumerable<T> inputData) where T : class;
         Task AddRangeAsync<T>(IEnumerable<T> inputData, CancellationToken cancellationToken = default) where T : class;
@@ -47,7 +47,7 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         Task<int> ExecuteDeleteAsync<T>(Expression<Func<T, bool>> deletePredicate, CancellationToken cancellationToken = default) where T : class;
 
         int ExecuteUpdate<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls) where T : class;
-        Task<int> ExecuteUpdateAsync<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls, , CancellationToken cancellationToken = default) where T : class;
+        Task<int> ExecuteUpdateAsync<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls, CancellationToken cancellationToken = default) where T : class;
 
         void ClearTracker();
     }

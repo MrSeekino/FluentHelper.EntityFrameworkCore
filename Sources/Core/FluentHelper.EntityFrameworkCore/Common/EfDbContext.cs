@@ -215,9 +215,24 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return await GetContext().Database.ExecuteSqlRawAsync(sqlQuery, cancellationToken);
         }
 
+        public void SetCommandTimeout(TimeSpan timeout)
+        {
+            GetContext().Database.SetCommandTimeout(timeout);
+        }
+
         public void ClearTracker()
         {
             GetContext().ChangeTracker.Clear();
+        }
+
+        public bool CanConnect()
+        {
+            return GetContext().Database.CanConnect();
+        }
+
+        public async Task<bool> CanConnectAsync()
+        {
+            return await GetContext().Database.CanConnectAsync();
         }
 
         public void Dispose()

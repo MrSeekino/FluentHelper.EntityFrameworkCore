@@ -54,6 +54,10 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         Task<int> ExecuteSqlRawAsync(string sqlQuery, IEnumerable<object> parameters, CancellationToken cancellationToken = default);
         Task<int> ExecuteSqlRawAsync(string sqlQuery, CancellationToken cancellationToken = default);
 
+        void SetCommandTimeout(TimeSpan timeout);
         void ClearTracker();
+
+        bool CanConnect();
+        Task<bool> CanConnectAsync();
     }
 }

@@ -3,7 +3,6 @@ using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
-using System.Diagnostics.CodeAnalysis;
 
 namespace FluentHelper.EntityFrameworkCore.PostgreSql
 {

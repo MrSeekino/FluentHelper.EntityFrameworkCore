@@ -41,7 +41,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
             if (!optionsBuilder.IsConfigured)
             {
                 if (DbConfig.DbProvider == null)
-                    throw new NullReferenceException($"Unspecified DbProvider");
+                    throw new NullReferenceException("Unspecified DbProvider");
 
                 if (DbConfig.DbConfiguration != null)
                     DbConfig.DbConfiguration!(optionsBuilder);

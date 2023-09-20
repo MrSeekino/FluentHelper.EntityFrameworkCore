@@ -2,13 +2,20 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    public abstract class EfDbMap : IDbMap
+    public abstract class EfDbMap<T> : IDbMap where T : class
     {
         ModelBuilder? ModelBuilder { get; set; }
+
+        public EntityTypeBuilder<T> Entity
+        {
+            get
+            {
+                return GetModelBuilder().Entity<T>();
+            }
+        }
 
         public ModelBuilder GetModelBuilder()
         {
@@ -24,17 +31,5 @@ namespace FluentHelper.EntityFrameworkCore.Common
         }
 
         public abstract void Map();
-    }
-
-    [ExcludeFromCodeCoverage]
-    public abstract class EfDbMap<T> : EfDbMap where T : class
-    {
-        public EntityTypeBuilder<T> Entity
-        {
-            get
-            {
-                return GetModelBuilder().Entity<T>();
-            }
-        }
     }
 }

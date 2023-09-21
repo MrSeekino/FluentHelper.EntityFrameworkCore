@@ -9,13 +9,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
     {
         ModelBuilder? ModelBuilder { get; set; }
 
-        public EntityTypeBuilder<T> Entity
-        {
-            get
-            {
-                return GetModelBuilder().Entity<T>();
-            }
-        }
+        public EntityTypeBuilder<T> Entity => GetModelBuilder().Entity<T>();
 
         public ModelBuilder GetModelBuilder()
         {
@@ -28,6 +22,11 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public void SetModelBuilder(ModelBuilder modelBuilder)
         {
             ModelBuilder = modelBuilder;
+        }
+
+        public Type GetMappedType()
+        {
+            return typeof(T);
         }
 
         public abstract void Map();

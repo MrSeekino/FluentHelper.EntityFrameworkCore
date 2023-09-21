@@ -1,32 +1,32 @@
-﻿using FluentHelper.EntityFrameworkCore.Common;
-using FluentHelper.EntityFrameworkCore.Examples.Mappings;
-using FluentHelper.EntityFrameworkCore.InMemory;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using FluentHelper.EntityFrameworkCore.InMemory;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentHelper.EntityFrameworkCore.Examples.Tests
 {
-    public abstract class BaseRepositoriesTests<T> where T : class
+    public abstract class BaseRepositoriesTests<TRepository> : IDisposable where TRepository : class
     {
-        protected T Repository { get; set; }
+        protected TRepository Repository { get; set; }
 
         public BaseRepositoriesTests()
         {
             IServiceCollection serviceCollection = new ServiceCollection();
 
-            serviceCollection.AddFluentDbContext(dbConfigBuilder =>
-            {
-                dbConfigBuilder
-                    .WithDbConfiguration(c => c.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning)))
-                    .WithInMemoryProvider("TestDb")
-                    .WithMappingFromAssemblyOf<TestDataMap>();
-            });
-
-            serviceCollection.AddSingleton<T, T>();
+            serviceCollection.AddInMemoryContext();
+            serviceCollection.AddSingleton<TRepository, TRepository>();
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            Repository = serviceProvider.GetRequiredService<T>();
+            Repository = serviceProvider.GetRequiredService<TRepository>();
+        }
+
+        public void AddSupportTo<TEntity>(IEnumerable<TEntity>? initialData = null) where TEntity : class
+        {
+            InMemoryProviderExtensions.AddMemoryContextSupportTo(initialData);
+        }
+
+        public void Dispose()
+        {
+            InMemoryProviderExtensions.ClearMemoryContext();
         }
     }
 }

@@ -1,22 +1,29 @@
 ﻿using FluentHelper.EntityFrameworkCore.Common;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using FluentHelper.EntityFrameworkCore.InMemory.DbMemory;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentHelper.EntityFrameworkCore.InMemory
 {
     public static class InMemoryProviderExtensions
     {
-        public static EfDbConfigBuilder WithInMemoryProvider(this EfDbConfigBuilder dbContextBuilder, string databaseName, Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
+        public static IServiceCollection AddInMemoryContext(this IServiceCollection serviceCollection)
         {
-            if (string.IsNullOrWhiteSpace(databaseName))
-                throw new ArgumentNullException(nameof(databaseName));
+            DbMemoryContext dbMemoryContext = DbMemoryContext.GetOrCreate();
+            serviceCollection.AddFluentDbContext(dbMemoryContext.DbContext);
 
-            dbContextBuilder.WithDbProvider(dbContextOptionsBuilder =>
-            {
-                dbContextOptionsBuilder = inMemoryOptionsAction != null ? dbContextOptionsBuilder.UseInMemoryDatabase(databaseName, inMemoryOptionsAction) : dbContextOptionsBuilder.UseInMemoryDatabase(databaseName);
-            });
+            return serviceCollection;
+        }
 
-            return dbContextBuilder;
+        public static void AddMemoryContextSupportTo<T>(IEnumerable<T>? initialData = null) where T : class
+        {
+            DbMemoryContext dbMemoryContext = DbMemoryContext.GetOrCreate();
+            dbMemoryContext.AddSupportTo(initialData);
+        }
+
+        public static void ClearMemoryContext()
+        {
+            DbMemoryContext dbMemoryContext = DbMemoryContext.GetOrCreate();
+            dbMemoryContext.Dispose();
         }
     }
 }

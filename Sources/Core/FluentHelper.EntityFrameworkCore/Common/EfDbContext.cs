@@ -144,7 +144,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
                 GetContext().Database.CurrentTransaction!.ReleaseSavepoint(savePointName);
         }
 
-        public async Task ReleaseSavepoint(string savePointName, CancellationToken cancellationToken = default)
+        public async Task ReleaseSavepointAsync(string savePointName, CancellationToken cancellationToken = default)
         {
             if (!IsTransactionOpen())
                 throw new InvalidOperationException("An open transaction is needed to release a savepoint");
@@ -286,9 +286,9 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return GetContext().Database.CanConnect();
         }
 
-        public async Task<bool> CanConnectAsync()
+        public async Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
         {
-            return await GetContext().Database.CanConnectAsync();
+            return await GetContext().Database.CanConnectAsync(cancellationToken);
         }
 
         public void Dispose()

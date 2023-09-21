@@ -21,5 +21,10 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
             serviceCollection.Add(new ServiceDescriptor(typeof(IDbContext), typeof(EfDbContext), serviceLifetime));
         }
+
+        public static void AddFluentDbContext(this IServiceCollection serviceCollection, IDbContext dbContext)
+        {
+            serviceCollection.AddSingleton(typeof(IDbContext), dbContext);
+        }
     }
 }

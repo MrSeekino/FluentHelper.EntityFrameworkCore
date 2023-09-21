@@ -33,7 +33,7 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         Task CreateSavepointAsync(string savePointName, CancellationToken cancellationToken = default);
 
         void ReleaseSavepoint(string savePointName);
-        Task ReleaseSavepoint(string savePointName, CancellationToken cancellationToken = default);
+        Task ReleaseSavepointAsync(string savePointName, CancellationToken cancellationToken = default);
 
         void RollbackToSavepoint(string savePointName);
         Task RollbackToSavepointAsync(string savePointName, CancellationToken cancellationToken = default);
@@ -71,6 +71,6 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         void ClearTracker();
 
         bool CanConnect();
-        Task<bool> CanConnectAsync();
+        Task<bool> CanConnectAsync(CancellationToken cancellationToken = default);
     }
 }

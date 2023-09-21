@@ -1,5 +1,5 @@
-﻿using FluentHelper.EntityFrameworkCore.Common;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
@@ -11,6 +11,8 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         ModelBuilder GetModelBuilder();
 
         void SetModelBuilder(ModelBuilder modelBuilder);
+
+        Type GetMappedType();
 
         void Map();
     }

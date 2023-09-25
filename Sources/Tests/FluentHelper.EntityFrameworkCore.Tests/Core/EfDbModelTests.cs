@@ -186,7 +186,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var mockDbMap = Substitute.For<IDbMap>();
 
             var dbModel = new EfDbModel(dbConfig, new List<IDbMap>() { mockDbMap });
-            Assert.Throws<NullReferenceException>(() => dbModel.Configure(contextOptBuilder));
+            Assert.Throws<ArgumentNullException>(() => dbModel.Configure(contextOptBuilder));
         }
     }
 }

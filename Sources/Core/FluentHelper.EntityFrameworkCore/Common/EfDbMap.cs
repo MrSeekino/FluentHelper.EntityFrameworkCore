@@ -14,7 +14,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public ModelBuilder GetModelBuilder()
         {
             if (ModelBuilder == null)
-                throw new NullReferenceException("ModelBuilder has not been set");
+                throw new ArgumentNullException("ModelBuilder has not been set");
 
             return ModelBuilder;
         }

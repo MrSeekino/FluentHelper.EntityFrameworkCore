@@ -243,7 +243,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public async Task<int> ExecuteDeleteAsync<T>(Expression<Func<T, bool>> deletePredicate, CancellationToken cancellationToken = default) where T : class
         {
-            return await GetContext().Set<T>().Where(deletePredicate).ExecuteDeleteAsync();
+            return await GetContext().Set<T>().Where(deletePredicate).ExecuteDeleteAsync(cancellationToken);
         }
 
         public int ExecuteUpdate<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls) where T : class

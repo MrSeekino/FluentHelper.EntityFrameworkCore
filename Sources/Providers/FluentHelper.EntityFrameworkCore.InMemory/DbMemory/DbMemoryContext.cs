@@ -35,21 +35,21 @@ namespace FluentHelper.EntityFrameworkCore.InMemory.DbMemory
 
             FakeContext = Substitute.For<IDbContext>();
 
-            FakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Action<DatabaseFacade>>())).Do(x => new NotSupportedException("ExecuteOnDatabase is not supported"));
-            FakeContext.When(x => x.ExecuteSqlRaw(Arg.Any<string>(), Arg.Any<object[]>())).Do(x => new NotSupportedException("ExecuteSqlRaw is not supported"));
-            FakeContext.When(x => x.ExecuteSqlRawAsync(Arg.Any<string>(), Arg.Any<IEnumerable<object>>(), Arg.Any<CancellationToken>())).Do(x => new NotSupportedException("ExecuteSqlRawAsync is not supported"));
-            FakeContext.When(x => x.ExecuteSqlRawAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Do(x => new NotSupportedException("ExecuteSqlRawAsync is not supported"));
+            FakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Action<DatabaseFacade>>())).Throw(x => new NotSupportedException("ExecuteOnDatabase is not supported"));
+            FakeContext.When(x => x.ExecuteSqlRaw(Arg.Any<string>(), Arg.Any<object[]>())).Throw(x => new NotSupportedException("ExecuteSqlRaw is not supported"));
+            FakeContext.When(x => x.ExecuteSqlRawAsync(Arg.Any<string>(), Arg.Any<IEnumerable<object>>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteSqlRawAsync is not supported"));
+            FakeContext.When(x => x.ExecuteSqlRawAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteSqlRawAsync is not supported"));
 
             FakeContext.CanConnect().Returns(true);
             FakeContext.CanConnectAsync(Arg.Any<CancellationToken>()).Returns(true);
 
             FakeContext.AreSavepointsSupported().Returns(false);
-            FakeContext.When(x => x.CreateSavepoint(Arg.Any<string>())).Do(x => new NotSupportedException("Savepoints are not supported"));
-            FakeContext.When(x => x.CreateSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Do(x => new NotSupportedException("Savepoints are not supported"));
-            FakeContext.When(x => x.ReleaseSavepoint(Arg.Any<string>())).Do(x => new NotSupportedException("Savepoints are not supported in DbContextMocker"));
-            FakeContext.When(x => x.ReleaseSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Do(x => new NotSupportedException("Savepoints are not supported"));
-            FakeContext.When(x => x.RollbackToSavepoint(Arg.Any<string>())).Do(x => new NotSupportedException("Savepoints are not supported"));
-            FakeContext.When(x => x.RollbackToSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Do(x => new NotSupportedException("Savepoints are not supported"));
+            FakeContext.When(x => x.CreateSavepoint(Arg.Any<string>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
+            FakeContext.When(x => x.CreateSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
+            FakeContext.When(x => x.ReleaseSavepoint(Arg.Any<string>())).Throw(x => new NotSupportedException("Savepoints are not supported in DbContextMocker"));
+            FakeContext.When(x => x.ReleaseSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
+            FakeContext.When(x => x.RollbackToSavepoint(Arg.Any<string>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
+            FakeContext.When(x => x.RollbackToSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
 
             FakeContext.When(x => x.SaveChanges()).Do(x =>
             {
@@ -142,12 +142,12 @@ namespace FluentHelper.EntityFrameworkCore.InMemory.DbMemory
         {
             DataMemoryDict.Add(typeof(T), new DbDataMemory<T>(initialData));
 
-            FakeContext.When(x => x.QueryRaw<T>(Arg.Any<string>(), Arg.Any<object[]>())).Do(x => new NotSupportedException("QueryRaw is not supported"));
-            FakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Func<DatabaseFacade, T>>())).Do(x => new NotSupportedException("ExecuteOnDatabase is not supported"));
-            FakeContext.When(x => x.ExecuteDelete(Arg.Any<Expression<Func<T, bool>>>())).Do(x => new NotSupportedException("ExecuteDelete is not supported"));
-            FakeContext.When(x => x.ExecuteDeleteAsync(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<CancellationToken>())).Do(x => new NotSupportedException("ExecuteDeleteAsync is not supported"));
-            FakeContext.When(x => x.ExecuteUpdate(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>>())).Do(x => new NotSupportedException("ExecuteUpdate is not supported"));
-            FakeContext.When(x => x.ExecuteUpdateAsync(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>>(), Arg.Any<CancellationToken>())).Do(x => new NotSupportedException("ExecuteUpdateAsync is not supported"));
+            FakeContext.When(x => x.QueryRaw<T>(Arg.Any<string>(), Arg.Any<object[]>())).Throw(x => new NotSupportedException("QueryRaw is not supported"));
+            FakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Func<DatabaseFacade, T>>())).Throw(x => new NotSupportedException("ExecuteOnDatabase is not supported"));
+            FakeContext.When(x => x.ExecuteDelete(Arg.Any<Expression<Func<T, bool>>>())).Throw(x => new NotSupportedException("ExecuteDelete is not supported"));
+            FakeContext.When(x => x.ExecuteDeleteAsync(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteDeleteAsync is not supported"));
+            FakeContext.When(x => x.ExecuteUpdate(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>>())).Throw(x => new NotSupportedException("ExecuteUpdate is not supported"));
+            FakeContext.When(x => x.ExecuteUpdateAsync(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteUpdateAsync is not supported"));
 
             FakeContext.Query<T>().Returns(((IDbDataMemory<T>)DataMemoryDict[typeof(T)]).GetAll());
             FakeContext.QueryNoTracking<T>().Returns(((IDbDataMemory<T>)DataMemoryDict[typeof(T)]).GetAll());

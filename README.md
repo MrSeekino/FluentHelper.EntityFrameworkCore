@@ -7,8 +7,8 @@ They provide some simple interfaces and methods that allows you to make mappings
 ### Build & Tests Status
 ![Build & Tests](https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore/actions/workflows/dotnet.yml/badge.svg)
 
-### SonarCloud Status
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MrSeekino_FluentHelper.EntityFrameworkCore&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=MrSeekino_FluentHelper.EntityFrameworkCore)
+### SonarCloud Scan
+[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-white.svg)](https://sonarcloud.io/summary/new_code?id=MrSeekino_FluentHelper.EntityFrameworkCore)
 
 ## Latest Version
 The best and quickest way to get the latest release of EntityFramework.FluentHelper is to add it to your project using 

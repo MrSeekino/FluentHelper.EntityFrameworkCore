@@ -29,7 +29,7 @@ namespace FluentHelper.EntityFrameworkCore.PostgreSql
             return dbContext.ExecuteOnDatabase(db => db.BeginTransaction(isolationLevel));
         }
 
-        public static async Task<IDbContextTransaction> BeginTransaction(this IDbContext dbContext, System.Data.IsolationLevel isolationLevel, CancellationToken cancellationToken = default)
+        public static async Task<IDbContextTransaction> BeginTransactionAsync(this IDbContext dbContext, System.Data.IsolationLevel isolationLevel, CancellationToken cancellationToken = default)
         {
             if (dbContext.IsTransactionOpen())
                 throw new InvalidOperationException("A transaction is already open");

@@ -1,5 +1,6 @@
 ﻿using FluentHelper.EntityFrameworkCore.Common;
 using FluentHelper.EntityFrameworkCore.Interfaces;
+using FluentHelper.EntityFrameworkCore.Tests.Support;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -11,8 +12,47 @@ using System.Collections.Generic;
 namespace FluentHelper.EntityFrameworkCore.Tests.Core
 {
     [TestFixture]
-    internal class EfDbModelTests
+    public class EfDbModelTests
     {
+        [Test]
+        public void Verify_Configure_IsCalled_OnConfiguring()
+        {
+            bool funcCalled = false;
+
+            var dbConfig = Substitute.For<IDbConfig>();
+            dbConfig.DbProvider.Returns(x => { });
+            dbConfig.DbConfiguration.Returns(x => { funcCalled = true; });
+
+            var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
+            contextOptBuilder.IsConfigured.Returns(false);
+
+            var dbModel = new TestEfDbModel(dbConfig, new List<IDbMap>());
+            dbModel.OnConfiguringWrapper(contextOptBuilder);
+
+            Assert.True(funcCalled);
+        }
+
+        [Test]
+        public void Verify_CreateModel_IsCalled_OnModelCreating()
+        {
+            var modelBuilder = Substitute.For<ModelBuilder>();
+
+            var dbConfig = Substitute.For<IDbConfig>();
+            dbConfig.DbProvider.Returns(x => { });
+
+            var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
+            contextOptBuilder.IsConfigured.Returns(false);
+
+            var dbMap = Substitute.For<IDbMap>();
+            dbMap.SetModelBuilder(Arg.Any<ModelBuilder>());
+
+            var dbModel = new TestEfDbModel(dbConfig, new List<IDbMap>() { dbMap });
+            dbModel.OnModelCreatingWrapper(modelBuilder);
+
+            dbMap.Received(1).SetModelBuilder(modelBuilder);
+            dbMap.Received(1).Map();
+        }
+
         [Test]
         public void Verify_DbConfiguration_IsCalledCorrectly()
         {
@@ -126,7 +166,6 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             dbMap.SetModelBuilder(Arg.Any<ModelBuilder>());
 
             var dbModel = new EfDbModel(dbConfig, new List<IDbMap>() { dbMap });
-            dbModel.Configure(contextOptBuilder);
             dbModel.CreateModel(modelBuilder);
 
             dbMap.Received(1).SetModelBuilder(modelBuilder);

@@ -2,16 +2,17 @@
 using FluentHelper.EntityFrameworkCore.Interfaces;
 using FluentHelper.EntityFrameworkCore.Tests.Support;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 using NUnit.Framework;
 using System.Linq;
 
 namespace FluentHelper.EntityFrameworkCore.Tests.Core
 {
     [TestFixture]
-    internal class DependencyInjectionExtensionsTests
+    public class DependencyInjectionExtensionsTests
     {
         [Test]
-        public void Verify_AddFluentDbContext_WorksCorrectly()
+        public void Verify_AddFluentDbContext_WorksCorrectly_WithContextBuilder()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddFluentDbContext(dbConfigBuilder =>
@@ -42,6 +43,21 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             var dbContext = serviceProvider.GetRequiredService<IDbContext>();
             Assert.That(dbContext, Is.Not.Null);
+        }
+
+        [Test]
+        public void Verify_AddFluentDbContext_WorksCorrectly_WithDirectContext()
+        {
+            var dbContext = Substitute.For<IDbContext>();
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddFluentDbContext(dbContext);
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var dbContextRetrieved = serviceProvider.GetRequiredService<IDbContext>();
+            Assert.That(dbContextRetrieved, Is.Not.Null);
+            Assert.AreEqual(dbContextRetrieved, dbContext);
         }
     }
 }

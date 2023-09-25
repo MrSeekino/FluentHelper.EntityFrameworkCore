@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace FluentHelper.EntityFrameworkCore.Tests.Core
 {
     [TestFixture]
-    internal class EfDbConfigBuilderTests
+    public class EfDbConfigBuilderTests
     {
         [Test]
         public void Verify_EfDbConfigBuilder_WithDbConfiguration_Works()

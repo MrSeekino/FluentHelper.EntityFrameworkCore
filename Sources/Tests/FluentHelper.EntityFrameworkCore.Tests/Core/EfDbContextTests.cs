@@ -3,14 +3,8 @@ using FluentHelper.EntityFrameworkCore.Interfaces;
 using FluentHelper.EntityFrameworkCore.Tests.Support;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Options;
 using NSubstitute;
-using NSubstitute.ClearExtensions;
-using NSubstitute.Core;
-using NSubstitute.Core.DependencyInjection;
-using NSubstitute.Exceptions;
 using NSubstitute.ReceivedExtensions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
@@ -19,11 +13,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace FluentHelper.EntityFrameworkCore.Tests.Core
 {
     [TestFixture]
-    internal class EfDbContextTests
+    public class EfDbContextTests
     {
         [Test]
         public void Verify_EfDbContext_IsCreatedCorrectly()
@@ -183,6 +178,59 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         }
 
         [Test]
+        public async Task Verify_TransactionsAsync_WorksProperly()
+        {
+            var dbConfig = Substitute.For<IDbConfig>();
+
+            var sqlDbContext = Substitute.For<DbContext>();
+            var contextTransaction = Substitute.For<IDbContextTransaction>();
+
+            var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
+            dbFacade.CurrentTransaction.Returns((IDbContextTransaction?)null);
+
+            contextTransaction.When(x => x.CommitAsync()).Do(x =>
+            {
+                dbFacade.CurrentTransaction.Returns((IDbContextTransaction?)null);
+            });
+            contextTransaction.When(x => x.RollbackAsync()).Do(x =>
+            {
+                dbFacade.CurrentTransaction.Returns((IDbContextTransaction?)null);
+            });
+            dbFacade.When(x => x.BeginTransactionAsync()).Do(x =>
+            {
+                dbFacade.CurrentTransaction.Returns(contextTransaction);
+            });
+
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Database.Returns(dbFacade);
+
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            {
+                return dbModel;
+            };
+
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            dbContext.CreateDbContext();
+
+            await dbContext.BeginTransactionAsync();
+            await dbFacade.Received(1).BeginTransactionAsync();
+
+            Assert.ThrowsAsync<InvalidOperationException>(async () => { await dbContext.BeginTransactionAsync(); });
+
+            await dbContext.CommitTransactionAsync();
+            await contextTransaction.Received(1).CommitAsync();
+
+            await dbContext.BeginTransactionAsync();
+            await dbFacade.Received(2).BeginTransactionAsync();
+
+            await dbContext.RollbackTransactionAsync();
+            await contextTransaction.Received(1).RollbackAsync();
+
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await dbContext.RollbackTransactionAsync());
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await dbContext.CommitTransactionAsync());
+        }
+
+        [Test]
         public void Verify_SavePoints_WorksProperly()
         {
             string savePointName = "A_SavePoint";
@@ -229,6 +277,55 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             Assert.Throws<InvalidOperationException>(() => { dbContext.CreateSavepoint(savePointName); });
             Assert.Throws<InvalidOperationException>(() => { dbContext.ReleaseSavepoint(savePointName); });
             Assert.Throws<InvalidOperationException>(() => { dbContext.RollbackToSavepoint(savePointName); });
+        }
+
+        [Test]
+        public async Task Verify_SavePointsAsync_WorksProperly()
+        {
+            string savePointName = "A_SavePoint";
+
+            var dbConfig = Substitute.For<IDbConfig>();
+
+            var sqlDbContext = Substitute.For<DbContext>();
+            var contextTransaction = Substitute.For<IDbContextTransaction>();
+            var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
+
+            contextTransaction.SupportsSavepoints.Returns(true);
+            dbFacade.CurrentTransaction.Returns(contextTransaction);
+            contextTransaction.When(x => x.CommitAsync()).Do(x =>
+            {
+                dbFacade.CurrentTransaction.Returns((IDbContextTransaction?)null);
+            });
+
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Database.Returns(dbFacade);
+
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            {
+                return dbModel;
+            };
+
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            dbContext.CreateDbContext();
+
+            dbContext.AreSavepointsSupported();
+            _ = contextTransaction.Received(1).SupportsSavepoints;
+
+            await dbContext.CreateSavepointAsync(savePointName);
+            await contextTransaction.Received(1).CreateSavepointAsync(savePointName);
+
+            await dbContext.ReleaseSavepointAsync(savePointName);
+            await contextTransaction.Received(1).ReleaseSavepointAsync(savePointName);
+
+            await dbContext.RollbackToSavepointAsync(savePointName);
+            await contextTransaction.Received(1).RollbackToSavepointAsync(savePointName);
+
+            await dbContext.CommitTransactionAsync();
+
+            Assert.Throws<InvalidOperationException>(() => dbContext.AreSavepointsSupported());
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await dbContext.CreateSavepointAsync(savePointName));
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await dbContext.ReleaseSavepointAsync(savePointName));
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await dbContext.RollbackToSavepointAsync(savePointName));
         }
 
         [Test]
@@ -290,10 +387,49 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             dbModel.Received(setCalls).Set<TestEntity>();
             dbSet.Received(1).RemoveRange(Arg.Any<List<TestEntity>>());
+        }
 
-            bool opResult = dbContext.ExecuteOnDatabase(db => db.CanConnect());
-            dbFacade.Received(1).CanConnect();
-            Assert.True(opResult);
+        [Test]
+        public async Task Verify_AddsMethodsAsync_WorksProperly()
+        {
+            var testDataList = new List<TestEntity>() { new TestEntity() };
+
+            int setCalls = 0;
+
+            var dbConfig = Substitute.For<IDbConfig>();
+            var queryProvider = Substitute.For<IQueryProvider>();
+
+            var dbSet = Substitute.For<DbSet<TestEntity>, IQueryable<TestEntity>>();
+            ((IQueryable<TestEntity>)dbSet).Provider.Returns(queryProvider);
+            ((IQueryable<TestEntity>)dbSet).Expression.Returns(Expression.Constant(testDataList.AsQueryable()));
+
+            var sqlDbContext = Substitute.For<DbContext>();
+            var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
+            dbFacade.CanConnect().Returns(true);
+
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Set<TestEntity>().Returns(dbSet);
+            dbModel.Database.Returns(dbFacade);
+
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            {
+                return dbModel;
+            };
+
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            dbContext.CreateDbContext();
+
+            await dbContext.AddAsync(new TestEntity());
+            setCalls++;
+
+            dbModel.Received(setCalls).Set<TestEntity>();
+            await dbSet.Received(1).AddAsync(Arg.Any<TestEntity>());
+
+            await dbContext.AddRangeAsync(new List<TestEntity>());
+            setCalls++;
+
+            dbModel.Received(setCalls).Set<TestEntity>();
+            await dbSet.Received(1).AddRangeAsync(Arg.Any<List<TestEntity>>());
         }
 
         [Test]
@@ -314,6 +450,131 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             int result = dbContext.SaveChanges();
             dbModel.Received(1).SaveChanges();
+        }
+
+        [Test]
+        public async Task Verify_SaveChangesAsync_WorksProperly()
+        {
+            var dbConfig = Substitute.For<IDbConfig>();
+
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.SaveChanges().Returns(0);
+
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            {
+                return dbModel;
+            };
+
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            dbContext.CreateDbContext();
+
+            int result = await dbContext.SaveChangesAsync();
+            await dbModel.Received(1).SaveChangesAsync();
+        }
+
+        [Test]
+        public void Verify_ExecuteOnDatabase_WithReturn_WorksProperly()
+        {
+            var dbConfig = Substitute.For<IDbConfig>();
+
+            var sqlDbContext = Substitute.For<DbContext>();
+            var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
+            dbFacade.CanConnect().Returns(true);
+
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Database.Returns(dbFacade);
+
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            {
+                return dbModel;
+            };
+
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            dbContext.CreateDbContext();
+
+            bool opResult = dbContext.ExecuteOnDatabase(db => db.CanConnect());
+            dbFacade.Received(1).CanConnect();
+            Assert.True(opResult);
+        }
+
+        [Test]
+        public void Verify_SetCommandTimeout_WorksProperly()
+        {
+            var dbConfig = Substitute.For<IDbConfig>();
+            var sqlDbContext = Substitute.For<DbContext>();
+
+            var relationalConnection = Substitute.For<IRelationalConnection>();
+
+            var facadeDependencies = Substitute.For<IRelationalDatabaseFacadeDependencies>();
+            facadeDependencies.RelationalConnection.Returns(relationalConnection);
+
+            var dbFacade = Substitute.For<DatabaseFacade, IDatabaseFacadeDependenciesAccessor>(sqlDbContext);
+            ((IDatabaseFacadeDependenciesAccessor)dbFacade).Dependencies.Returns(facadeDependencies);
+
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Database.Returns(dbFacade);
+
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            {
+                return dbModel;
+            };
+
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            dbContext.CreateDbContext();
+
+            dbContext.SetCommandTimeout(TimeSpan.FromMinutes(10));
+            var currentTimeout = relationalConnection!.CommandTimeout!.Value;
+            Assert.AreEqual(600, currentTimeout);
+        }
+
+        [Test]
+        public void Verify_CanConnect_WorksProperly()
+        {
+            var dbConfig = Substitute.For<IDbConfig>();
+
+            var sqlDbContext = Substitute.For<DbContext>();
+            var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
+            dbFacade.CanConnect().Returns(true);
+
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Database.Returns(dbFacade);
+
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            {
+                return dbModel;
+            };
+
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            dbContext.CreateDbContext();
+
+            bool opResult = dbContext.CanConnect();
+            dbFacade.Received(1).CanConnect();
+            Assert.True(opResult);
+        }
+
+        [Test]
+        public async Task Verify_CanConnectAsync_WorksProperly()
+        {
+            var dbConfig = Substitute.For<IDbConfig>();
+
+            var sqlDbContext = Substitute.For<DbContext>();
+            var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
+            dbFacade.CanConnectAsync().Returns(true);
+
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Database.Returns(dbFacade);
+
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            {
+                return dbModel;
+            };
+
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            dbContext.CreateDbContext();
+
+            bool opResult = await dbContext.CanConnectAsync();
+            await dbFacade.Received(1).CanConnectAsync();
+            Assert.True(opResult);
         }
     }
 }

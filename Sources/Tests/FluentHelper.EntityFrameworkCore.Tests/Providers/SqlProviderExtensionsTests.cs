@@ -4,6 +4,7 @@ using FluentHelper.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using NUnit.Framework;
 using System;
@@ -44,6 +45,22 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
         {
             EfDbConfigBuilder efDbConfigBuilder = new EfDbConfigBuilder();
             Assert.Throws<ArgumentNullException>(() => efDbConfigBuilder.WithSqlDbProvider(string.Empty));
+        }
+
+        [Test]
+        public void Verify_SqlProviderContext_ReturnCorrectProviderName()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddFluentDbContext(efDbConfigBuilder =>
+            {
+                efDbConfigBuilder.WithSqlDbProvider("A_Connection_String");
+            });
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var dbContext = serviceProvider.GetRequiredService<IDbContext>();
+
+            Assert.IsNotNull(dbContext);
+            Assert.AreEqual("Microsoft.EntityFrameworkCore.SqlServer", dbContext.GetProviderName());
         }
 
         [Test]

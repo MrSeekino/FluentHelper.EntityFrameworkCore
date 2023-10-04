@@ -41,6 +41,11 @@ namespace FluentHelper.EntityFrameworkCore.Common
             DbContext = CreateDbContextBehaviour(DbConfig, Mappings);
         }
 
+        public string? GetProviderName()
+        {
+            return GetContext().Database.ProviderName;
+        }
+
         public DbContext GetContext()
         {
             if (DbContext == null)

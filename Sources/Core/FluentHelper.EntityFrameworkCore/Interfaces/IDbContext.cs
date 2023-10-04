@@ -13,6 +13,8 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
 {
     public interface IDbContext : IDisposable
     {
+        string? GetProviderName();
+
         DbContext GetContext();
         DbContext CreateNewContext();
 

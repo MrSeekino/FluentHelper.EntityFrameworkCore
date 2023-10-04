@@ -4,6 +4,7 @@ using FluentHelper.EntityFrameworkCore.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using NUnit.Framework;
 using System;
@@ -18,7 +19,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
     public class PostgreSqlProviderExtensionsTests
     {
         [Test]
-        public void Verify_WithSqlDbProvider_WorksCorrectly()
+        public void Verify_WithPostgreSqlProvider_WorksCorrectly()
         {
             var contextOptBuilder = new DbContextOptionsBuilder();
 
@@ -29,7 +30,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
         }
 
         [Test]
-        public void Verify_WithSqlDbProvider_WorksCorrectly_WithMoreOptions()
+        public void Verify_WithPostgreSqlProvider_WorksCorrectly_WithMoreOptions()
         {
             var contextOptBuilder = new DbContextOptionsBuilder();
 
@@ -40,10 +41,26 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
         }
 
         [Test]
-        public void Verify_WithSqlDbProvider_Throws_WhenConnectionString_IsEmpty()
+        public void Verify_WithPostgreSqlProvider_Throws_WhenConnectionString_IsEmpty()
         {
             EfDbConfigBuilder efDbConfigBuilder = new EfDbConfigBuilder();
             Assert.Throws<ArgumentNullException>(() => efDbConfigBuilder.WithPostgreSqlProvider(string.Empty));
+        }
+
+        [Test]
+        public void Verify_PostgreSqlProviderContext_ReturnCorrectProviderName()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddFluentDbContext(efDbConfigBuilder =>
+            {
+                efDbConfigBuilder.WithPostgreSqlProvider("A_Connection_String");
+            });
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var dbContext = serviceProvider.GetRequiredService<IDbContext>();
+
+            Assert.IsNotNull(dbContext);
+            Assert.AreEqual("Npgsql.EntityFrameworkCore.PostgreSQL", dbContext.GetProviderName());
         }
 
         [Test]

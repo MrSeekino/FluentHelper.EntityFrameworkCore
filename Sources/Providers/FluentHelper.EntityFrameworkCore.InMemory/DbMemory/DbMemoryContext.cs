@@ -34,6 +34,7 @@ namespace FluentHelper.EntityFrameworkCore.InMemory.DbMemory
             DataMemoryDict = new Dictionary<Type, IDbDataMemory>();
 
             FakeContext = Substitute.For<IDbContext>();
+            FakeContext.GetProviderName().Returns("FluentInMemory");
 
             FakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Action<DatabaseFacade>>())).Throw(x => new NotSupportedException("ExecuteOnDatabase is not supported"));
             FakeContext.When(x => x.ExecuteSqlRaw(Arg.Any<string>(), Arg.Any<object[]>())).Throw(x => new NotSupportedException("ExecuteSqlRaw is not supported"));

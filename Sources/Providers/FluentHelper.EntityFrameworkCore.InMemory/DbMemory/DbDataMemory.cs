@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using NSubstitute;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
 namespace FluentHelper.EntityFrameworkCore.InMemory.DbMemory
 {
     internal sealed class DbDataMemory<T> : IDbDataMemory<T> where T : class

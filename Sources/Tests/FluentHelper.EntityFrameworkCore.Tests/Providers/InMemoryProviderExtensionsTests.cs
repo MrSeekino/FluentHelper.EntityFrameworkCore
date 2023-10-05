@@ -61,7 +61,6 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             Assert.AreEqual(1, shouldContainElementList.Count);
         }
 
-
         [Test]
         public void Verify_AddMemoryContextSupportTo_WorksCorrectly_WithInitialData()
         {

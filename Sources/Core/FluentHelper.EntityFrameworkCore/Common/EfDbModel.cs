@@ -10,9 +10,9 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     internal class EfDbModel : DbContext
     {
-        private IDbConfig _dbConfig;
-        private IEnumerable<IDbMap> _mappings;
-        private Action<DbContextOptionsBuilder> _useLazyLoadingProxiesBehaviour;
+        private readonly IDbConfig _dbConfig;
+        private readonly IEnumerable<IDbMap> _mappings;
+        private readonly Action<DbContextOptionsBuilder> _useLazyLoadingProxiesBehaviour;
 
         internal int MappingsLength => _mappings.Count();
 

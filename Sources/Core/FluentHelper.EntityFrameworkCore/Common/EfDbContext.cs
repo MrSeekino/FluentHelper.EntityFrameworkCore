@@ -16,10 +16,11 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     internal sealed class EfDbContext : IDbContext
     {
+        private readonly IDbConfig _dbConfig;
+        private readonly IEnumerable<IDbMap> _mappings;
+        private readonly Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> _createDbContextBehaviour;
+
         private DbContext? _dbContext;
-        private IDbConfig _dbConfig;
-        private IEnumerable<IDbMap> _mappings;
-        private Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> _createDbContextBehaviour;
 
         public EfDbContext(IDbConfig dbConfig, IEnumerable<IDbMap> mappings)
             : this(dbConfig, mappings, (c, m) => new EfDbModel(c, m))
@@ -59,7 +60,6 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public DbContext CreateNewContext()
         {
             Dispose();
-
             return GetContext();
         }
 

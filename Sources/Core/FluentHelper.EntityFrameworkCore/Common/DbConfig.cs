@@ -13,8 +13,8 @@ namespace FluentHelper.EntityFrameworkCore.Common
         public Action<DbContextOptionsBuilder>? DbProvider { get; set; }
         public Action<LogLevel, EventId, string>? LogAction { get; set; }
 
-        public bool EnableSensitiveDataLogging { get; set; }
-        public bool EnableLazyLoadingProxies { get; set; }
+        public bool EnableSensitiveDataLogging { get; set; } = false;
+        public bool EnableLazyLoadingProxies { get; set; } = false;
 
         public List<Assembly> MappingAssemblies { get; set; } = new List<Assembly>();
     }

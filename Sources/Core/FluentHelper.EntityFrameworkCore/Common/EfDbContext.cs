@@ -16,29 +16,31 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     internal sealed class EfDbContext : IDbContext
     {
-        internal DbContext? DbContext { get; set; }
-        internal IDbConfig DbConfig { get; set; }
-        internal IEnumerable<IDbMap> Mappings { get; set; }
-
-        internal Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> CreateDbContextBehaviour { get; set; }
+        private DbContext? _dbContext;
+        private IDbConfig _dbConfig;
+        private IEnumerable<IDbMap> _mappings;
+        private Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> _createDbContextBehaviour;
 
         public EfDbContext(IDbConfig dbConfig, IEnumerable<IDbMap> mappings)
             : this(dbConfig, mappings, (c, m) => new EfDbModel(c, m))
         { }
 
         public EfDbContext(IDbConfig dbConfig, IEnumerable<IDbMap> mappings, Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour)
-        {
-            DbContext = null;
+            : this(null, dbConfig, mappings, createDbContextBehaviour)
+        { }
 
-            DbConfig = dbConfig;
-            Mappings = mappings;
-            CreateDbContextBehaviour = createDbContextBehaviour;
+        public EfDbContext(DbContext? dbContext, IDbConfig dbConfig, IEnumerable<IDbMap> mappings, Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour)
+        {
+            _dbContext = dbContext;
+            _dbConfig = dbConfig;
+            _mappings = mappings;
+            _createDbContextBehaviour = createDbContextBehaviour;
         }
 
-        internal void CreateDbContext()
+        private void CreateDbContext()
         {
-            DbContext?.Dispose();
-            DbContext = CreateDbContextBehaviour(DbConfig, Mappings);
+            _dbContext?.Dispose();
+            _dbContext = _createDbContextBehaviour(_dbConfig, _mappings);
         }
 
         public string? GetProviderName()
@@ -48,10 +50,10 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public DbContext GetContext()
         {
-            if (DbContext == null)
+            if (_dbContext == null)
                 CreateDbContext();
 
-            return DbContext!;
+            return _dbContext!;
         }
 
         public DbContext CreateNewContext()
@@ -298,8 +300,8 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public void Dispose()
         {
-            DbContext?.Dispose();
-            DbContext = null;
+            _dbContext?.Dispose();
+            _dbContext = null;
         }
     }
 }

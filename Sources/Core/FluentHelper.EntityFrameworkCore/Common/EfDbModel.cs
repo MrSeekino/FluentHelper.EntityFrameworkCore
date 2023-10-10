@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("FluentHelper.EntityFrameworkCore.Tests")]
@@ -9,10 +10,11 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     internal class EfDbModel : DbContext
     {
-        internal IDbConfig DbConfig { get; set; }
-        internal IEnumerable<IDbMap> Mappings { get; set; }
+        private IDbConfig _dbConfig;
+        private IEnumerable<IDbMap> _mappings;
+        private Action<DbContextOptionsBuilder> _useLazyLoadingProxiesBehaviour;
 
-        internal Action<DbContextOptionsBuilder> UseLazyLoadingProxiesBehaviour { get; set; }
+        internal int MappingsLength => _mappings.Count();
 
         public EfDbModel(IDbConfig dbConfig, IEnumerable<IDbMap> mappings)
             : this(dbConfig, mappings, optionsBuilder => { optionsBuilder.UseLazyLoadingProxies(); })
@@ -20,10 +22,9 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public EfDbModel(IDbConfig dbConfig, IEnumerable<IDbMap> mappings, Action<DbContextOptionsBuilder> useLazyLoadingProxiesBehaviour)
         {
-            DbConfig = dbConfig;
-            Mappings = mappings;
-
-            UseLazyLoadingProxiesBehaviour = useLazyLoadingProxiesBehaviour;
+            _dbConfig = dbConfig;
+            _mappings = mappings;
+            _useLazyLoadingProxiesBehaviour = useLazyLoadingProxiesBehaviour;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -40,28 +41,28 @@ namespace FluentHelper.EntityFrameworkCore.Common
         {
             if (!optionsBuilder.IsConfigured)
             {
-                if (DbConfig.DbProvider == null)
+                if (_dbConfig.DbProvider == null)
                     throw new ArgumentNullException("Unspecified DbProvider");
 
-                if (DbConfig.DbConfiguration != null)
-                    DbConfig.DbConfiguration!(optionsBuilder);
+                if (_dbConfig.DbConfiguration != null)
+                    _dbConfig.DbConfiguration!(optionsBuilder);
 
-                DbConfig.DbProvider!(optionsBuilder);
+                _dbConfig.DbProvider!(optionsBuilder);
 
-                if (DbConfig.LogAction != null)
-                    optionsBuilder.LogTo((e, l) => true, eventData => DbConfig.LogAction(eventData.LogLevel, eventData.EventId, eventData.ToString()));
+                if (_dbConfig.LogAction != null)
+                    optionsBuilder.LogTo((e, l) => true, eventData => _dbConfig.LogAction(eventData.LogLevel, eventData.EventId, eventData.ToString()));
 
-                if (DbConfig.EnableSensitiveDataLogging)
+                if (_dbConfig.EnableSensitiveDataLogging)
                     optionsBuilder.EnableSensitiveDataLogging();
 
-                if (DbConfig.EnableLazyLoadingProxies)
-                    UseLazyLoadingProxiesBehaviour(optionsBuilder);
+                if (_dbConfig.EnableLazyLoadingProxies)
+                    _useLazyLoadingProxiesBehaviour(optionsBuilder);
             }
         }
 
         internal void CreateModel(ModelBuilder modelBuilder)
         {
-            foreach (var mapInstance in Mappings)
+            foreach (var mapInstance in _mappings)
             {
                 mapInstance.SetModelBuilder(modelBuilder);
                 mapInstance.Map();

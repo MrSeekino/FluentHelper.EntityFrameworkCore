@@ -9,30 +9,38 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     public sealed class EfDbConfigBuilder
     {
-        internal Action<DbContextOptionsBuilder>? DbConfiguration { get; private set; }
-        internal Action<DbContextOptionsBuilder>? DbProvider { get; private set; }
-        internal Action<LogLevel, EventId, string>? LogAction { get; private set; }
+        private Action<DbContextOptionsBuilder>? _dbConfiguration;
+        private Action<DbContextOptionsBuilder>? _dbProvider;
+        private Action<LogLevel, EventId, string>? _logAction;
+        private bool _enableSensitiveDataLogging;
+        private bool enableLazyLoadingProxies;
+        private List<Assembly> _mappingAssemblies;
 
-        internal bool EnableSensitiveDataLogging { get; private set; }
-        internal bool EnableLazyLoadingProxies { get; private set; }
-
-        internal List<Assembly> MappingAssemblies { get; private set; } = new List<Assembly>();
+        public EfDbConfigBuilder()
+        {
+            _dbConfiguration = null;
+            _dbProvider = null;
+            _logAction = null;
+            _enableSensitiveDataLogging = false;
+            _enableSensitiveDataLogging = false;
+            _mappingAssemblies = new List<Assembly>();
+        }
 
         public EfDbConfigBuilder WithDbConfiguration(Action<DbContextOptionsBuilder> dbConfiguration)
         {
-            DbConfiguration = dbConfiguration;
+            _dbConfiguration = dbConfiguration;
             return this;
         }
 
         public EfDbConfigBuilder WithDbProvider(Action<DbContextOptionsBuilder> dbProvider)
         {
-            DbProvider = dbProvider;
+            this._dbProvider = dbProvider;
             return this;
         }
 
         public EfDbConfigBuilder WithLazyLoadingProxies()
         {
-            EnableLazyLoadingProxies = true;
+            enableLazyLoadingProxies = true;
             return this;
         }
 
@@ -40,14 +48,14 @@ namespace FluentHelper.EntityFrameworkCore.Common
         {
             var mappingAssembly = Assembly.GetAssembly(typeof(T)) ?? throw new ArgumentException($"Could not find assembly with {typeof(T).Name}");
 
-            MappingAssemblies.Add(mappingAssembly!);
+            _mappingAssemblies.Add(mappingAssembly!);
             return this;
         }
 
         public EfDbConfigBuilder WithLogAction(Action<LogLevel, EventId, string> logAction, bool enableSensitiveDataLogging = false)
         {
-            LogAction = logAction;
-            EnableSensitiveDataLogging = enableSensitiveDataLogging;
+            _logAction = logAction;
+            _enableSensitiveDataLogging = enableSensitiveDataLogging;
             return this;
         }
 
@@ -55,12 +63,12 @@ namespace FluentHelper.EntityFrameworkCore.Common
         {
             return new DbConfig
             {
-                DbConfiguration = DbConfiguration,
-                DbProvider = DbProvider,
-                LogAction = LogAction,
-                EnableSensitiveDataLogging = EnableSensitiveDataLogging,
-                EnableLazyLoadingProxies = EnableLazyLoadingProxies,
-                MappingAssemblies = MappingAssemblies
+                DbConfiguration = _dbConfiguration,
+                DbProvider = _dbProvider,
+                LogAction = _logAction,
+                EnableSensitiveDataLogging = _enableSensitiveDataLogging,
+                EnableLazyLoadingProxies = enableLazyLoadingProxies,
+                MappingAssemblies = _mappingAssemblies
             };
         }
     }

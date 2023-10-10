@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -15,5 +16,10 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         Type GetMappedType();
 
         void Map();
+    }
+
+    internal interface IDbMap<T> : IDbMap where T : class
+    {
+        EntityTypeBuilder<T> Entity { get; }
     }
 }

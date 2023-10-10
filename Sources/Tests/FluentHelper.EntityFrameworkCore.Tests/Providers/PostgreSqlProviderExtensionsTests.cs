@@ -26,7 +26,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             EfDbConfigBuilder efDbConfigBuilder = new EfDbConfigBuilder();
             efDbConfigBuilder.WithPostgreSqlProvider("A_Connection_String");
 
-            Assert.DoesNotThrow(() => efDbConfigBuilder.DbProvider!(contextOptBuilder));
+            var dbConfig = efDbConfigBuilder.Build();
+            Assert.DoesNotThrow(() => dbConfig.DbProvider!(contextOptBuilder));
         }
 
         [Test]
@@ -37,7 +38,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             EfDbConfigBuilder efDbConfigBuilder = new EfDbConfigBuilder();
             efDbConfigBuilder.WithPostgreSqlProvider("A_Connection_String", x => x.MinBatchSize(1));
 
-            Assert.DoesNotThrow(() => efDbConfigBuilder.DbProvider!(contextOptBuilder));
+            var dbConfig = efDbConfigBuilder.Build();
+            Assert.DoesNotThrow(() => dbConfig.DbProvider!(contextOptBuilder));
         }
 
         [Test]

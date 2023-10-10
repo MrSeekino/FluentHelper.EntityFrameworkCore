@@ -5,23 +5,23 @@ using System;
 
 namespace FluentHelper.EntityFrameworkCore.Common
 {
-    public abstract class EfDbMap<T> : IDbMap where T : class
+    public abstract class EfDbMap<T> : IDbMap<T> where T : class
     {
-        ModelBuilder? ModelBuilder { get; set; }
+        private ModelBuilder? _modelBuilder;
 
         public EntityTypeBuilder<T> Entity => GetModelBuilder().Entity<T>();
 
         public ModelBuilder GetModelBuilder()
         {
-            if (ModelBuilder == null)
+            if (_modelBuilder == null)
                 throw new ArgumentNullException("ModelBuilder has not been set");
 
-            return ModelBuilder;
+            return _modelBuilder;
         }
 
         public void SetModelBuilder(ModelBuilder modelBuilder)
         {
-            ModelBuilder = modelBuilder;
+            _modelBuilder = modelBuilder;
         }
 
         public Type GetMappedType()

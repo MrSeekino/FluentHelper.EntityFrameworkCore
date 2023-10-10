@@ -8,7 +8,7 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
 {
     public interface IDbConfig
     {
-        internal Action<DbContextOptionsBuilder>? DbConfiguration { get; }
+        Action<DbContextOptionsBuilder>? DbConfiguration { get; }
         Action<DbContextOptionsBuilder>? DbProvider { get; }
         Action<LogLevel, EventId, string>? LogAction { get; }
 

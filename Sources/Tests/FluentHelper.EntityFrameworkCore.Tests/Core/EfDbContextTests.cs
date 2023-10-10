@@ -27,13 +27,11 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbMap = Substitute.For<IDbMap>();
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>() { dbMap });
-            Assert.That(dbContext.CreateDbContextBehaviour, Is.Not.Null);
+            var underlyingContext = dbContext.CreateNewContext();
 
-            dbContext.CreateDbContext();
-            Assert.That(dbContext.DbContext, Is.Not.Null);
-            Assert.That(dbContext.DbContext!.GetType(), Is.EqualTo(typeof(EfDbModel)));
-            Assert.That(((EfDbModel)dbContext.DbContext).DbConfig, Is.Not.Null);
-            Assert.That(((EfDbModel)dbContext.DbContext).Mappings.Count(), Is.EqualTo(1));
+            Assert.That(underlyingContext, Is.Not.Null);
+            Assert.That(underlyingContext.GetType(), Is.EqualTo(typeof(EfDbModel)));
+            Assert.That(((EfDbModel)underlyingContext).MappingsLength, Is.EqualTo(1));
         }
 
         [Test]
@@ -50,14 +48,14 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             Assert.True(funcCalled);
 
             dbContext.CreateNewContext();
             dbModel.Received(1).Dispose();
 
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
             dbModel.Received(2).Dispose();
         }
 
@@ -87,12 +85,12 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>() { dbMap }, createDbContextBehaviour);
-            dbContext.CreateNewContext();
-            Assert.True(funcCalledCorrecly);
+            var underlyingContext = dbContext.CreateNewContext();
 
-            Assert.That(dbContext.DbContext, Is.Not.Null);
-            Assert.That(dbContext.DbContext!.GetType(), Is.EqualTo(typeof(EfDbModel)));
-            Assert.That(((EfDbModel)dbContext.DbContext).Mappings.Count, Is.EqualTo(1));
+            Assert.True(funcCalledCorrecly);
+            Assert.That(underlyingContext, Is.Not.Null);
+            Assert.That(underlyingContext.GetType(), Is.EqualTo(typeof(EfDbModel)));
+            Assert.That(((EfDbModel)underlyingContext).MappingsLength, Is.EqualTo(1));
         }
 
         [Test]
@@ -108,10 +106,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour)
-            {
-                DbContext = dbModel
-            };
+            var dbContext = new EfDbContext(dbModel, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
 
             var contextGot = dbContext.GetContext();
 
@@ -157,7 +152,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             dbContext.BeginTransaction();
             dbFacade.Received(1).BeginTransaction();
@@ -210,7 +205,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             await dbContext.BeginTransactionAsync();
             await dbFacade.Received(1).BeginTransactionAsync();
@@ -257,7 +252,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             dbContext.AreSavepointsSupported();
             _ = contextTransaction.Received(1).SupportsSavepoints;
@@ -306,7 +301,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             dbContext.AreSavepointsSupported();
             _ = contextTransaction.Received(1).SupportsSavepoints;
@@ -356,7 +351,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             var queryable = dbContext.Query<TestEntity>();
             setCalls++;
@@ -417,7 +412,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             await dbContext.AddAsync(new TestEntity());
             setCalls++;
@@ -446,7 +441,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             int result = dbContext.SaveChanges();
             dbModel.Received(1).SaveChanges();
@@ -466,7 +461,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             int result = await dbContext.SaveChangesAsync();
             await dbModel.Received(1).SaveChangesAsync();
@@ -490,7 +485,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             bool opResult = dbContext.ExecuteOnDatabase(db => db.CanConnect());
             dbFacade.Received(1).CanConnect();
@@ -520,7 +515,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             dbContext.SetCommandTimeout(TimeSpan.FromMinutes(10));
             var currentTimeout = relationalConnection!.CommandTimeout!.Value;
@@ -545,7 +540,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             bool opResult = dbContext.CanConnect();
             dbFacade.Received(1).CanConnect();
@@ -570,7 +565,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             };
 
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
-            dbContext.CreateDbContext();
+            dbContext.CreateNewContext();
 
             bool opResult = await dbContext.CanConnectAsync();
             await dbFacade.Received(1).CanConnectAsync();

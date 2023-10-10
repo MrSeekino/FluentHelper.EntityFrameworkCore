@@ -10,14 +10,13 @@ namespace FluentHelper.EntityFrameworkCore.InMemory.DbMemory
 {
     internal class DbMemoryContext : IDisposable
     {
-        static DbMemoryContext? Instance { get; set; }
+        private static DbMemoryContext? Instance { get; set; }
 
-        internal bool HasActiveTransaction { get; set; }
+        private bool _hasActiveTransaction;
+        private Dictionary<Type, IDbDataMemory> _dataMemoryDict;
+        private IDbContext _fakeContext;
 
-        internal Dictionary<Type, IDbDataMemory> DataMemoryDict { get; set; }
-        internal IDbContext FakeContext { get; set; }
-
-        public IDbContext DbContext => FakeContext;
+        public IDbContext DbContext => _fakeContext;
 
         public static DbMemoryContext GetOrCreate()
         {
@@ -29,161 +28,161 @@ namespace FluentHelper.EntityFrameworkCore.InMemory.DbMemory
 
         private DbMemoryContext()
         {
-            HasActiveTransaction = false;
+            _hasActiveTransaction = false;
 
-            DataMemoryDict = new Dictionary<Type, IDbDataMemory>();
+            _dataMemoryDict = new Dictionary<Type, IDbDataMemory>();
 
-            FakeContext = Substitute.For<IDbContext>();
-            FakeContext.GetProviderName().Returns("FluentInMemory");
+            _fakeContext = Substitute.For<IDbContext>();
+            _fakeContext.GetProviderName().Returns("FluentInMemory");
 
-            FakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Action<DatabaseFacade>>())).Throw(x => new NotSupportedException("ExecuteOnDatabase is not supported"));
-            FakeContext.When(x => x.ExecuteSqlRaw(Arg.Any<string>(), Arg.Any<object[]>())).Throw(x => new NotSupportedException("ExecuteSqlRaw is not supported"));
-            FakeContext.When(x => x.ExecuteSqlRawAsync(Arg.Any<string>(), Arg.Any<IEnumerable<object>>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteSqlRawAsync is not supported"));
-            FakeContext.When(x => x.ExecuteSqlRawAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteSqlRawAsync is not supported"));
+            _fakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Action<DatabaseFacade>>())).Throw(x => new NotSupportedException("ExecuteOnDatabase is not supported"));
+            _fakeContext.When(x => x.ExecuteSqlRaw(Arg.Any<string>(), Arg.Any<object[]>())).Throw(x => new NotSupportedException("ExecuteSqlRaw is not supported"));
+            _fakeContext.When(x => x.ExecuteSqlRawAsync(Arg.Any<string>(), Arg.Any<IEnumerable<object>>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteSqlRawAsync is not supported"));
+            _fakeContext.When(x => x.ExecuteSqlRawAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteSqlRawAsync is not supported"));
 
-            FakeContext.CanConnect().Returns(true);
-            FakeContext.CanConnectAsync(Arg.Any<CancellationToken>()).Returns(true);
+            _fakeContext.CanConnect().Returns(true);
+            _fakeContext.CanConnectAsync(Arg.Any<CancellationToken>()).Returns(true);
 
-            FakeContext.AreSavepointsSupported().Returns(false);
-            FakeContext.When(x => x.CreateSavepoint(Arg.Any<string>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
-            FakeContext.When(x => x.CreateSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
-            FakeContext.When(x => x.ReleaseSavepoint(Arg.Any<string>())).Throw(x => new NotSupportedException("Savepoints are not supported in DbContextMocker"));
-            FakeContext.When(x => x.ReleaseSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
-            FakeContext.When(x => x.RollbackToSavepoint(Arg.Any<string>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
-            FakeContext.When(x => x.RollbackToSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
+            _fakeContext.AreSavepointsSupported().Returns(false);
+            _fakeContext.When(x => x.CreateSavepoint(Arg.Any<string>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
+            _fakeContext.When(x => x.CreateSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
+            _fakeContext.When(x => x.ReleaseSavepoint(Arg.Any<string>())).Throw(x => new NotSupportedException("Savepoints are not supported in DbContextMocker"));
+            _fakeContext.When(x => x.ReleaseSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
+            _fakeContext.When(x => x.RollbackToSavepoint(Arg.Any<string>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
+            _fakeContext.When(x => x.RollbackToSavepointAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("Savepoints are not supported"));
 
-            FakeContext.When(x => x.SaveChanges()).Do(x =>
+            _fakeContext.When(x => x.SaveChanges()).Do(x =>
             {
-                foreach (var dataMemory in DataMemoryDict)
+                foreach (var dataMemory in _dataMemoryDict)
                     dataMemory.Value.SaveChanges();
             });
-            FakeContext.When(x => x.SaveChangesAsync(Arg.Any<CancellationToken>())).Do(x =>
+            _fakeContext.When(x => x.SaveChangesAsync(Arg.Any<CancellationToken>())).Do(x =>
             {
-                foreach (var dataMemory in DataMemoryDict)
+                foreach (var dataMemory in _dataMemoryDict)
                     dataMemory.Value.SaveChanges();
             });
 
-            FakeContext.IsTransactionOpen().Returns(HasActiveTransaction);
-            FakeContext.When(x => x.BeginTransaction()).Do(x =>
+            _fakeContext.IsTransactionOpen().Returns(_hasActiveTransaction);
+            _fakeContext.When(x => x.BeginTransaction()).Do(x =>
             {
-                if (HasActiveTransaction)
+                if (_hasActiveTransaction)
                     throw new InvalidOperationException("There is already a transaction opened");
 
-                HasActiveTransaction = true;
+                _hasActiveTransaction = true;
 
-                foreach (var dataMemory in DataMemoryDict)
+                foreach (var dataMemory in _dataMemoryDict)
                     dataMemory.Value.BeginTransaction();
             });
-            FakeContext.When(x => x.BeginTransactionAsync(Arg.Any<CancellationToken>())).Do(x =>
+            _fakeContext.When(x => x.BeginTransactionAsync(Arg.Any<CancellationToken>())).Do(x =>
             {
-                if (HasActiveTransaction)
+                if (_hasActiveTransaction)
                     throw new InvalidOperationException("There is already a transaction opened");
 
-                HasActiveTransaction = true;
+                _hasActiveTransaction = true;
 
-                foreach (var dataMemory in DataMemoryDict)
-                    dataMemory.Value.BeginTransaction();
-            });
-
-            FakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Func<DatabaseFacade, IDbContextTransaction>>())).Do(x =>
-            {
-                if (HasActiveTransaction)
-                    throw new InvalidOperationException("There is already a transaction opened");
-
-                HasActiveTransaction = true;
-
-                foreach (var dataMemory in DataMemoryDict)
+                foreach (var dataMemory in _dataMemoryDict)
                     dataMemory.Value.BeginTransaction();
             });
 
-            FakeContext.When(x => x.RollbackTransaction()).Do(x =>
+            _fakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Func<DatabaseFacade, IDbContextTransaction>>())).Do(x =>
             {
-                if (!HasActiveTransaction)
+                if (_hasActiveTransaction)
+                    throw new InvalidOperationException("There is already a transaction opened");
+
+                _hasActiveTransaction = true;
+
+                foreach (var dataMemory in _dataMemoryDict)
+                    dataMemory.Value.BeginTransaction();
+            });
+
+            _fakeContext.When(x => x.RollbackTransaction()).Do(x =>
+            {
+                if (!_hasActiveTransaction)
                     throw new InvalidOperationException("No Open Transaction found");
 
-                HasActiveTransaction = false;
+                _hasActiveTransaction = false;
 
-                foreach (var dataMemory in DataMemoryDict)
+                foreach (var dataMemory in _dataMemoryDict)
                     dataMemory.Value.RollbackTransaction();
             });
-            FakeContext.When(x => x.RollbackTransactionAsync(Arg.Any<CancellationToken>())).Do(x =>
+            _fakeContext.When(x => x.RollbackTransactionAsync(Arg.Any<CancellationToken>())).Do(x =>
             {
-                if (!HasActiveTransaction)
+                if (!_hasActiveTransaction)
                     throw new InvalidOperationException("No Open Transaction found");
 
-                HasActiveTransaction = false;
+                _hasActiveTransaction = false;
 
-                foreach (var dataMemory in DataMemoryDict)
+                foreach (var dataMemory in _dataMemoryDict)
                     dataMemory.Value.RollbackTransaction();
             });
 
-            FakeContext.When(x => x.CommitTransaction()).Do(x =>
+            _fakeContext.When(x => x.CommitTransaction()).Do(x =>
             {
-                if (!HasActiveTransaction)
+                if (!_hasActiveTransaction)
                     throw new InvalidOperationException("No Open Transaction found");
 
-                HasActiveTransaction = false;
+                _hasActiveTransaction = false;
 
-                foreach (var dataMemory in DataMemoryDict)
+                foreach (var dataMemory in _dataMemoryDict)
                     dataMemory.Value.CommitTransaction();
             });
-            FakeContext.When(x => x.CommitTransactionAsync(Arg.Any<CancellationToken>())).Do(x =>
+            _fakeContext.When(x => x.CommitTransactionAsync(Arg.Any<CancellationToken>())).Do(x =>
             {
-                if (!HasActiveTransaction)
+                if (!_hasActiveTransaction)
                     throw new InvalidOperationException("No Open Transaction found");
 
-                HasActiveTransaction = false;
+                _hasActiveTransaction = false;
 
-                foreach (var dataMemory in DataMemoryDict)
+                foreach (var dataMemory in _dataMemoryDict)
                     dataMemory.Value.CommitTransaction();
             });
         }
 
         public void AddSupportTo<T>(IEnumerable<T>? initialData = null) where T : class
         {
-            DataMemoryDict.Add(typeof(T), new DbDataMemory<T>(initialData));
+            _dataMemoryDict.Add(typeof(T), new DbDataMemory<T>(initialData));
 
-            FakeContext.When(x => x.QueryRaw<T>(Arg.Any<string>(), Arg.Any<object[]>())).Throw(x => new NotSupportedException("QueryRaw is not supported"));
-            FakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Func<DatabaseFacade, T>>())).Throw(x => new NotSupportedException("ExecuteOnDatabase is not supported"));
-            FakeContext.When(x => x.ExecuteDelete(Arg.Any<Expression<Func<T, bool>>>())).Throw(x => new NotSupportedException("ExecuteDelete is not supported"));
-            FakeContext.When(x => x.ExecuteDeleteAsync(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteDeleteAsync is not supported"));
-            FakeContext.When(x => x.ExecuteUpdate(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>>())).Throw(x => new NotSupportedException("ExecuteUpdate is not supported"));
-            FakeContext.When(x => x.ExecuteUpdateAsync(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteUpdateAsync is not supported"));
+            _fakeContext.When(x => x.QueryRaw<T>(Arg.Any<string>(), Arg.Any<object[]>())).Throw(x => new NotSupportedException("QueryRaw is not supported"));
+            _fakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Func<DatabaseFacade, T>>())).Throw(x => new NotSupportedException("ExecuteOnDatabase is not supported"));
+            _fakeContext.When(x => x.ExecuteDelete(Arg.Any<Expression<Func<T, bool>>>())).Throw(x => new NotSupportedException("ExecuteDelete is not supported"));
+            _fakeContext.When(x => x.ExecuteDeleteAsync(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteDeleteAsync is not supported"));
+            _fakeContext.When(x => x.ExecuteUpdate(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>>())).Throw(x => new NotSupportedException("ExecuteUpdate is not supported"));
+            _fakeContext.When(x => x.ExecuteUpdateAsync(Arg.Any<Expression<Func<T, bool>>>(), Arg.Any<Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>>(), Arg.Any<CancellationToken>())).Throw(x => new NotSupportedException("ExecuteUpdateAsync is not supported"));
 
-            FakeContext.Query<T>().Returns(((IDbDataMemory<T>)DataMemoryDict[typeof(T)]).GetAll());
-            FakeContext.QueryNoTracking<T>().Returns(((IDbDataMemory<T>)DataMemoryDict[typeof(T)]).GetAll());
+            _fakeContext.Query<T>().Returns(((IDbDataMemory<T>)_dataMemoryDict[typeof(T)]).GetAll());
+            _fakeContext.QueryNoTracking<T>().Returns(((IDbDataMemory<T>)_dataMemoryDict[typeof(T)]).GetAll());
 
-            FakeContext.When(x => x.Add(Arg.Any<T>())).Do(x =>
+            _fakeContext.When(x => x.Add(Arg.Any<T>())).Do(x =>
             {
                 T argData = x.Arg<T>();
-                ((IDbDataMemory<T>)DataMemoryDict[typeof(T)]).Add(argData);
+                ((IDbDataMemory<T>)_dataMemoryDict[typeof(T)]).Add(argData);
             });
-            FakeContext.When(x => x.AddAsync(Arg.Any<T>(), Arg.Any<CancellationToken>())).Do(x =>
+            _fakeContext.When(x => x.AddAsync(Arg.Any<T>(), Arg.Any<CancellationToken>())).Do(x =>
             {
                 T argData = x.Arg<T>();
-                ((IDbDataMemory<T>)DataMemoryDict[typeof(T)]).Add(argData);
+                ((IDbDataMemory<T>)_dataMemoryDict[typeof(T)]).Add(argData);
             });
 
-            FakeContext.When(x => x.AddRange(Arg.Any<IEnumerable<T>>())).Do(x =>
+            _fakeContext.When(x => x.AddRange(Arg.Any<IEnumerable<T>>())).Do(x =>
             {
                 IEnumerable<T> argData = x.Arg<IEnumerable<T>>();
-                ((IDbDataMemory<T>)DataMemoryDict[typeof(T)]).AddRange(argData);
+                ((IDbDataMemory<T>)_dataMemoryDict[typeof(T)]).AddRange(argData);
             });
-            FakeContext.When(x => x.AddRangeAsync(Arg.Any<IEnumerable<T>>(), Arg.Any<CancellationToken>())).Do(x =>
+            _fakeContext.When(x => x.AddRangeAsync(Arg.Any<IEnumerable<T>>(), Arg.Any<CancellationToken>())).Do(x =>
             {
                 IEnumerable<T> argData = x.Arg<IEnumerable<T>>();
-                ((IDbDataMemory<T>)DataMemoryDict[typeof(T)]).AddRange(argData);
+                ((IDbDataMemory<T>)_dataMemoryDict[typeof(T)]).AddRange(argData);
             });
 
-            FakeContext.When(x => x.Remove(Arg.Any<T>())).Do(x =>
+            _fakeContext.When(x => x.Remove(Arg.Any<T>())).Do(x =>
             {
                 T argData = x.Arg<T>();
-                ((IDbDataMemory<T>)DataMemoryDict[typeof(T)]).Remove(argData);
+                ((IDbDataMemory<T>)_dataMemoryDict[typeof(T)]).Remove(argData);
             });
-            FakeContext.When(x => x.RemoveRange(Arg.Any<IEnumerable<T>>())).Do(x =>
+            _fakeContext.When(x => x.RemoveRange(Arg.Any<IEnumerable<T>>())).Do(x =>
             {
                 IEnumerable<T> argData = x.Arg<IEnumerable<T>>();
-                ((IDbDataMemory<T>)DataMemoryDict[typeof(T)]).RemoveRange(argData);
+                ((IDbDataMemory<T>)_dataMemoryDict[typeof(T)]).RemoveRange(argData);
             });
         }
 
@@ -192,7 +191,7 @@ namespace FluentHelper.EntityFrameworkCore.InMemory.DbMemory
             if (typeof(T) == typeof(IDbContextTransaction))
                 throw new ArgumentException($"{typeof(IDbContextTransaction).Name} cannot be mocked with ExecuteOnDatabase");
 
-            FakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Func<DatabaseFacade, T>>())).Do(x =>
+            _fakeContext.When(x => x.ExecuteOnDatabase(Arg.Any<Func<DatabaseFacade, T>>())).Do(x =>
             {
                 Func<DatabaseFacade, T> funcResult = x.Arg<Func<DatabaseFacade, T>>();
                 callBackFunc(funcResult(databaseFacade));
@@ -201,8 +200,9 @@ namespace FluentHelper.EntityFrameworkCore.InMemory.DbMemory
 
         public void Dispose()
         {
-            DataMemoryDict.Clear();
-            FakeContext.ClearSubstitute();
+            _dataMemoryDict.Clear();
+            _fakeContext.ClearSubstitute();
+
             Instance = null;
         }
     }

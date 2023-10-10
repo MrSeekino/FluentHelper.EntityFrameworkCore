@@ -47,13 +47,13 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
                 Name = "Added",
                 Description = "Description"
             });
-            Assert.AreEqual(1, dbDataMemory.AddListCount());
+            Assert.AreEqual(1, dbDataMemory.AddListLength);
 
             var currentList = dbDataMemory.GetAll().ToList();
             Assert.AreEqual(0, currentList.Count);
 
             dbDataMemory.SaveChanges();
-            Assert.AreEqual(0, dbDataMemory.AddListCount());
+            Assert.AreEqual(0, dbDataMemory.AddListLength);
 
             var saveList = dbDataMemory.GetAll().ToList();
             Assert.AreEqual(1, saveList.Count);
@@ -81,13 +81,13 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             var dbDataMemory = new DbDataMemory<TestEntity>();
 
             dbDataMemory.AddRange(dataToAdd);
-            Assert.AreEqual(2, dbDataMemory.AddListCount());
+            Assert.AreEqual(2, dbDataMemory.AddListLength);
 
             var currentList = dbDataMemory.GetAll().ToList();
             Assert.AreEqual(0, currentList.Count);
 
             dbDataMemory.SaveChanges();
-            Assert.AreEqual(0, dbDataMemory.AddListCount());
+            Assert.AreEqual(0, dbDataMemory.AddListLength);
 
             var saveList = dbDataMemory.GetAll().ToList();
             Assert.AreEqual(2, saveList.Count);
@@ -115,13 +115,13 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             var dbDataMemory = new DbDataMemory<TestEntity>(initialData);
 
             dbDataMemory.Remove(initialData[0]);
-            Assert.AreEqual(1, dbDataMemory.RemoveListCount());
+            Assert.AreEqual(1, dbDataMemory.RemoveListLength);
 
             var currentList = dbDataMemory.GetAll().ToList();
             Assert.AreEqual(2, currentList.Count);
 
             dbDataMemory.SaveChanges();
-            Assert.AreEqual(0, dbDataMemory.RemoveListCount());
+            Assert.AreEqual(0, dbDataMemory.RemoveListLength);
 
             var saveList = dbDataMemory.GetAll().ToList();
             Assert.AreEqual(1, saveList.Count);
@@ -149,13 +149,13 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             var dbDataMemory = new DbDataMemory<TestEntity>(initialData);
 
             dbDataMemory.RemoveRange(initialData);
-            Assert.AreEqual(2, dbDataMemory.RemoveListCount());
+            Assert.AreEqual(2, dbDataMemory.RemoveListLength);
 
             var currentList = dbDataMemory.GetAll().ToList();
             Assert.AreEqual(2, currentList.Count);
 
             dbDataMemory.SaveChanges();
-            Assert.AreEqual(0, dbDataMemory.RemoveListCount());
+            Assert.AreEqual(0, dbDataMemory.RemoveListLength);
 
             var saveList = dbDataMemory.GetAll().ToList();
             Assert.AreEqual(0, saveList.Count);
@@ -174,10 +174,10 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
                     Name = "Added",
                     Description = "Description"
                 });
-                Assert.AreEqual(1, dbDataMemory.AddListCount());
+                Assert.AreEqual(1, dbDataMemory.AddListLength);
 
                 dbDataMemory.SaveChanges();
-                Assert.AreEqual(0, dbDataMemory.AddListCount());
+                Assert.AreEqual(0, dbDataMemory.AddListLength);
 
                 var saveList = dbDataMemory.GetAll().ToList();
                 Assert.AreEqual(1, saveList.Count);
@@ -194,10 +194,10 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
                     Name = "Added",
                     Description = "Description"
                 });
-                Assert.AreEqual(1, dbDataMemory.AddListCount());
+                Assert.AreEqual(1, dbDataMemory.AddListLength);
 
                 dbDataMemory.SaveChanges();
-                Assert.AreEqual(0, dbDataMemory.AddListCount());
+                Assert.AreEqual(0, dbDataMemory.AddListLength);
 
                 var saveList = dbDataMemory.GetAll().ToList();
                 Assert.AreEqual(1, saveList.Count);

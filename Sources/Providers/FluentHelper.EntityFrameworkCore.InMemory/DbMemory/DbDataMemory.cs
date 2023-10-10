@@ -7,126 +7,119 @@ namespace FluentHelper.EntityFrameworkCore.InMemory.DbMemory
 {
     internal sealed class DbDataMemory<T> : IDbDataMemory<T> where T : class
     {
-        internal List<T> RollbackList { get; set; }
-        internal List<T> FinalList { get; set; }
+        private List<T> _rollbackList;
+        private List<T> _finalList;
 
-        internal List<T> AddList { get; set; }
-        internal List<T> RemoveList { get; set; }
+        private List<T> _addList;
+        private List<T> _removeList;
 
-        internal bool HasActiveTransaction { get; set; }
-        IDbContextTransaction DbContectTransactionMock { get; set; }
+        private bool _hasActiveTransaction;
+        private IDbContextTransaction _dbContectTransactionMock;
+
+        public int AddListLength => _addList.Count;
+        public int RemoveListLength => _removeList.Count;
 
         public DbDataMemory(IEnumerable<T>? initialData = null)
         {
-            FinalList = initialData == null ? new List<T>() : initialData.ToList();
+            _finalList = initialData == null ? new List<T>() : initialData.ToList();
 
-            RollbackList = new List<T>();
-            AddList = new List<T>();
-            RemoveList = new List<T>();
+            _rollbackList = new List<T>();
+            _addList = new List<T>();
+            _removeList = new List<T>();
 
-            HasActiveTransaction = false;
+            _hasActiveTransaction = false;
 
-            DbContectTransactionMock = Substitute.For<IDbContextTransaction>();
+            _dbContectTransactionMock = Substitute.For<IDbContextTransaction>();
 
-            DbContectTransactionMock.When(x => x.Commit()).Do(x => CommitTransaction());
-            DbContectTransactionMock.When(x => x.CommitAsync(Arg.Any<CancellationToken>())).Do(x => CommitTransaction());
+            _dbContectTransactionMock.When(x => x.Commit()).Do(x => CommitTransaction());
+            _dbContectTransactionMock.When(x => x.CommitAsync(Arg.Any<CancellationToken>())).Do(x => CommitTransaction());
 
-            DbContectTransactionMock.When(x => x.Rollback()).Do(x => RollbackTransaction());
-            DbContectTransactionMock.When(x => x.RollbackAsync(Arg.Any<CancellationToken>())).Do(x => RollbackTransaction());
+            _dbContectTransactionMock.When(x => x.Rollback()).Do(x => RollbackTransaction());
+            _dbContectTransactionMock.When(x => x.RollbackAsync(Arg.Any<CancellationToken>())).Do(x => RollbackTransaction());
 
-            DbContectTransactionMock.When(x => x.Dispose()).Do(x => RollbackTransaction(true));
-        }
-
-        public int AddListCount()
-        {
-            return AddList.Count;
-        }
-
-        public int RemoveListCount()
-        {
-            return RemoveList.Count;
+            _dbContectTransactionMock.When(x => x.Dispose()).Do(x => RollbackTransaction(true));
         }
 
         public IQueryable<T> GetAll()
         {
-            return FinalList.AsQueryable();
+            return _finalList.AsQueryable();
         }
 
         public void Add(T input)
         {
-            AddList.Add(input);
+            _addList.Add(input);
         }
 
         public void AddRange(IEnumerable<T> inputList)
         {
-            AddList.AddRange(inputList);
+            _addList.AddRange(inputList);
         }
 
         public void Remove(T input)
         {
-            RemoveList.Add(input);
+            _removeList.Add(input);
         }
 
         public void RemoveRange(IEnumerable<T> inputList)
         {
-            RemoveList.AddRange(inputList);
+            _removeList.AddRange(inputList);
         }
 
         public int SaveChanges()
         {
-            RollbackList.Clear();
-            if (HasActiveTransaction)
-                foreach (var item in FinalList)
-                    RollbackList.Add(item);
+            _rollbackList.Clear();
+            if (_hasActiveTransaction)
+                foreach (var item in _finalList)
+                    _rollbackList.Add(item);
 
-            int result = AddList.Count + RemoveList.Count;
+            int result = _addList.Count + _removeList.Count;
 
-            foreach (var addItem in AddList)
+            foreach (var addItem in _addList)
             {
-                if (FinalList.Any(x => x.Equals(addItem)))
+                if (_finalList.Any(x => x.Equals(addItem)))
                     throw new InvalidOperationException("Cannot add twice the same item");
 
-                FinalList.Add(addItem);
+                _finalList.Add(addItem);
             }
 
-            foreach (var removeItem in RemoveList)
+            foreach (var removeItem in _removeList)
             {
-                if (!FinalList.Any(x => x.Equals(removeItem)))
+                if (!_finalList.Any(x => x.Equals(removeItem)))
                     throw new InvalidOperationException("Cannot remove items that are not in the list");
 
-                FinalList.Remove(removeItem);
+                _finalList.Remove(removeItem);
             }
 
-            AddList.Clear();
-            RemoveList.Clear();
+            _addList.Clear();
+            _removeList.Clear();
 
             return result;
         }
 
         public IDbContextTransaction BeginTransaction()
         {
-            if (HasActiveTransaction)
+            if (_hasActiveTransaction)
                 throw new InvalidOperationException("There is already a transaction opened");
 
-            HasActiveTransaction = true;
-            return DbContectTransactionMock;
+            _hasActiveTransaction = true;
+            return _dbContectTransactionMock;
         }
 
         public void CommitTransaction()
         {
-            if (!HasActiveTransaction)
+            if (!_hasActiveTransaction)
                 throw new InvalidOperationException("No Open Transaction found");
 
-            HasActiveTransaction = false;
+            _hasActiveTransaction = false;
 
-            AddList.Clear();
-            RemoveList.Clear();
-            RollbackList.Clear();
+            _addList.Clear();
+            _removeList.Clear();
+            _rollbackList.Clear();
         }
 
         public void RollbackTransaction(bool noThrow = false)
         {
-            if (!HasActiveTransaction)
+            if (!_hasActiveTransaction)
             {
                 if (noThrow)
                     return;
@@ -134,15 +127,15 @@ namespace FluentHelper.EntityFrameworkCore.InMemory.DbMemory
                 throw new InvalidOperationException("No Open Transaction found");
             }
 
-            HasActiveTransaction = false;
+            _hasActiveTransaction = false;
 
-            FinalList.Clear();
-            foreach (var item in RollbackList)
-                FinalList.Add(item);
+            _finalList.Clear();
+            foreach (var item in _rollbackList)
+                _finalList.Add(item);
 
-            AddList.Clear();
-            RemoveList.Clear();
-            RollbackList.Clear();
+            _addList.Clear();
+            _removeList.Clear();
+            _rollbackList.Clear();
         }
     }
 }

@@ -14,7 +14,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         private Action<LogLevel, EventId, string>? _logAction;
         private bool _enableSensitiveDataLogging;
         private bool enableLazyLoadingProxies;
-        private List<Assembly> _mappingAssemblies;
+        private readonly List<Assembly> _mappingAssemblies;
 
         public EfDbConfigBuilder()
         {
@@ -34,7 +34,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public EfDbConfigBuilder WithDbProvider(Action<DbContextOptionsBuilder> dbProvider)
         {
-            this._dbProvider = dbProvider;
+            _dbProvider = dbProvider;
             return this;
         }
 

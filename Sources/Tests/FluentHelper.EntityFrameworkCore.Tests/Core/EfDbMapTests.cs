@@ -30,20 +30,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             var testEntityMap = new TestEntityMap();
 
-            Assert.Throws<ArgumentNullException>(() => testEntityMap.GetModelBuilder());
-        }
-
-        [Test]
-        public void Verify_EntityProperty_Works()
-        {
-            var modelBuilder = Substitute.For<ModelBuilder>();
-            modelBuilder.Entity<TestEntity>().Returns(x => null);
-
-            var testEntityMap = new TestEntityMap();
-            testEntityMap.SetModelBuilder(modelBuilder);
-
-            _ = testEntityMap.Entity;
-            modelBuilder.Received(1).Entity<TestEntity>();
+            Assert.Throws<InvalidOperationException>(() => testEntityMap.GetModelBuilder());
         }
 
         [Test]

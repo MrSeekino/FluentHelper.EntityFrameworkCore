@@ -5,9 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>FluentHelper.EntityFrameworkCore.SqlServer</PackageId>
-    <Version>1.7.2</Version>
+    <Version>7.0.1</Version>
     <PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
-    <Description>An helper for codefirst's EntityframeworkCore projects using SqlServer</Description>
+    <Description>SqlServer provider for FluentHelper.EntityFrameworkCore</Description>
     <RepositoryUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</RepositoryUrl>
     <PackageTags>EntityFrameworkCore,FluentHelper,Sql,SqlServer</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

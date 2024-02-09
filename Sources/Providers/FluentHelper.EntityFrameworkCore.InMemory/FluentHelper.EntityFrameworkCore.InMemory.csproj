@@ -4,6 +4,10 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>FluentHelper.EntityFrameworkCore.InMemory</PackageId>
+    <Version>7.0.1</Version>
+    <Description>InMemory provider for FluentHelper.EntityFrameworkCore</Description>
+    <PackageTags>EntityFrameworkCore,FluentHelper,InMemory</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

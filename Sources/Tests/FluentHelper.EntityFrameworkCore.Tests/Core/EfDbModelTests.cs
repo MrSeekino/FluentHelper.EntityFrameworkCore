@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 
@@ -29,7 +30,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbModel = new TestEfDbModel(dbConfig, new List<IDbMap>());
             dbModel.OnConfiguringWrapper(contextOptBuilder);
 
-            Assert.True(funcCalled);
+            ClassicAssert.True(funcCalled);
         }
 
         [Test]
@@ -68,7 +69,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbModel = new EfDbModel(dbConfig, new List<IDbMap>());
             dbModel.Configure(contextOptBuilder);
 
-            Assert.True(funcCalled);
+            ClassicAssert.True(funcCalled);
         }
 
         [Test]
@@ -88,7 +89,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbModel = new EfDbModel(dbConfig, new List<IDbMap>());
             dbModel.Configure(contextOptBuilder);
 
-            Assert.True(funcCalled);
+            ClassicAssert.True(funcCalled);
         }
 
         [Test]

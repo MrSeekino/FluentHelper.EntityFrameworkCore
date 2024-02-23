@@ -4,6 +4,7 @@ using FluentHelper.EntityFrameworkCore.Tests.Support;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System.Linq;
 
 namespace FluentHelper.EntityFrameworkCore.Tests.Core
@@ -57,7 +58,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             var dbContextRetrieved = serviceProvider.GetRequiredService<IDbContext>();
             Assert.That(dbContextRetrieved, Is.Not.Null);
-            Assert.AreEqual(dbContextRetrieved, dbContext);
+            ClassicAssert.AreEqual(dbContextRetrieved, dbContext);
         }
     }
 }

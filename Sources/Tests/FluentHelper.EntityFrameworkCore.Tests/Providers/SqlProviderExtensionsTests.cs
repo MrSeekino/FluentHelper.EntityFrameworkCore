@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -61,8 +62,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var dbContext = serviceProvider.GetRequiredService<IDbContext>();
 
-            Assert.IsNotNull(dbContext);
-            Assert.AreEqual("Microsoft.EntityFrameworkCore.SqlServer", dbContext.GetProviderName());
+            ClassicAssert.IsNotNull(dbContext);
+            ClassicAssert.AreEqual("Microsoft.EntityFrameworkCore.SqlServer", dbContext.GetProviderName());
         }
 
         [Test]
@@ -89,8 +90,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             EfDbContext realDbContext = new EfDbContext(dbConfig, new List<IDbMap>(), (c, m) => dbModel);
             var transaction = realDbContext.BeginTransaction(IsolationLevel.ReadUncommitted);
 
-            Assert.NotNull(transaction);
-            Assert.AreEqual(contextTransaction, transaction);
+            ClassicAssert.NotNull(transaction);
+            ClassicAssert.AreEqual(contextTransaction, transaction);
         }
 
         [Test]
@@ -135,8 +136,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             EfDbContext realDbContext = new EfDbContext(dbConfig, new List<IDbMap>(), (c, m) => dbModel);
             var transaction = await realDbContext.BeginTransactionAsync(IsolationLevel.ReadUncommitted);
 
-            Assert.NotNull(transaction);
-            Assert.AreEqual(contextTransaction, transaction);
+            ClassicAssert.NotNull(transaction);
+            ClassicAssert.AreEqual(contextTransaction, transaction);
         }
 
         [Test]

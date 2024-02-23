@@ -1,6 +1,7 @@
 ﻿using FluentHelper.EntityFrameworkCore.InMemory.DbMemory;
 using FluentHelper.EntityFrameworkCore.Tests.Support;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,8 +33,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             var dbDataMemory = new DbDataMemory<TestEntity>(initialData);
             var currentList = dbDataMemory.GetAll().ToList();
 
-            Assert.IsNotNull(currentList);
-            Assert.AreEqual(2, currentList.Count);
+            ClassicAssert.IsNotNull(currentList);
+            ClassicAssert.AreEqual(2, currentList.Count);
         }
 
         [Test]
@@ -47,16 +48,16 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
                 Name = "Added",
                 Description = "Description"
             });
-            Assert.AreEqual(1, dbDataMemory.AddListLength);
+            ClassicAssert.AreEqual(1, dbDataMemory.AddListLength);
 
             var currentList = dbDataMemory.GetAll().ToList();
-            Assert.AreEqual(0, currentList.Count);
+            ClassicAssert.AreEqual(0, currentList.Count);
 
             dbDataMemory.SaveChanges();
-            Assert.AreEqual(0, dbDataMemory.AddListLength);
+            ClassicAssert.AreEqual(0, dbDataMemory.AddListLength);
 
             var saveList = dbDataMemory.GetAll().ToList();
-            Assert.AreEqual(1, saveList.Count);
+            ClassicAssert.AreEqual(1, saveList.Count);
         }
 
         [Test]
@@ -81,16 +82,16 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             var dbDataMemory = new DbDataMemory<TestEntity>();
 
             dbDataMemory.AddRange(dataToAdd);
-            Assert.AreEqual(2, dbDataMemory.AddListLength);
+            ClassicAssert.AreEqual(2, dbDataMemory.AddListLength);
 
             var currentList = dbDataMemory.GetAll().ToList();
-            Assert.AreEqual(0, currentList.Count);
+            ClassicAssert.AreEqual(0, currentList.Count);
 
             dbDataMemory.SaveChanges();
-            Assert.AreEqual(0, dbDataMemory.AddListLength);
+            ClassicAssert.AreEqual(0, dbDataMemory.AddListLength);
 
             var saveList = dbDataMemory.GetAll().ToList();
-            Assert.AreEqual(2, saveList.Count);
+            ClassicAssert.AreEqual(2, saveList.Count);
         }
 
         [Test]
@@ -115,16 +116,16 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             var dbDataMemory = new DbDataMemory<TestEntity>(initialData);
 
             dbDataMemory.Remove(initialData[0]);
-            Assert.AreEqual(1, dbDataMemory.RemoveListLength);
+            ClassicAssert.AreEqual(1, dbDataMemory.RemoveListLength);
 
             var currentList = dbDataMemory.GetAll().ToList();
-            Assert.AreEqual(2, currentList.Count);
+            ClassicAssert.AreEqual(2, currentList.Count);
 
             dbDataMemory.SaveChanges();
-            Assert.AreEqual(0, dbDataMemory.RemoveListLength);
+            ClassicAssert.AreEqual(0, dbDataMemory.RemoveListLength);
 
             var saveList = dbDataMemory.GetAll().ToList();
-            Assert.AreEqual(1, saveList.Count);
+            ClassicAssert.AreEqual(1, saveList.Count);
         }
 
         [Test]
@@ -149,16 +150,16 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             var dbDataMemory = new DbDataMemory<TestEntity>(initialData);
 
             dbDataMemory.RemoveRange(initialData);
-            Assert.AreEqual(2, dbDataMemory.RemoveListLength);
+            ClassicAssert.AreEqual(2, dbDataMemory.RemoveListLength);
 
             var currentList = dbDataMemory.GetAll().ToList();
-            Assert.AreEqual(2, currentList.Count);
+            ClassicAssert.AreEqual(2, currentList.Count);
 
             dbDataMemory.SaveChanges();
-            Assert.AreEqual(0, dbDataMemory.RemoveListLength);
+            ClassicAssert.AreEqual(0, dbDataMemory.RemoveListLength);
 
             var saveList = dbDataMemory.GetAll().ToList();
-            Assert.AreEqual(0, saveList.Count);
+            ClassicAssert.AreEqual(0, saveList.Count);
         }
 
         [Test]
@@ -174,17 +175,17 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
                     Name = "Added",
                     Description = "Description"
                 });
-                Assert.AreEqual(1, dbDataMemory.AddListLength);
+                ClassicAssert.AreEqual(1, dbDataMemory.AddListLength);
 
                 dbDataMemory.SaveChanges();
-                Assert.AreEqual(0, dbDataMemory.AddListLength);
+                ClassicAssert.AreEqual(0, dbDataMemory.AddListLength);
 
                 var saveList = dbDataMemory.GetAll().ToList();
-                Assert.AreEqual(1, saveList.Count);
+                ClassicAssert.AreEqual(1, saveList.Count);
             }
 
             var rolledBackList = dbDataMemory.GetAll().ToList();
-            Assert.AreEqual(0, rolledBackList.Count);
+            ClassicAssert.AreEqual(0, rolledBackList.Count);
 
             using (var transaction = dbDataMemory.BeginTransaction())
             {
@@ -194,19 +195,19 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
                     Name = "Added",
                     Description = "Description"
                 });
-                Assert.AreEqual(1, dbDataMemory.AddListLength);
+                ClassicAssert.AreEqual(1, dbDataMemory.AddListLength);
 
                 dbDataMemory.SaveChanges();
-                Assert.AreEqual(0, dbDataMemory.AddListLength);
+                ClassicAssert.AreEqual(0, dbDataMemory.AddListLength);
 
                 var saveList = dbDataMemory.GetAll().ToList();
-                Assert.AreEqual(1, saveList.Count);
+                ClassicAssert.AreEqual(1, saveList.Count);
 
                 transaction.Commit();
             }
 
             var committedList = dbDataMemory.GetAll().ToList();
-            Assert.AreEqual(1, committedList.Count);
+            ClassicAssert.AreEqual(1, committedList.Count);
         }
     }
 }

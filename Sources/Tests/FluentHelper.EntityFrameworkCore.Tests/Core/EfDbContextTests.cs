@@ -8,6 +8,7 @@ using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
+using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,7 +51,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
-            Assert.True(funcCalled);
+            ClassicAssert.True(funcCalled);
 
             dbContext.CreateNewContext();
             dbModel.Received(1).Dispose();
@@ -87,7 +88,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbContext = new EfDbContext(dbConfig, new List<IDbMap>() { dbMap }, createDbContextBehaviour);
             var underlyingContext = dbContext.CreateNewContext();
 
-            Assert.True(funcCalledCorrecly);
+            ClassicAssert.True(funcCalledCorrecly);
             Assert.That(underlyingContext, Is.Not.Null);
             Assert.That(underlyingContext.GetType(), Is.EqualTo(typeof(EfDbModel)));
             Assert.That(((EfDbModel)underlyingContext).MappingsLength, Is.EqualTo(1));
@@ -110,13 +111,13 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             var contextGot = dbContext.GetContext();
 
-            Assert.False(funcCalled);
+            ClassicAssert.False(funcCalled);
 
             Assert.That(contextGot, Is.Not.Null);
             Assert.That(contextGot, Is.EqualTo(dbModel));
 
             dbModel.Received(0).Dispose();
-            Assert.False(funcCalled);
+            ClassicAssert.False(funcCalled);
         }
 
         [Test]
@@ -489,7 +490,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             bool opResult = dbContext.ExecuteOnDatabase(db => db.CanConnect());
             dbFacade.Received(1).CanConnect();
-            Assert.True(opResult);
+            ClassicAssert.True(opResult);
         }
 
         [Test]
@@ -519,7 +520,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             dbContext.SetCommandTimeout(TimeSpan.FromMinutes(10));
             var currentTimeout = relationalConnection!.CommandTimeout!.Value;
-            Assert.AreEqual(600, currentTimeout);
+            ClassicAssert.AreEqual(600, currentTimeout);
         }
 
         [Test]
@@ -544,7 +545,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             bool opResult = dbContext.CanConnect();
             dbFacade.Received(1).CanConnect();
-            Assert.True(opResult);
+            ClassicAssert.True(opResult);
         }
 
         [Test]
@@ -569,7 +570,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             bool opResult = await dbContext.CanConnectAsync();
             await dbFacade.Received(1).CanConnectAsync();
-            Assert.True(opResult);
+            ClassicAssert.True(opResult);
         }
     }
 }

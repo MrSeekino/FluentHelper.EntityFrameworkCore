@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Description>An helper for codefirst's EntityframeworkCore projects</Description>
     <PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
     <PackageTags>EntityFrameworkCore,FluentHelper</PackageTags>
     <PackageId>FluentHelper.EntityFrameworkCore</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>7.0.1</Version>
+    <Version>8.0.0</Version>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</RepositoryUrl>
 	<Nullable>enable</Nullable>
@@ -22,9 +22,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.15" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.15" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.2" />
   </ItemGroup>
 
 </Project>

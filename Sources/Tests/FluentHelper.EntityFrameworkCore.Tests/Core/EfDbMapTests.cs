@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 
 namespace FluentHelper.EntityFrameworkCore.Tests.Core
@@ -19,8 +20,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             var retrievedModelBuilder = testEntityMap.GetModelBuilder();
 
-            Assert.NotNull(retrievedModelBuilder);
-            Assert.AreEqual(modelBuilder, retrievedModelBuilder);
+            ClassicAssert.NotNull(retrievedModelBuilder);
+            ClassicAssert.AreEqual(modelBuilder, retrievedModelBuilder);
         }
 
         [Test]
@@ -40,8 +41,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             var mappedType = testEntityMap.GetMappedType();
 
-            Assert.NotNull(mappedType);
-            Assert.AreEqual(typeof(TestEntity), mappedType);
+            ClassicAssert.NotNull(mappedType);
+            ClassicAssert.AreEqual(typeof(TestEntity), mappedType);
         }
     }
 }

@@ -7,7 +7,13 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     public static class EfDbDependencyInjectionExtensions
     {
-        public static void AddFluentDbContext(this IServiceCollection serviceCollection, Action<EfDbConfigBuilder> dbConfigBuilderFunc, ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
+        /// <summary>
+        /// Add FluentDbContext to the dependency injection
+        /// </summary>
+        /// <param name="serviceCollection"></param>
+        /// <param name="dbConfigBuilderFunc">The action to set all the configurations</param>
+        /// <param name="serviceLifetime">The Lifetime of the context. Default to Transient</param>
+        public static void AddFluentDbContext(this IServiceCollection serviceCollection, Action<EfDbConfigBuilder> dbConfigBuilderFunc, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
             EfDbConfigBuilder dbConfigBuilder = new EfDbConfigBuilder();
             dbConfigBuilderFunc(dbConfigBuilder);
@@ -22,6 +28,11 @@ namespace FluentHelper.EntityFrameworkCore.Common
             serviceCollection.Add(new ServiceDescriptor(typeof(IDbContext), typeof(EfDbContext), serviceLifetime));
         }
 
+        /// <summary>
+        /// Add the specified dbContext as a singleton
+        /// </summary>
+        /// <param name="serviceCollection"></param>
+        /// <param name="dbContext"></param>
         public static void AddFluentDbContext(this IServiceCollection serviceCollection, IDbContext dbContext)
         {
             serviceCollection.AddSingleton(typeof(IDbContext), dbContext);

@@ -8,6 +8,14 @@ namespace FluentHelper.EntityFrameworkCore.PostgreSql
 {
     public static class PostgreSqlProviderExtensions
     {
+        /// <summary>
+        /// Use Postresql as the provider
+        /// </summary>
+        /// <param name="dbContextBuilder"></param>
+        /// <param name="connectionString">Postgresql connectionstring</param>
+        /// <param name="npgSqlOptionsAction">Specific settings to be applied</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static EfDbConfigBuilder WithPostgreSqlProvider(this EfDbConfigBuilder dbContextBuilder, string connectionString, Action<NpgsqlDbContextOptionsBuilder>? npgSqlOptionsAction = null)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
@@ -21,6 +29,13 @@ namespace FluentHelper.EntityFrameworkCore.PostgreSql
             return dbContextBuilder;
         }
 
+        /// <summary>
+        /// Begin a transaction with specified isolation level
+        /// </summary>
+        /// <param name="dbContext"></param>
+        /// <param name="isolationLevel">The preferred isolation level</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public static IDbContextTransaction BeginTransaction(this IDbContext dbContext, System.Data.IsolationLevel isolationLevel)
         {
             if (dbContext.IsTransactionOpen())
@@ -29,6 +44,14 @@ namespace FluentHelper.EntityFrameworkCore.PostgreSql
             return dbContext.ExecuteOnDatabase(db => db.BeginTransaction(isolationLevel));
         }
 
+        /// <summary>
+        /// Begin a transaction with specified isolation level
+        /// </summary>
+        /// <param name="dbContext"></param>
+        /// <param name="isolationLevel">The preferred isolation level</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public static async Task<IDbContextTransaction> BeginTransactionAsync(this IDbContext dbContext, System.Data.IsolationLevel isolationLevel, CancellationToken cancellationToken = default)
         {
             if (dbContext.IsTransactionOpen())

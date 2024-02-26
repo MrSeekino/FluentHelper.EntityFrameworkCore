@@ -5,6 +5,10 @@ using System;
 
 namespace FluentHelper.EntityFrameworkCore.Common
 {
+    /// <summary>
+    /// An abstract class representing the mapping of a specific T model. Map method should be extended and mapping applied to 'Entity' property
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class EfDbMap<T> : IDbMap<T> where T : class
     {
         private ModelBuilder? _modelBuilder;
@@ -21,6 +25,9 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public void SetModelBuilder(ModelBuilder modelBuilder)
         {
+            if (_modelBuilder != null)
+                throw new InvalidOperationException("ModelBuilder cannot be set twice");
+
             _modelBuilder = modelBuilder;
         }
 

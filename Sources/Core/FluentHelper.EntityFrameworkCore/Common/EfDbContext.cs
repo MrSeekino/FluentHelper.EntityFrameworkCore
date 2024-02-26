@@ -200,7 +200,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public async Task AddAsync<T>(T inputData, CancellationToken cancellationToken = default) where T : class
         {
-            await GetContext().Set<T>().AddAsync(inputData, cancellationToken);
+            await GetContext().Set<T>().AddAsync(inputData, cancellationToken).ConfigureAwait(false);
         }
 
         public void AddRange<T>(IEnumerable<T> inputData) where T : class
@@ -210,7 +210,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public async Task AddRangeAsync<T>(IEnumerable<T> inputData, CancellationToken cancellationToken = default) where T : class
         {
-            await GetContext().Set<T>().AddRangeAsync(inputData, cancellationToken);
+            await GetContext().Set<T>().AddRangeAsync(inputData, cancellationToken).ConfigureAwait(false);
         }
 
         public void Remove<T>(T inputData) where T : class
@@ -230,7 +230,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            return await GetContext().SaveChangesAsync(cancellationToken);
+            return await GetContext().SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public void ExecuteOnDatabase(Action<DatabaseFacade> actionToExecute)
@@ -250,7 +250,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public async Task<int> ExecuteDeleteAsync<T>(Expression<Func<T, bool>> deletePredicate, CancellationToken cancellationToken = default) where T : class
         {
-            return await GetContext().Set<T>().Where(deletePredicate).ExecuteDeleteAsync(cancellationToken);
+            return await GetContext().Set<T>().Where(deletePredicate).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public int ExecuteUpdate<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls) where T : class
@@ -260,7 +260,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public async Task<int> ExecuteUpdateAsync<T>(Expression<Func<T, bool>> updatePredicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateSetPropertyCalls, CancellationToken cancellationToken = default) where T : class
         {
-            return await GetContext().Set<T>().Where(updatePredicate).ExecuteUpdateAsync(updateSetPropertyCalls, cancellationToken);
+            return await GetContext().Set<T>().Where(updatePredicate).ExecuteUpdateAsync(updateSetPropertyCalls, cancellationToken).ConfigureAwait(false);
         }
 
         public int ExecuteSqlRaw(string sqlQuery, params object[] parameters)
@@ -270,12 +270,12 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public async Task<int> ExecuteSqlRawAsync(string sqlQuery, IEnumerable<object> parameters, CancellationToken cancellationToken = default)
         {
-            return await GetContext().Database.ExecuteSqlRawAsync(sqlQuery, parameters, cancellationToken);
+            return await GetContext().Database.ExecuteSqlRawAsync(sqlQuery, parameters, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<int> ExecuteSqlRawAsync(string sqlQuery, CancellationToken cancellationToken = default)
         {
-            return await GetContext().Database.ExecuteSqlRawAsync(sqlQuery, cancellationToken);
+            return await GetContext().Database.ExecuteSqlRawAsync(sqlQuery, cancellationToken).ConfigureAwait(false);
         }
 
         public void SetCommandTimeout(TimeSpan timeout)
@@ -295,7 +295,12 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
         public async Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
         {
-            return await GetContext().Database.CanConnectAsync(cancellationToken);
+            return await GetContext().Database.CanConnectAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        public string? GetConnectionString()
+        {
+            return GetContext().Database.GetConnectionString();
         }
 
         public void Dispose()

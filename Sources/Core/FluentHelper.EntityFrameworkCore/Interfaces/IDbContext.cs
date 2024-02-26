@@ -74,5 +74,7 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
 
         bool CanConnect();
         Task<bool> CanConnectAsync(CancellationToken cancellationToken = default);
+
+        string? GetConnectionString();
     }
 }

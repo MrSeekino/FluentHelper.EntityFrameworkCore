@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FluentHelper.EntityFrameworkCore.Common
 {
@@ -13,6 +14,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
     {
         private ModelBuilder? _modelBuilder;
 
+        [ExcludeFromCodeCoverage]
         public EntityTypeBuilder<T> Entity => GetModelBuilder().Entity<T>();
 
         public ModelBuilder GetModelBuilder()

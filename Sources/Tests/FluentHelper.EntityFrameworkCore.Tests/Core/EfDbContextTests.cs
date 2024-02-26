@@ -574,5 +574,37 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             await dbFacade.Received(1).CanConnectAsync();
             ClassicAssert.True(opResult);
         }
+
+        [Test]
+        public void Verify_GetConnectionString_WorksProperly()
+        {
+            string connectionString = "The_Connection_String";
+
+            var dbConfig = Substitute.For<IDbConfig>();
+            var sqlDbContext = Substitute.For<DbContext>();
+
+            var relationalConnection = Substitute.For<IRelationalConnection>();
+
+            var facadeDependencies = Substitute.For<IRelationalDatabaseFacadeDependencies>();
+            facadeDependencies.RelationalConnection.Returns(relationalConnection);
+
+            var dbFacade = Substitute.For<DatabaseFacade, IDatabaseFacadeDependenciesAccessor>(sqlDbContext);
+            ((IDatabaseFacadeDependenciesAccessor)dbFacade).Dependencies.Returns(facadeDependencies);
+            dbFacade.GetConnectionString().Returns(connectionString);
+
+            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            dbModel.Database.Returns(dbFacade);
+
+            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            {
+                return dbModel;
+            };
+
+            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            dbContext.CreateNewContext();
+
+            var connString = dbContext.GetConnectionString();
+            ClassicAssert.AreEqual(connectionString, connString);
+        }
     }
 }

@@ -5,10 +5,14 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Support
 {
     public class TestEntityMap : EfDbMap<TestEntity>
     {
-        ModelBuilder? ModelBuilder { get; set; } = new ModelBuilder();
-
         public override void Map()
         {
+            Entity.ToTable("Test");
+
+            Entity.HasKey(t => t.Id);
+
+            Entity.Property(t => t.Name);
+            Entity.Property(t => t.Description);
         }
     }
 }

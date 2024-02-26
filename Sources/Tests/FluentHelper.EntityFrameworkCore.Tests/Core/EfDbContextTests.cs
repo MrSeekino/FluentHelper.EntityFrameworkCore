@@ -63,12 +63,14 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_CreateDbContext_WorksProperly_AfterSetAllProperties_WithLazyLoading()
         {
+            Action<DbContextOptionsBuilder> lazyLoadingProxyBehaviour = x => x.UseLazyLoadingProxies();
+
             var dbConfig = Substitute.For<IDbConfig>();
             dbConfig.DbConfiguration.Returns(null);
             dbConfig.DbProvider.Returns(x => { });
             dbConfig.LogAction.Returns((x, y, z) => { });
             dbConfig.EnableSensitiveDataLogging.Returns(true);
-            dbConfig.EnableLazyLoadingProxies.Returns(true);
+            dbConfig.LazyLoadingProxiesBehaviour.Returns(lazyLoadingProxyBehaviour);
             dbConfig.MappingAssemblies.Returns(new List<Assembly>());
 
             var dbMap = Substitute.For<IDbMap>();
@@ -79,7 +81,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
                 if (c.DbProvider == dbConfig.DbProvider
                         && c.LogAction == dbConfig.LogAction
                         && c.EnableSensitiveDataLogging == dbConfig.EnableSensitiveDataLogging
-                        && c.EnableLazyLoadingProxies == dbConfig.EnableLazyLoadingProxies)
+                        && c.LazyLoadingProxiesBehaviour == lazyLoadingProxyBehaviour)
                     funcCalledCorrecly = true;
 
                 return new EfDbModel(c, m);

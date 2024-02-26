@@ -12,19 +12,13 @@ namespace FluentHelper.EntityFrameworkCore.Common
     {
         private readonly IDbConfig _dbConfig;
         private readonly IEnumerable<IDbMap> _mappings;
-        private readonly Action<DbContextOptionsBuilder> _useLazyLoadingProxiesBehaviour;
 
         internal int MappingsLength => _mappings.Count();
 
         public EfDbModel(IDbConfig dbConfig, IEnumerable<IDbMap> mappings)
-            : this(dbConfig, mappings, optionsBuilder => { optionsBuilder.UseLazyLoadingProxies(); })
-        { }
-
-        public EfDbModel(IDbConfig dbConfig, IEnumerable<IDbMap> mappings, Action<DbContextOptionsBuilder> useLazyLoadingProxiesBehaviour)
         {
             _dbConfig = dbConfig;
             _mappings = mappings;
-            _useLazyLoadingProxiesBehaviour = useLazyLoadingProxiesBehaviour;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -55,8 +49,8 @@ namespace FluentHelper.EntityFrameworkCore.Common
                 if (_dbConfig.EnableSensitiveDataLogging)
                     optionsBuilder.EnableSensitiveDataLogging();
 
-                if (_dbConfig.EnableLazyLoadingProxies)
-                    _useLazyLoadingProxiesBehaviour(optionsBuilder);
+                if (_dbConfig.LazyLoadingProxiesBehaviour != null)
+                    _dbConfig.LazyLoadingProxiesBehaviour(optionsBuilder);
             }
         }
 

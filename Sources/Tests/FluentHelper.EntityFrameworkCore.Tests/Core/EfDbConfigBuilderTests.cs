@@ -37,7 +37,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
                                 .Build();
 
             Assert.That(efDbConfig, Is.Not.Null);
-            Assert.That(efDbConfig.EnableLazyLoadingProxies, Is.True);
+            Assert.That(efDbConfig.LazyLoadingProxiesBehaviour, Is.Not.Null);
         }
 
         [TestCase(false)]

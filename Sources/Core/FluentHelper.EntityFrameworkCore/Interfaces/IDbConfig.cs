@@ -12,8 +12,8 @@ namespace FluentHelper.EntityFrameworkCore.Interfaces
         Action<DbContextOptionsBuilder>? DbProvider { get; }
         Action<LogLevel, EventId, string>? LogAction { get; }
 
+        Action<DbContextOptionsBuilder>? LazyLoadingProxiesBehaviour { get; }
         bool EnableSensitiveDataLogging { get; }
-        bool EnableLazyLoadingProxies { get; }
 
         List<Assembly> MappingAssemblies { get; }
     }

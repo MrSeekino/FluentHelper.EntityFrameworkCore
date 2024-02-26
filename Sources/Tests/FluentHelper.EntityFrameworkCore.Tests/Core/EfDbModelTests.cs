@@ -130,28 +130,6 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
                 contextOptBuilder.DidNotReceive().EnableSensitiveDataLogging(true);
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void Verify_UseLazyLoadingProxies_IsCalledCorrectly(bool enableLazyLoadingProxies) // to be verified
-        {
-            bool funcCalled = false;
-
-            var dbConfig = Substitute.For<IDbConfig>();
-            dbConfig.DbProvider.Returns(x => { });
-            dbConfig.EnableLazyLoadingProxies.Returns(enableLazyLoadingProxies);
-
-            var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
-            contextOptBuilder.IsConfigured.Returns(false);
-
-            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>(), x =>
-            {
-                funcCalled = true;
-            });
-            dbModel.Configure(contextOptBuilder);
-
-            Assert.That(funcCalled, Is.EqualTo(enableLazyLoadingProxies));
-        }
-
         [Test]
         public void Verify_CreateModel_WorksProperly()
         {

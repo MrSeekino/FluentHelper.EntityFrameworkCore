@@ -34,7 +34,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             Assert.That(dbConfig.DbProvider, Is.Not.Null);
             Assert.That(dbConfig.LogAction, Is.Not.Null);
             Assert.That(dbConfig.EnableSensitiveDataLogging, Is.True);
-            Assert.That(dbConfig.EnableLazyLoadingProxies, Is.True);
+            Assert.That(dbConfig.LazyLoadingProxiesBehaviour, Is.Not.Null);
             Assert.That(dbConfig.MappingAssemblies.Count, Is.EqualTo(1));
 
             var dbMaps = serviceProvider.GetServices<IDbMap>();

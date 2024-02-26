@@ -12,8 +12,8 @@ namespace FluentHelper.EntityFrameworkCore.Common
         private Action<DbContextOptionsBuilder>? _dbConfiguration;
         private Action<DbContextOptionsBuilder>? _dbProvider;
         private Action<LogLevel, EventId, string>? _logAction;
+        private Action<DbContextOptionsBuilder>? _lazyLoadingProxiesBehaviour;
         private bool _enableSensitiveDataLogging;
-        private bool enableLazyLoadingProxies;
         private readonly List<Assembly> _mappingAssemblies;
 
         public EfDbConfigBuilder()
@@ -38,9 +38,9 @@ namespace FluentHelper.EntityFrameworkCore.Common
             return this;
         }
 
-        public EfDbConfigBuilder WithLazyLoadingProxies()
+        public EfDbConfigBuilder WithLazyLoadingProxies(Action<LazyLoadingProxiesOptionsBuilder>? lazyLoadingProxiesOptionsAction = null)
         {
-            enableLazyLoadingProxies = true;
+            _lazyLoadingProxiesBehaviour = lazyLoadingProxiesOptionsAction != null ? optionsBuilder => optionsBuilder.UseLazyLoadingProxies(lazyLoadingProxiesOptionsAction!) : optionsBuilder => optionsBuilder.UseLazyLoadingProxies();
             return this;
         }
 
@@ -67,7 +67,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
                 DbProvider = _dbProvider,
                 LogAction = _logAction,
                 EnableSensitiveDataLogging = _enableSensitiveDataLogging,
-                EnableLazyLoadingProxies = enableLazyLoadingProxies,
+                LazyLoadingProxiesBehaviour = _lazyLoadingProxiesBehaviour,
                 MappingAssemblies = _mappingAssemblies
             };
         }

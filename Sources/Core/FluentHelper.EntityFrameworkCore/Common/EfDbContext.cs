@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,23 +17,25 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     internal sealed class EfDbContext : IDbContext
     {
+        private readonly ILoggerFactory _loggerFactory;
         private readonly IDbConfig _dbConfig;
         private readonly IEnumerable<IDbMap> _mappings;
-        private readonly Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> _createDbContextBehaviour;
+        private readonly Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> _createDbContextBehaviour;
 
         private DbContext? _dbContext;
 
-        public EfDbContext(IDbConfig dbConfig, IEnumerable<IDbMap> mappings)
-            : this(dbConfig, mappings, (c, m) => new EfDbModel(c, m))
+        public EfDbContext(ILoggerFactory loggerFactory, IDbConfig dbConfig, IEnumerable<IDbMap> mappings)
+            : this(loggerFactory, dbConfig, mappings, (l, c, m) => new EfDbModel(l, c, m))
         { }
 
-        public EfDbContext(IDbConfig dbConfig, IEnumerable<IDbMap> mappings, Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour)
-            : this(null, dbConfig, mappings, createDbContextBehaviour)
+        public EfDbContext(ILoggerFactory loggerFactory, IDbConfig dbConfig, IEnumerable<IDbMap> mappings, Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour)
+            : this(null, loggerFactory, dbConfig, mappings, createDbContextBehaviour)
         { }
 
-        public EfDbContext(DbContext? dbContext, IDbConfig dbConfig, IEnumerable<IDbMap> mappings, Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour)
+        public EfDbContext(DbContext? dbContext, ILoggerFactory loggerFactory, IDbConfig dbConfig, IEnumerable<IDbMap> mappings, Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour)
         {
             _dbContext = dbContext;
+            _loggerFactory = loggerFactory;
             _dbConfig = dbConfig;
             _mappings = mappings;
             _createDbContextBehaviour = createDbContextBehaviour;
@@ -41,7 +44,7 @@ namespace FluentHelper.EntityFrameworkCore.Common
         private void CreateDbContext()
         {
             _dbContext?.Dispose();
-            _dbContext = _createDbContextBehaviour(_dbConfig, _mappings);
+            _dbContext = _createDbContextBehaviour(_loggerFactory, _dbConfig, _mappings);
         }
 
         public string? GetProviderName()

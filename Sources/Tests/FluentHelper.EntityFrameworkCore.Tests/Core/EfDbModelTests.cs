@@ -20,6 +20,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             bool funcCalled = false;
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
+
             var dbConfig = Substitute.For<IDbConfig>();
             dbConfig.DbProvider.Returns(x => { });
             dbConfig.DbConfiguration.Returns(x => { funcCalled = true; });
@@ -27,7 +29,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
             contextOptBuilder.IsConfigured.Returns(false);
 
-            var dbModel = new TestEfDbModel(dbConfig, new List<IDbMap>());
+            var dbModel = new TestEfDbModel(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.OnConfiguringWrapper(contextOptBuilder);
 
             ClassicAssert.True(funcCalled);
@@ -38,6 +40,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             var modelBuilder = Substitute.For<ModelBuilder>();
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
+
             var dbConfig = Substitute.For<IDbConfig>();
             dbConfig.DbProvider.Returns(x => { });
 
@@ -47,7 +51,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbMap = Substitute.For<IDbMap>();
             dbMap.SetModelBuilder(Arg.Any<ModelBuilder>());
 
-            var dbModel = new TestEfDbModel(dbConfig, new List<IDbMap>() { dbMap });
+            var dbModel = new TestEfDbModel(loggerFactory, dbConfig, new List<IDbMap>() { dbMap });
             dbModel.OnModelCreatingWrapper(modelBuilder);
 
             dbMap.Received(1).SetModelBuilder(modelBuilder);
@@ -59,6 +63,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             bool funcCalled = false;
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
+
             var dbConfig = Substitute.For<IDbConfig>();
             dbConfig.DbProvider.Returns(x => { });
             dbConfig.DbConfiguration.Returns(x => { funcCalled = true; });
@@ -66,7 +72,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
             contextOptBuilder.IsConfigured.Returns(false);
 
-            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>());
+            var dbModel = new EfDbModel(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Configure(contextOptBuilder);
 
             ClassicAssert.True(funcCalled);
@@ -77,6 +83,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             bool funcCalled = false;
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
+
             var dbConfig = Substitute.For<IDbConfig>();
             dbConfig.DbProvider.Returns(x => { }).AndDoes(x =>
             {
@@ -86,7 +94,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
             contextOptBuilder.IsConfigured.Returns(false);
 
-            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>());
+            var dbModel = new EfDbModel(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Configure(contextOptBuilder);
 
             ClassicAssert.True(funcCalled);
@@ -97,6 +105,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             Action<LogLevel, EventId, string> logAction = (x, y, z) => { };
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
+
             var dbConfig = Substitute.For<IDbConfig>();
             dbConfig.DbProvider.Returns(x => { });
             dbConfig.LogAction.Returns(logAction);
@@ -104,7 +114,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
             contextOptBuilder.IsConfigured.Returns(false);
 
-            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>());
+            var dbModel = new EfDbModel(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Configure(contextOptBuilder);
 
             contextOptBuilder.Received(1).LogTo(Arg.Any<Func<EventId, LogLevel, bool>>(), Arg.Any<Action<EventData>>());
@@ -114,6 +124,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [TestCase(false)]
         public void Verify_EnableSensitiveDataLogging_IsCalledCorrectly(bool enableSensitivityDataLogging)
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
+
             var dbConfig = Substitute.For<IDbConfig>();
             dbConfig.DbProvider.Returns(x => { });
             dbConfig.EnableSensitiveDataLogging.Returns(enableSensitivityDataLogging);
@@ -121,7 +133,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var contextOptBuilder = Substitute.For<DbContextOptionsBuilder>();
             contextOptBuilder.IsConfigured.Returns(false);
 
-            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>());
+            var dbModel = new EfDbModel(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Configure(contextOptBuilder);
 
             if (enableSensitivityDataLogging)
@@ -135,6 +147,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             var modelBuilder = Substitute.For<ModelBuilder>();
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
+
             var dbConfig = Substitute.For<IDbConfig>();
             dbConfig.DbProvider.Returns(x => { });
 
@@ -144,7 +158,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbMap = Substitute.For<IDbMap>();
             dbMap.SetModelBuilder(Arg.Any<ModelBuilder>());
 
-            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>() { dbMap });
+            var dbModel = new EfDbModel(loggerFactory, dbConfig, new List<IDbMap>() { dbMap });
             dbModel.CreateModel(modelBuilder);
 
             dbMap.Received(1).SetModelBuilder(modelBuilder);
@@ -156,6 +170,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             var moedlBuilder = Substitute.For<ModelBuilder>();
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
+
             var dbConfig = Substitute.For<IDbConfig>();
             dbConfig.DbProvider.Returns(null);
 
@@ -164,7 +180,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             var mockDbMap = Substitute.For<IDbMap>();
 
-            var dbModel = new EfDbModel(dbConfig, new List<IDbMap>() { mockDbMap });
+            var dbModel = new EfDbModel(loggerFactory, dbConfig, new List<IDbMap>() { mockDbMap });
             Assert.Throws<InvalidOperationException>(() => dbModel.Configure(contextOptBuilder));
         }
     }

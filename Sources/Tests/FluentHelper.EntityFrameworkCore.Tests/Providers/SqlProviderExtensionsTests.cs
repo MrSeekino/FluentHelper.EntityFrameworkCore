@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
@@ -54,6 +55,9 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
         public void Verify_SqlProviderContext_ReturnCorrectProviderName()
         {
             var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddLogging();
+
             serviceCollection.AddFluentDbContext(efDbConfigBuilder =>
             {
                 efDbConfigBuilder.WithSqlDbProvider("A_Connection_String");
@@ -69,6 +73,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
         [Test]
         public void Verify_BeginTransaction_With_IsolationLevel_Works()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
             var contextTransaction = Substitute.For<IDbContextTransaction>();
@@ -84,10 +89,10 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             facadeDependencies.ExecutionStrategy.Returns(executionStrategy);
             executionStrategy.Execute(dbFacade, Arg.Any<Func<DbContext, DatabaseFacade, IDbContextTransaction>>(), null).Returns(contextTransaction);
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            EfDbContext realDbContext = new EfDbContext(dbConfig, new List<IDbMap>(), (c, m) => dbModel);
+            EfDbContext realDbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), (l, c, m) => dbModel);
             var transaction = realDbContext.BeginTransaction(IsolationLevel.ReadUncommitted);
 
             ClassicAssert.NotNull(transaction);
@@ -97,6 +102,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
         [Test]
         public void Verify_BeginTransaction_With_IsolationLevel_Throws_WhenTransaction_IsOpen()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
             var contextTransaction = Substitute.For<IDbContextTransaction>();
@@ -105,16 +111,17 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             var dbFacade = Substitute.For<DatabaseFacade>(dbContext);
             dbFacade.CurrentTransaction.Returns(contextTransaction);
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            EfDbContext realDbContext = new EfDbContext(dbConfig, new List<IDbMap>(), (c, m) => dbModel);
+            EfDbContext realDbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), (l, c, m) => dbModel);
             Assert.Throws<InvalidOperationException>(() => realDbContext.BeginTransaction(IsolationLevel.ReadUncommitted));
         }
 
         [Test]
         public async Task Verify_BeginTransactionAsync_With_IsolationLevel_Works()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
             var contextTransaction = Substitute.For<IDbContextTransaction>();
@@ -130,10 +137,10 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             facadeDependencies.ExecutionStrategy.Returns(executionStrategy);
             executionStrategy.ExecuteAsync(dbFacade, Arg.Any<Func<DbContext, DatabaseFacade, CancellationToken, Task<IDbContextTransaction>>>(), null).Returns(Task.FromResult(contextTransaction));
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            EfDbContext realDbContext = new EfDbContext(dbConfig, new List<IDbMap>(), (c, m) => dbModel);
+            EfDbContext realDbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), (l, c, m) => dbModel);
             var transaction = await realDbContext.BeginTransactionAsync(IsolationLevel.ReadUncommitted);
 
             ClassicAssert.NotNull(transaction);
@@ -143,6 +150,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
         [Test]
         public void Verify_BeginTransactionAsync_With_IsolationLevel_Throws_WhenTransaction_IsOpen()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
             var contextTransaction = Substitute.For<IDbContextTransaction>();
@@ -151,10 +159,10 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Providers
             var dbFacade = Substitute.For<DatabaseFacade>(dbContext);
             dbFacade.CurrentTransaction.Returns(contextTransaction);
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            EfDbContext realDbContext = new EfDbContext(dbConfig, new List<IDbMap>(), (c, m) => dbModel);
+            EfDbContext realDbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), (l, c, m) => dbModel);
             Assert.ThrowsAsync<InvalidOperationException>(async () => await realDbContext.BeginTransactionAsync(IsolationLevel.ReadUncommitted));
         }
     }

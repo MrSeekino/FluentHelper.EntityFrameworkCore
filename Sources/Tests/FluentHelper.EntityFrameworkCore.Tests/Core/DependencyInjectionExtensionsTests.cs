@@ -16,6 +16,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         public void Verify_AddFluentDbContext_WorksCorrectly_WithContextBuilder()
         {
             var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+
             serviceCollection.AddFluentDbContext(dbConfigBuilder =>
             {
                 dbConfigBuilder

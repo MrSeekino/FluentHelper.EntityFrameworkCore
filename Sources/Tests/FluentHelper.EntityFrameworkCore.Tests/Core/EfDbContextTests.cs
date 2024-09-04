@@ -4,6 +4,7 @@ using FluentHelper.EntityFrameworkCore.Tests.Support;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 using NUnit.Framework;
@@ -24,10 +25,11 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_EfDbContext_IsCreatedCorrectly()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
             var dbMap = Substitute.For<IDbMap>();
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>() { dbMap });
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>() { dbMap });
             var underlyingContext = dbContext.CreateNewContext();
 
             Assert.That(underlyingContext, Is.Not.Null);
@@ -38,17 +40,18 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_CreateDbContext_IsCalledCorrectly()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
 
             bool funcCalled = false;
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 funcCalled = true;
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             ClassicAssert.True(funcCalled);
@@ -63,6 +66,8 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_CreateDbContext_WorksProperly_AfterSetAllProperties_WithLazyLoading()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
+
             Action<DbContextOptionsBuilder> lazyLoadingProxyBehaviour = x => x.UseLazyLoadingProxies();
 
             var dbConfig = Substitute.For<IDbConfig>();
@@ -76,7 +81,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbMap = Substitute.For<IDbMap>();
 
             bool funcCalledCorrecly = false;
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 if (c.DbProvider == dbConfig.DbProvider
                         && c.LogAction == dbConfig.LogAction
@@ -84,10 +89,10 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
                         && c.LazyLoadingProxiesBehaviour == lazyLoadingProxyBehaviour)
                     funcCalledCorrecly = true;
 
-                return new EfDbModel(c, m);
+                return new EfDbModel(l, c, m);
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>() { dbMap }, createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>() { dbMap }, createDbContextBehaviour);
             var underlyingContext = dbContext.CreateNewContext();
 
             ClassicAssert.True(funcCalledCorrecly);
@@ -99,17 +104,18 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_GetContext_WorksProperly()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
 
             bool funcCalled = false;
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 funcCalled = true;
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbModel, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(dbModel, loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
 
             var contextGot = dbContext.GetContext();
 
@@ -125,6 +131,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_Transactions_WorksProperly()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
             var sqlDbContext = Substitute.For<DbContext>();
@@ -146,15 +153,15 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
                 dbFacade.CurrentTransaction.Returns(contextTransaction);
             });
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             dbContext.BeginTransaction();
@@ -178,6 +185,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public async Task Verify_TransactionsAsync_WorksProperly()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
             var sqlDbContext = Substitute.For<DbContext>();
@@ -199,15 +207,15 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
                 dbFacade.CurrentTransaction.Returns(contextTransaction);
             });
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             await dbContext.BeginTransactionAsync();
@@ -233,6 +241,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             string savePointName = "A_SavePoint";
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
             var sqlDbContext = Substitute.For<DbContext>();
@@ -246,15 +255,15 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
                 dbFacade.CurrentTransaction.Returns((IDbContextTransaction?)null);
             });
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             dbContext.AreSavepointsSupported();
@@ -282,6 +291,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             string savePointName = "A_SavePoint";
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
             var sqlDbContext = Substitute.For<DbContext>();
@@ -295,15 +305,15 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
                 dbFacade.CurrentTransaction.Returns((IDbContextTransaction?)null);
             });
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             dbContext.AreSavepointsSupported();
@@ -333,6 +343,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             int setCalls = 0;
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
             var queryProvider = Substitute.For<IQueryProvider>();
 
@@ -344,16 +355,16 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
             dbFacade.CanConnect().Returns(true);
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Set<TestEntity>().Returns(dbSet);
             dbModel.Database.Returns(dbFacade);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             var queryable = dbContext.Query<TestEntity>();
@@ -394,6 +405,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
             int setCalls = 0;
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
             var queryProvider = Substitute.For<IQueryProvider>();
 
@@ -405,16 +417,16 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
             dbFacade.CanConnect().Returns(true);
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Set<TestEntity>().Returns(dbSet);
             dbModel.Database.Returns(dbFacade);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             await dbContext.AddAsync(new TestEntity());
@@ -433,17 +445,18 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_SaveChanges_WorksProperly()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.SaveChanges().Returns(0);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             int result = dbContext.SaveChanges();
@@ -453,17 +466,18 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public async Task Verify_SaveChangesAsync_WorksProperly()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.SaveChanges().Returns(0);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             int result = await dbContext.SaveChangesAsync();
@@ -473,21 +487,22 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_ExecuteOnDatabase_WithReturn_WorksProperly()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
             var sqlDbContext = Substitute.For<DbContext>();
             var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
             dbFacade.CanConnect().Returns(true);
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             bool opResult = dbContext.ExecuteOnDatabase(db => db.CanConnect());
@@ -498,6 +513,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_SetCommandTimeout_WorksProperly()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
             var sqlDbContext = Substitute.For<DbContext>();
 
@@ -509,15 +525,15 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             var dbFacade = Substitute.For<DatabaseFacade, IDatabaseFacadeDependenciesAccessor>(sqlDbContext);
             ((IDatabaseFacadeDependenciesAccessor)dbFacade).Dependencies.Returns(facadeDependencies);
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             dbContext.SetCommandTimeout(TimeSpan.FromMinutes(10));
@@ -528,21 +544,22 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public void Verify_CanConnect_WorksProperly()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
             var sqlDbContext = Substitute.For<DbContext>();
             var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
             dbFacade.CanConnect().Returns(true);
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             bool opResult = dbContext.CanConnect();
@@ -553,21 +570,22 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         [Test]
         public async Task Verify_CanConnectAsync_WorksProperly()
         {
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
 
             var sqlDbContext = Substitute.For<DbContext>();
             var dbFacade = Substitute.For<DatabaseFacade>(sqlDbContext);
             dbFacade.CanConnectAsync().Returns(true);
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             bool opResult = await dbContext.CanConnectAsync();
@@ -580,6 +598,7 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
         {
             string connectionString = "The_Connection_String";
 
+            var loggerFactory = Substitute.For<ILoggerFactory>();
             var dbConfig = Substitute.For<IDbConfig>();
             var sqlDbContext = Substitute.For<DbContext>();
 
@@ -592,15 +611,15 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
             ((IDatabaseFacadeDependenciesAccessor)dbFacade).Dependencies.Returns(facadeDependencies);
             dbFacade.GetConnectionString().Returns(connectionString);
 
-            var dbModel = Substitute.For<EfDbModel>(dbConfig, new List<IDbMap>());
+            var dbModel = Substitute.For<EfDbModel>(loggerFactory, dbConfig, new List<IDbMap>());
             dbModel.Database.Returns(dbFacade);
 
-            Func<IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (c, m) =>
+            Func<ILoggerFactory, IDbConfig, IEnumerable<IDbMap>, EfDbModel> createDbContextBehaviour = (l, c, m) =>
             {
                 return dbModel;
             };
 
-            var dbContext = new EfDbContext(dbConfig, new List<IDbMap>(), createDbContextBehaviour);
+            var dbContext = new EfDbContext(loggerFactory, dbConfig, new List<IDbMap>(), createDbContextBehaviour);
             dbContext.CreateNewContext();
 
             var connString = dbContext.GetConnectionString();

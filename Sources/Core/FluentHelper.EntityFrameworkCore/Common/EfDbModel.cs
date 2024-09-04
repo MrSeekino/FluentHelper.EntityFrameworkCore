@@ -1,5 +1,6 @@
 ﻿using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +11,15 @@ namespace FluentHelper.EntityFrameworkCore.Common
 {
     internal class EfDbModel : DbContext
     {
+        private readonly ILogger _logger;
         private readonly IDbConfig _dbConfig;
         private readonly IEnumerable<IDbMap> _mappings;
 
         internal int MappingsLength => _mappings.Count();
 
-        public EfDbModel(IDbConfig dbConfig, IEnumerable<IDbMap> mappings)
+        public EfDbModel(ILoggerFactory loggerFactory, IDbConfig dbConfig, IEnumerable<IDbMap> mappings)
         {
+            _logger = loggerFactory.CreateLogger("FluentHelper.EntityFrameworkCore");
             _dbConfig = dbConfig;
             _mappings = mappings;
         }
@@ -43,8 +46,13 @@ namespace FluentHelper.EntityFrameworkCore.Common
 
                 _dbConfig.DbProvider!(optionsBuilder);
 
-                if (_dbConfig.LogAction != null)
-                    optionsBuilder.LogTo((e, l) => true, eventData => _dbConfig.LogAction(eventData.LogLevel, eventData.EventId, eventData.ToString()));
+                optionsBuilder.LogTo((e, l) => true, eventData =>
+                {
+                    if (_dbConfig.LogAction != null)
+                        _dbConfig.LogAction(eventData.LogLevel, eventData.EventId, eventData.ToString());
+                    else
+                        _logger.Log(eventData.LogLevel, eventData.ToString());
+                });
 
                 if (_dbConfig.EnableSensitiveDataLogging)
                     optionsBuilder.EnableSensitiveDataLogging();

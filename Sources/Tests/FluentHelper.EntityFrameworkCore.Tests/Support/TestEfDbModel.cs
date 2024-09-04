@@ -1,14 +1,15 @@
 ﻿using FluentHelper.EntityFrameworkCore.Common;
 using FluentHelper.EntityFrameworkCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 
 namespace FluentHelper.EntityFrameworkCore.Tests.Support
 {
     internal class TestEfDbModel : EfDbModel
     {
-        public TestEfDbModel(IDbConfig dbConfig, IEnumerable<IDbMap> mappings) 
-            : base(dbConfig, mappings)  { }
+        public TestEfDbModel(ILoggerFactory loggerFactory, IDbConfig dbConfig, IEnumerable<IDbMap> mappings)
+            : base(loggerFactory, dbConfig, mappings) { }
 
         public void OnConfiguringWrapper(DbContextOptionsBuilder optionsBuilder)
         {

@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>8.0.0</Version>
+    <Version>8.0.1</Version>
     <PackageId>FluentHelper.EntityFrameworkCore.PostgreSql</PackageId>    
     <Description>PostgreSql provider for FluentHelper.EntityFrameworkCore</Description>
     <PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>

@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>FluentHelper.EntityFrameworkCore.SqlServer</PackageId>
-    <Version>8.0.0</Version>
+    <Version>8.0.1</Version>
     <PackageProjectUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</PackageProjectUrl>
     <Description>SqlServer provider for FluentHelper.EntityFrameworkCore</Description>
     <RepositoryUrl>https://github.com/MrSeekino/FluentHelper.EntityFrameworkCore</RepositoryUrl>

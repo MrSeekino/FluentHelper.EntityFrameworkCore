@@ -74,6 +74,17 @@ namespace FluentHelper.EntityFrameworkCore.Common
         }
 
         /// <summary>
+        /// Set a sensitive data logging to true or false
+        /// </summary>
+        /// <param name="enableSensitiveDataLogging"></param>
+        /// <returns></returns>
+        public EfDbConfigBuilder WithSensitiveDataLogging(bool enableSensitiveDataLogging = true)
+        {
+            _enableSensitiveDataLogging = enableSensitiveDataLogging;
+            return this;
+        }
+
+        /// <summary>
         /// Set a function to be called for internal logging
         /// </summary>
         /// <param name="logAction"></param>

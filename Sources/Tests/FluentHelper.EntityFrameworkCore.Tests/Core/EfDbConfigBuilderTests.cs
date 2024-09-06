@@ -42,6 +42,18 @@ namespace FluentHelper.EntityFrameworkCore.Tests.Core
 
         [TestCase(false)]
         [TestCase(true)]
+        public void Verify_EfDbConfigBuilder_WithSensitiveDataLogging_Works(bool enableSensitiveDataLogging)
+        {
+            var efDbConfig = new EfDbConfigBuilder()
+                                .WithSensitiveDataLogging(enableSensitiveDataLogging)
+                                .Build();
+
+            Assert.That(efDbConfig, Is.Not.Null);
+            Assert.That(efDbConfig.EnableSensitiveDataLogging, Is.EqualTo(enableSensitiveDataLogging));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
         public void Verify_EfDbConfigBuilder_WithLogAction_Works(bool enableSensitiveDataLogging)
         {
             var efDbConfig = new EfDbConfigBuilder()
